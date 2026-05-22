@@ -778,12 +778,12 @@ function openDrawer(id){
   renderStars(a.rating||0);
   document.getElementById('edit-note').value=a.note||'';
   const telInput=document.getElementById('edit-telefono');
-  if(telInput){{
+  if(telInput){
     telInput.value=a.telefono||'';
     const waBtns=document.querySelectorAll('#btn-whatsapp');
     waBtns.forEach(b=>b.style.display=a.telefono?'flex':'none');
-    telInput.oninput=function(){{waBtns.forEach(b=>b.style.display=this.value?'flex':'none');}};
-  }}
+    telInput.oninput=function(){waBtns.forEach(b=>b.style.display=this.value?'flex':'none');};
+  }
   document.getElementById('btn-del-drawer').style.display=canDelete()?'':'none';
   document.getElementById('edit-drawer').classList.add('open');
   document.getElementById('drawer-overlay').classList.add('open');
@@ -821,11 +821,11 @@ async function deleteFromDrawer(){
   catch(e){showToast('Errore: '+e.message,'error');}
 }
 
-function openWhatsapp(){{
+function openWhatsapp(){
   const tel=document.getElementById('edit-telefono').value.trim().replace(/\s+/g,'').replace(/^\+/,'').replace(/^00/,'');
   const num=tel.startsWith('39')?tel:'39'+tel;
   window.open('https://wa.me/'+num,'_blank');
-}}
+}
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeModal();}});
 
