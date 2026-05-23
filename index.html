@@ -692,12 +692,17 @@ function getFiltered(){
   const status=document.getElementById('f-status').value;
   const ruolo=document.getElementById('f-ruolo').value;
   const agente=document.getElementById('f-agente').value;
+  const dest=(document.getElementById('f-dest')?.value||'').trim();
   return athletes.filter(a=>{
     if(q&&!(a.cognome+' '+a.nome).toLowerCase().includes(q))return false;
     if(anno&&a.anno!==anno)return false;
     if(status&&a.status!==status)return false;
-    if(ruolo&&a.ruolo!==ruolo)return false;
+    if(ruolo&&!(a.ruolo||'').split('/').map(r=>r.trim()).includes(ruolo))return false;
     if(agente&&a.agente!==agente)return false;
+    if(dest){
+      const dests=(a.dest||'').split('|').map(d=>d.trim()).filter(Boolean);
+      if(!dests.some(d=>d===dest))return false;
+    }
     return true;
   });
 }
