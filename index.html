@@ -98,6 +98,8 @@ tbody tr:hover td{background:#EBF4FF}
 .pct-high .pct-bar-fill{background:#1D9E75}.pct-high .pct-label{color:#1D9E75}
 .rating-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap}
 .rating-10,.rating-9{background:#D1FAE5;color:#065F46}
+#edit-ruolo-checks label:has(input:checked){background:var(--blue);color:#fff;border-color:var(--blue)}
+#edit-ruolo-checks label:has(input:checked) input{accent-color:#fff}
 .rating-8,.rating-7{background:#DBEAFE;color:#1e40af}
 .rating-6,.rating-5{background:#FEF3C7;color:#92400e}
 .rating-4,.rating-3{background:#FEE2E2;color:#991B1B}
@@ -401,13 +403,18 @@ footer strong{color:var(--blue-mid)}
         </select>
       </div>
     </div>
-    <div class="drawer-field"><label>Ruolo</label>
-      <select id="edit-ruolo">
-        <option value="">-- Nessun ruolo --</option>
-        <option>Alzatrice</option><option>Banda</option><option>Banda/Opposto</option>
-        <option>Centrale</option><option>Libero</option><option>Libero/Banda</option>
-        <option>Opposto</option><option>Palleggiatrice</option><option>Ricevitore</option><option>Schiacciatrice</option>
-      </select>
+    <div class="drawer-field">
+      <label>Ruolo (selezione multipla)</label>
+      <div id="edit-ruolo-checks" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:5px 10px;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Palleggiatrice" style="accent-color:var(--blue)"> Palleggiatrice</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:5px 10px;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Opposto" style="accent-color:var(--blue)"> Opposto</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:5px 10px;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Centrale" style="accent-color:var(--blue)"> Centrale</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:5px 10px;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Schiacciatrice" style="accent-color:var(--blue)"> Schiacciatrice</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:5px 10px;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Libero" style="accent-color:var(--blue)"> Libero</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:5px 10px;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Banda" style="accent-color:var(--blue)"> Banda</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:5px 10px;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Alzatrice" style="accent-color:var(--blue)"> Alzatrice</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:5px 10px;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Ricevitore" style="accent-color:var(--blue)"> Ricevitore</label>
+      </div>
     </div>
     <div class="drawer-field"><label>Ultima Societa</label><input type="text" id="edit-societa" list="dl-societa" autocomplete="off"></div>
     <div class="drawer-field"><label>Agente / Fonte</label><input type="text" id="edit-agente" list="dl-agente" autocomplete="off"></div>
@@ -566,10 +573,15 @@ function renderAddCard(){
     </div>
     <div class="form-row2">
       <div class="field-wrap"><div class="field-label">Ruolo</div>
-        <select id="a-ruolo"><option value="">-- Seleziona --</option>
-          <option>Alzatrice</option><option>Banda</option><option>Centrale</option>
-          <option>Libero</option><option>Opposto</option><option>Palleggiatrice</option>
-          <option>Ricevitore</option><option>Schiacciatrice</option></select></div>
+        <div id="add-ruolo-checks" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:2px">
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Palleggiatrice" style="accent-color:var(--blue)"> P</label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Opposto" style="accent-color:var(--blue)"> O</label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Centrale" style="accent-color:var(--blue)"> C</label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Schiacciatrice" style="accent-color:var(--blue)"> S</label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Libero" style="accent-color:var(--blue)"> L</label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Banda" style="accent-color:var(--blue)"> B</label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Alzatrice" style="accent-color:var(--blue)"> A</label>
+        </div></div>
       <div class="field-wrap"><div class="field-label">Stato</div>
         <select id="a-status">
           <option value="lista">In lista</option><option value="visione">Visionata</option>
@@ -734,7 +746,7 @@ async function addAthlete(){
   const maxId=athletes.length?Math.max(...athletes.map(a=>a.id)):0;
   const newId=Math.max(maxId,999)+1;
   const a={id:newId,cognome,nome,anno,
-    ruolo:document.getElementById('a-ruolo').value,
+    ruolo:[...document.querySelectorAll('#add-ruolo-checks input:checked')].map(cb=>cb.value).join('/'),
     societa:document.getElementById('a-societa').value.trim(),
     status:document.getElementById('a-status').value,
     agente:document.getElementById('a-agente').value.trim()||'',
@@ -765,7 +777,14 @@ function openDrawer(id){
   document.getElementById('edit-nome').value=a.nome||'';
   document.getElementById('edit-anno').value=a.anno||'';
   document.getElementById('edit-status').value=a.status||'lista';
-  document.getElementById('edit-ruolo').value=a.ruolo||'';
+  const checks=document.querySelectorAll('#edit-ruolo-checks input');
+  const ruoliAtleta=(a.ruolo||'').split('/').map(r=>r.trim());
+  checks.forEach(cb=>{cb.checked=ruoliAtleta.includes(cb.value);
+    const lbl=cb.parentElement;
+    if(cb.checked){lbl.style.background='var(--blue)';lbl.style.color='#fff';lbl.style.borderColor='var(--blue)';}
+    else{lbl.style.background='var(--bg)';lbl.style.color='';lbl.style.borderColor='var(--border-med)';}
+    cb.onchange=function(){if(this.checked){lbl.style.background='var(--blue)';lbl.style.color='#fff';lbl.style.borderColor='var(--blue)';}else{lbl.style.background='var(--bg)';lbl.style.color='';lbl.style.borderColor='var(--border-med)';}};
+  });
   document.getElementById('edit-societa').value=a.societa||'';
   document.getElementById('edit-agente').value=a.agente||'';
   document.getElementById('edit-dest').value=a.dest||'';
@@ -797,7 +816,8 @@ async function saveDrawer(){
   a.nome=document.getElementById('edit-nome').value.trim();
   a.anno=document.getElementById('edit-anno').value.trim();
   a.status=document.getElementById('edit-status').value;
-  a.ruolo=document.getElementById('edit-ruolo').value;
+  const checkedRuoli=[...document.querySelectorAll('#edit-ruolo-checks input:checked')].map(cb=>cb.value);
+  a.ruolo=checkedRuoli.join('/');
   a.societa=document.getElementById('edit-societa').value.trim();
   a.agente=document.getElementById('edit-agente').value.trim();
   a.dest=document.getElementById('edit-dest').value.trim();
