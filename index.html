@@ -1008,7 +1008,7 @@ function renderRoster(){
   renderPool();renderSummary(getSquadAthletes(squad.label),r);
 }
 let pendingSlotRole=null;
-function showPoolForSlot(role){pendingSlotRole=role;setPoolFilter(role);}
+function showPoolForSlot(role){pendingSlotRole=role;pendingSlotKey=null;setPoolFilter(role);}
 function setPoolFilter(f){poolFilter=f;document.querySelectorAll('.pool-filter-btn').forEach(b=>{const bid=b.id.replace('pf-','');b.classList.toggle('active',bid===f);});renderPool();}
 function renderPool(){
   const squad=SQUADS.find(s=>s.id===currentSquad);
@@ -1027,23 +1027,37 @@ function renderPool(){
   }).join('');
 }
 function addToRoster(aid){
-  const r=getRoster(currentSquad);const a=athletes.find(x=>x.id===aid);
+  const r=getRoster(currentSquad);
+  if(!r.riserve)r.riserve={};
+  if(!r.titolari)r.titolari={};
+  const a=athletes.find(x=>x.id===aid);
+  const psk=pendingSlotKey;
+  const psr=pendingSlotRole;
+  pendingSlotKey=null;pendingSlotRole=null;
   // Slot riserva fisso selezionato
-  if(pendingSlotKey){
-    if(!r.riserve)r.riserve={};
-    r.riserve[pendingSlotKey]=aid;pendingSlotRole=null;pendingSlotKey=null;saveRosters();renderRoster();return;
-  }
+  if(psk){r.riserve[psk]=aid;saveRosters();renderRoster();return;}
   // Slot titolare selezionato
-  if(pendingSlotRole){const slot=TITOLARI_SLOTS.find(s=>s.role===pendingSlotRole&&!r.titolari[s.key]);if(slot){r.titolari[slot.key]=aid;pendingSlotRole=null;saveRosters();renderRoster();return;}}
-  // Auto-assign titolari
-  const matchSlot=TITOLARI_SLOTS.find(s=>!r.titolari[s.key]&&roleMatch(a?.ruolo||'',s.role));
-  if(matchSlot){r.titolari[matchSlot.key]=aid;}
-  else{
-    // Auto-assign riserve slot fissi
-    if(!r.riserve)r.riserve={};
-    const risSlot=RISERVE_SLOTS.find(s=>!r.riserve[s.key]&&(s.role==='?'||roleMatch(a?.ruolo||'',s.role)));
-    if(risSlot){r.riserve[risSlot.key]=aid;}
-    else{if(!r.riserve_libere)r.riserve_libere=[];if(!r.riserve_libere.includes(aid))r.riserve_libere.push(aid);}
+  if(psr){
+    const slot=TITOLARI_SLOTS.find(s=>s.role===psr&&!r.titolari[s.key]);
+    if(slot){r.titolari[slot.key]=aid;saveRosters();renderRoster();return;}
+  }
+  // Auto-assign: prima prova titolari per ruolo
+  const ruoli=(a?.ruolo||'').split('/').map(x=>x.trim());
+  let assigned=false;
+  for(const ru of ruoli){
+    const matchSlot=TITOLARI_SLOTS.find(s=>!r.titolari[s.key]&&roleMatch(ru,s.role));
+    if(matchSlot){r.titolari[matchSlot.key]=aid;assigned=true;break;}
+  }
+  if(!assigned){
+    // Prova slot riserve fissi
+    for(const ru of ruoli){
+      const risSlot=RISERVE_SLOTS.find(s=>!r.riserve[s.key]&&(s.role==='?'||roleMatch(ru,s.role)));
+      if(risSlot){r.riserve[risSlot.key]=aid;assigned=true;break;}
+    }
+  }
+  if(!assigned){
+    if(!r.riserve_libere)r.riserve_libere=[];
+    if(!r.riserve_libere.includes(aid))r.riserve_libere.push(aid);
   }
   saveRosters();renderRoster();
 }
