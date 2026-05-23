@@ -907,11 +907,12 @@ function clearAddRating(){const el=document.getElementById('a-rating');if(el)el.
 
 const SQUADS=[{id:'u19p',label:'U.19 Ecc. ProPatria',club:'ProPatria'},{id:'u17p',label:'U.17 Ecc. ProPatria',club:'ProPatria'},{id:'u15p',label:'U.15 Ecc. ProPatria',club:'ProPatria'},{id:'u14p',label:'U.14 Ecc. ProPatria',club:'ProPatria'},{id:'u13p',label:'U.13 Ecc. ProPatria',club:'ProPatria'},{id:'u12ap',label:'U.12A ProPatria',club:'ProPatria'},{id:'u12bp',label:'U.12B ProPatria',club:'ProPatria'},{id:'u19a',label:'U.19A Aspes',club:'Aspes'},{id:'u17a',label:'U.17A Aspes',club:'Aspes'},{id:'u15a',label:'U.15A Aspes',club:'Aspes'},{id:'u14a',label:'U.14A Aspes',club:'Aspes'},{id:'u13a',label:'U.13A Aspes',club:'Aspes'}];
 const TITOLARI_SLOTS=[{role:'P',label:'Palleggiatrice',key:'p1'},{role:'O',label:'Opposto',key:'o1'},{role:'C',label:'Centrale 1',key:'c1'},{role:'C',label:'Centrale 2',key:'c2'},{role:'S',label:'Schiacciatrice 1',key:'s1'},{role:'S',label:'Schiacciatrice 2',key:'s2'},{role:'L',label:'Libero',key:'l1'}];
+const RISERVE_SLOTS=[{role:'S',label:'Schiacciatrice 3',key:'ris_s3'},{role:'S',label:'Schiacciatrice 4',key:'ris_s4'},{role:'P',label:'Palleggiatrice 2',key:'ris_p2'},{role:'C',label:'Centrale 3',key:'ris_c3'},{role:'C',label:'Centrale 4',key:'ris_c4'},{role:'L',label:'Libero 2',key:'ris_l2'},{role:'O',label:'Opposto 2',key:'ris_o2'},{role:'?',label:'Slot libero 1',key:'ris_x1'},{role:'?',label:'Slot libero 2',key:'ris_x2'},{role:'?',label:'Slot libero 3',key:'ris_x3'}];
 const LS_ROSTER='mednow_rosters_v1';
 let rosters={},currentSquad='u19p';
 function loadRosters(){try{rosters=JSON.parse(localStorage.getItem(LS_ROSTER)||'{}');}catch{rosters={};}}
 function saveRosters(){localStorage.setItem(LS_ROSTER,JSON.stringify(rosters));}
-function getRoster(sid){if(!rosters[sid])rosters[sid]={titolari:{},riserve:[]};return rosters[sid];}
+function getRoster(sid){if(!rosters[sid])rosters[sid]={titolari:{},riserve:{},riserve_libere:[]};if(!rosters[sid].riserve||Array.isArray(rosters[sid].riserve)){const old=Array.isArray(rosters[sid].riserve)?rosters[sid].riserve:[];rosters[sid].riserve={};rosters[sid].riserve_libere=old;}return rosters[sid];}
 function getSquadAthletes(label){return athletes.filter(a=>ACTIVE.includes(a.status)&&(a.dest===label||(a.status==='trasferita_aspes'&&label.includes('Aspes'))));}
 function roleMatch(r,slot){if(!r)return false;const rl=r.toLowerCase();if(slot==='P')return rl.includes('palleg')||rl.includes('alzat');if(slot==='O')return rl.includes('oppos');if(slot==='C')return rl.includes('central');if(slot==='S')return rl.includes('schiacc')||rl.includes('banda')||rl.includes('lateral');if(slot==='L')return rl.includes('libero');return false;}
 function getShortRole(r){if(!r)return'?';const rl=r.toLowerCase();if(rl.includes('palleg')||rl.includes('alzat'))return'P';if(rl.includes('oppos'))return'O';if(rl.includes('central'))return'C';if(rl.includes('schiacc')||rl.includes('banda'))return'S';if(rl.includes('libero'))return'L';return r.substring(0,2).toUpperCase();}
@@ -965,13 +966,29 @@ function renderPool(){
 }
 function addToRoster(aid){
   const r=getRoster(currentSquad);const a=athletes.find(x=>x.id===aid);
+  // Slot riserva fisso selezionato
+  if(pendingSlotKey){
+    if(!r.riserve)r.riserve={};
+    r.riserve[pendingSlotKey]=aid;pendingSlotRole=null;pendingSlotKey=null;saveRosters();renderRoster();return;
+  }
+  // Slot titolare selezionato
   if(pendingSlotRole){const slot=TITOLARI_SLOTS.find(s=>s.role===pendingSlotRole&&!r.titolari[s.key]);if(slot){r.titolari[slot.key]=aid;pendingSlotRole=null;saveRosters();renderRoster();return;}}
+  // Auto-assign titolari
   const matchSlot=TITOLARI_SLOTS.find(s=>!r.titolari[s.key]&&roleMatch(a?.ruolo||'',s.role));
-  if(matchSlot){r.titolari[matchSlot.key]=aid;}else{if(!r.riserve)r.riserve=[];if(!r.riserve.includes(aid))r.riserve.push(aid);}
+  if(matchSlot){r.titolari[matchSlot.key]=aid;}
+  else{
+    // Auto-assign riserve slot fissi
+    if(!r.riserve)r.riserve={};
+    const risSlot=RISERVE_SLOTS.find(s=>!r.riserve[s.key]&&(s.role==='?'||roleMatch(a?.ruolo||'',s.role)));
+    if(risSlot){r.riserve[risSlot.key]=aid;}
+    else{if(!r.riserve_libere)r.riserve_libere=[];if(!r.riserve_libere.includes(aid))r.riserve_libere.push(aid);}
+  }
   saveRosters();renderRoster();
 }
 function removeFromSlot(key){const r=getRoster(currentSquad);r.titolari[key]=null;saveRosters();renderRoster();}
-function removeRiserva(aid){const r=getRoster(currentSquad);r.riserve=(r.riserve||[]).filter(id=>id!==aid);saveRosters();renderRoster();}
+function removeRiserva(aid){const r=getRoster(currentSquad);r.riserve_libere=(r.riserve_libere||[]).filter(id=>id!==aid);saveRosters();renderRoster();}
+function removeRiservaSlot(key){const r=getRoster(currentSquad);if(r.riserve)r.riserve[key]=null;saveRosters();renderRoster();}
+function addToRiservaSlot(role,key){pendingSlotRole=role;pendingSlotKey=key;setPoolFilter(role==='?'?'all':role);}
 function autoFillRoster(){
   const squad=SQUADS.find(s=>s.id===currentSquad);
   const available=getSquadAthletes(squad.label);
@@ -984,10 +1001,16 @@ function autoFillRoster(){
     const match=sorted.find(a=>!used.has(a.id)&&roleMatch(a.ruolo||'',slot.role));
     if(match){r.titolari[slot.key]=match.id;used.add(match.id);}
   });
-  r.riserve=sorted.filter(a=>!used.has(a.id)).map(a=>a.id);
+  if(!r.riserve)r.riserve={};
+  RISERVE_SLOTS.filter(s=>s.role!=='?').forEach(slot=>{
+    if(r.riserve[slot.key]){used.add(r.riserve[slot.key]);return;}
+    const match=sorted.find(a=>!used.has(a.id)&&roleMatch(a.ruolo||'',slot.role));
+    if(match){r.riserve[slot.key]=match.id;used.add(match.id);}
+  });
+  r.riserve_libere=sorted.filter(a=>!used.has(a.id)).map(a=>a.id);
   saveRosters();renderRoster();
 }
-function clearRoster(){if(!confirm('Svuotare il roster?'))return;rosters[currentSquad]={titolari:{},riserve:[]};saveRosters();renderRoster();}
+function clearRoster(){if(!confirm('Svuotare il roster?'))return;rosters[currentSquad]={titolari:{},riserve:{},riserve_libere:[]};saveRosters();renderRoster();}
 function renderSummary(sa,r){
   const el=document.getElementById('roster-summary');if(!el)return;
   const na=sa.filter(a=>a.status==='nuovo_acquisto').length;
