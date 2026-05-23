@@ -942,7 +942,20 @@ const TITOLARI_SLOTS=[{role:'P',label:'Palleggiatrice',key:'p1'},{role:'O',label
 const RISERVE_SLOTS=[{role:'S',label:'Schiacciatrice 3',key:'ris_s3'},{role:'S',label:'Schiacciatrice 4',key:'ris_s4'},{role:'P',label:'Palleggiatrice 2',key:'ris_p2'},{role:'C',label:'Centrale 3',key:'ris_c3'},{role:'C',label:'Centrale 4',key:'ris_c4'},{role:'L',label:'Libero 2',key:'ris_l2'},{role:'O',label:'Opposto 2',key:'ris_o2'},{role:'?',label:'Slot libero 1',key:'ris_x1'},{role:'?',label:'Slot libero 2',key:'ris_x2'},{role:'?',label:'Slot libero 3',key:'ris_x3'}];
 const LS_ROSTER='mednow_rosters_v1';
 let rosters={},currentSquad='u19p';
-function loadRosters(){try{rosters=JSON.parse(localStorage.getItem(LS_ROSTER)||'{}');}catch{rosters={};}}
+function loadRosters(){
+  try{rosters=JSON.parse(localStorage.getItem(LS_ROSTER)||'{}');}catch{rosters={};}
+  // Migra tutti i roster al nuovo formato
+  Object.keys(rosters).forEach(sid=>{
+    const r=rosters[sid];
+    if(!r)return;
+    if(!r.riserve||Array.isArray(r.riserve)){
+      r.riserve_libere=Array.isArray(r.riserve)?[...r.riserve]:[];
+      r.riserve={};
+    }
+    if(!r.riserve_libere)r.riserve_libere=[];
+    if(!r.titolari)r.titolari={};
+  });
+  saveRosters();}
 function saveRosters(){localStorage.setItem(LS_ROSTER,JSON.stringify(rosters));}
 function getRoster(sid){
   if(!rosters[sid])rosters[sid]={titolari:{},riserve:{},riserve_libere:[]};
