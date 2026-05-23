@@ -302,6 +302,24 @@ footer strong{color:var(--blue-mid)}
       <option>Palleggiatrice</option><option>Ricevitore</option><option>Schiacciatrice</option>
     </select>
     <select id="f-agente" onchange="renderTable()"><option value="">Tutti gli agenti</option></select>
+    <select id="f-dest" onchange="renderTable()">
+      <option value="">Tutte le squadre</option>
+      <option>U.19 Ecc. ProPatria</option><option>U.17 Ecc. ProPatria</option>
+      <option>U.15 Ecc. ProPatria</option><option>U.14 Ecc. ProPatria</option>
+      <option>U.13 Ecc. ProPatria</option><option>U.12A ProPatria</option>
+      <option>U.12B ProPatria</option><option>U.15B ProPatria</option>
+      <option>U.14B ProPatria</option><option>U.13B ProPatria</option>
+      <option>U.19A Aspes</option><option>U.17A Aspes</option>
+      <option>U.15A Aspes</option><option>U.14A Aspes</option>
+      <option>U.13A Aspes</option><option>U.12A Aspes</option>
+      <option>U.12B Aspes</option><option>PGS</option>
+      <option>Minivolley Aspes</option><option>U12 Aspes</option>
+      <option>U13 Aspes</option><option>U14 Aspes</option>
+      <option>U15 Aspes</option><option>U16 Aspes</option>
+      <option>U17 Aspes</option><option>U18 Aspes</option>
+      <option>U19 Aspes</option><option>U20 Aspes</option>
+      <option>1 Divisione Aspes</option><option>Corso Aspes</option>
+    </select>
     <button class="btn-reset" onclick="resetFilters()">&#x2715; Reset</button>
     <button class="btn-export" onclick="exportCSV()">&#x2B07; CSV</button>
   </div>
@@ -752,7 +770,7 @@ function renderTable(){
 }
 
 function changePage(d){page+=d;renderTable();}
-function resetFilters(){['f-search','f-anno','f-status','f-ruolo','f-agente'].forEach(id=>document.getElementById(id).value='');page=0;renderTable();}
+function resetFilters(){['f-search','f-anno','f-status','f-ruolo','f-agente','f-dest'].forEach(id=>document.getElementById(id).value='');page=0;renderTable();}
 
 async function cycleStatus(id){
   const a=athletes.find(x=>x.id===id);if(!a)return;
