@@ -188,6 +188,7 @@ tbody tr:hover td{background:#EBF4FF}
 .role-admin{background:#1e6aff;color:#fff}
 .role-allenatore{background:#0F6E56;color:#fff}
 .role-dirigente{background:#854F0B;color:#fff}
+.role-reclutatore{background:#0891B2;color:#fff}
 .role-scouting{background:#5B21B6;color:#fff}
 .btn-logout{font-size:11px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:4px 10px;border-radius:10px;cursor:pointer;font-family:inherit}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.6);z-index:200;backdrop-filter:blur(3px);align-items:center;justify-content:center}
@@ -465,7 +466,7 @@ footer strong{color:var(--blue-mid)}
           <div><div class="field-label" style="font-size:10px;color:var(--text-ter);margin-bottom:4px;font-weight:700;text-transform:uppercase">Email</div><input type="email" id="u-email" placeholder="email@esempio.com"></div>
           <div><div class="field-label" style="font-size:10px;color:var(--text-ter);margin-bottom:4px;font-weight:700;text-transform:uppercase">Password</div><input type="password" id="u-password" placeholder="Min. 8 caratteri"></div>
           <div><div class="field-label" style="font-size:10px;color:var(--text-ter);margin-bottom:4px;font-weight:700;text-transform:uppercase">Ruolo</div>
-            <select id="u-ruolo"><option value="dirigente">Dirigente</option><option value="allenatore">Allenatore</option><option value="scouting">Scouting</option><option value="admin">Admin</option></select></div>
+            <select id="u-ruolo"><option value="dirigente">Dirigente</option><option value="allenatore">Allenatore</option><option value="reclutatore">Reclutatore</option><option value="scouting">Scouting</option><option value="admin">Admin</option></select></div>
           <div><div class="field-label" style="font-size:10px;color:var(--text-ter);margin-bottom:4px;font-weight:700;text-transform:uppercase">Societa</div>
             <select id="u-societa"><option value="">— Tutte —</option><option value="ProPatria">ProPatria</option><option value="Aspes">Aspes</option><option value="PGS">PGS</option></select></div>
         </div>
@@ -537,8 +538,8 @@ function doLogout(){
 
 function renderUserBadge(){
   const p=currentProfile;
-  const rc={admin:'role-admin',allenatore:'role-allenatore',dirigente:'role-dirigente',scouting:'role-scouting'};
-  const rl={admin:'Admin',allenatore:'Allenatore',dirigente:'Dirigente',scouting:'Scouting'};
+  const rc={admin:'role-admin',allenatore:'role-allenatore',dirigente:'role-dirigente',reclutatore:'role-reclutatore',scouting:'role-scouting'};
+  const rl={admin:'Admin',allenatore:'Allenatore',dirigente:'Dirigente',reclutatore:'Reclutatore',scouting:'Scouting'};
   document.getElementById('user-badge').innerHTML=`<span class="user-name">${p.nome}</span><span class="user-role ${rc[p.ruolo]||''}">${rl[p.ruolo]||p.ruolo}</span>${p.societa?`<span style="font-size:10px;color:rgba(255,255,255,0.5)">${p.societa}</span>`:''}<button class="btn-logout" onclick="doLogout()">Esci</button>`;
 }
 
@@ -548,9 +549,9 @@ function renderAdminActions(){
   else el.innerHTML='';
 }
 
-function canEdit(){return['admin','allenatore','dirigente'].includes(currentProfile?.ruolo);}
+function canEdit(){return['admin','allenatore','dirigente','reclutatore'].includes(currentProfile?.ruolo);}
 function canDelete(){return currentProfile?.ruolo==='admin';}
-function canAdd(){return['admin','allenatore'].includes(currentProfile?.ruolo);}
+function canAdd(){return['admin','allenatore','reclutatore'].includes(currentProfile?.ruolo);}
 
 function renderAddCard(){
   const wrap=document.getElementById('add-card-wrap');
@@ -833,8 +834,8 @@ let utenti=[];
 async function loadUtenti(){
   try{
     utenti=await sbFetch('/rest/v1/utenti?select=*&order=created_at.asc');
-    const rl={admin:'Admin',allenatore:'Allenatore',dirigente:'Dirigente',scouting:'Scouting'};
-    const rc={admin:'role-admin',allenatore:'role-allenatore',dirigente:'role-dirigente',scouting:'role-scouting'};
+    const rl={admin:'Admin',allenatore:'Allenatore',dirigente:'Dirigente',reclutatore:'Reclutatore',scouting:'Scouting'};
+    const rc={admin:'role-admin',allenatore:'role-allenatore',dirigente:'role-dirigente',reclutatore:'role-reclutatore',scouting:'role-scouting'};
     document.getElementById('utenti-tbody').innerHTML=utenti.map(u=>`<tr>
       <td style="font-weight:600">${esc(u.nome)}</td>
       <td style="font-size:12px;color:var(--text-sec)">${esc(u.email)}</td>
