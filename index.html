@@ -100,6 +100,8 @@ tbody tr:hover td{background:#EBF4FF}
 .rating-10,.rating-9{background:#D1FAE5;color:#065F46}
 #edit-ruolo-checks label:has(input:checked){background:var(--blue);color:#fff;border-color:var(--blue)}
 #edit-ruolo-checks label:has(input:checked) input{accent-color:#fff}
+#edit-dest-checks label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+#edit-dest-checks label:has(input:checked) input{accent-color:#fff}
 .rating-8,.rating-7{background:#DBEAFE;color:#1e40af}
 .rating-6,.rating-5{background:#FEF3C7;color:#92400e}
 .rating-4,.rating-3{background:#FEE2E2;color:#991B1B}
@@ -418,7 +420,29 @@ footer strong{color:var(--blue-mid)}
     </div>
     <div class="drawer-field"><label>Ultima Societa</label><input type="text" id="edit-societa" list="dl-societa" autocomplete="off"></div>
     <div class="drawer-field"><label>Agente / Fonte</label><input type="text" id="edit-agente" list="dl-agente" autocomplete="off"></div>
-    <div class="drawer-field"><label>Squadra destinazione</label><input type="text" id="edit-dest" list="dl-dest" autocomplete="off"></div>
+    <div class="drawer-field">
+      <label>Squadra destinazione (multipla)</label>
+      <div id="edit-dest-checks" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.19 Ecc. ProPatria" style="accent-color:var(--blue)"> U.19 Ecc. ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.17 Ecc. ProPatria" style="accent-color:var(--blue)"> U.17 Ecc. ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.15 Ecc. ProPatria" style="accent-color:var(--blue)"> U.15 Ecc. ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.14 Ecc. ProPatria" style="accent-color:var(--blue)"> U.14 Ecc. ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.13 Ecc. ProPatria" style="accent-color:var(--blue)"> U.13 Ecc. ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.12A ProPatria" style="accent-color:var(--blue)"> U.12A ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.12B ProPatria" style="accent-color:var(--blue)"> U.12B ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.15B ProPatria" style="accent-color:var(--blue)"> U.15B ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.14B ProPatria" style="accent-color:var(--blue)"> U.14B ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.13B ProPatria" style="accent-color:var(--blue)"> U.13B ProPatria</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.19A Aspes" style="accent-color:var(--blue)"> U.19A Aspes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.17A Aspes" style="accent-color:var(--blue)"> U.17A Aspes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.15A Aspes" style="accent-color:var(--blue)"> U.15A Aspes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.14A Aspes" style="accent-color:var(--blue)"> U.14A Aspes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.13A Aspes" style="accent-color:var(--blue)"> U.13A Aspes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.12A Aspes" style="accent-color:var(--blue)"> U.12A Aspes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.12B Aspes" style="accent-color:var(--blue)"> U.12B Aspes</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="PGS" style="accent-color:var(--blue)"> PGS</label>
+      </div>
+    </div>
     <div class="drawer-field" id="pct-field" style="display:none">
       <label>Probabilita successo trattativa</label>
       <div style="display:flex;align-items:center;gap:12px">
@@ -707,7 +731,7 @@ function renderTable(){
   if(!slice.length){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--text-ter)">Nessuna atleta trovata</td></tr>';return;}
   const editable=canEdit();const deletable=canDelete();
   tbody.innerHTML=slice.map(a=>{
-    const destClass=a.dest?.includes('Aspes')?'aspes':a.dest?.includes('PGS')?'pgs':'';
+    const destClass=(a.dest||'').includes('Aspes')?'aspes':(a.dest||'').includes('PGS')?'pgs':'';
     const isNew=a.status==='nuovo_acquisto';
     const isNuova=a.id>=578&&NEW_AGENTS.includes(a.agente);
     const pctHtml=UNCERTAIN.includes(a.status)&&a.pct?`<div class="pct-wrap ${a.pct>=70?'pct-high':a.pct>=40?'pct-mid':'pct-low'}"><div class="pct-bar-bg"><div class="pct-bar-fill" style="width:${a.pct}%"></div></div><span class="pct-label">${a.pct}%</span></div>`:'';
@@ -717,7 +741,7 @@ function renderTable(){
       <td style="font-size:11px;color:var(--text-sec)">${esc(a.societa||'—')}</td>
       <td><span class="role-badge">${esc(a.ruolo||'—')}</span></td>
       <td><button class="pill ${SC[a.status]||'s-lista'}" onclick="event.stopPropagation();${editable?'cycleStatus('+a.id+')':''}">${SL[a.status]||a.status}</button>${pctHtml}</td>
-      <td>${a.dest?`<span class="dest-badge ${destClass}">${esc(a.dest)}</span>`:'<span style="color:var(--text-ter);font-size:11px">—</span>'}</td>
+      <td>${a.dest?(a.dest.split('|').map(d=>{const dc=d.includes('Aspes')?'aspes':d.includes('PGS')?'pgs':'';return`<span class="dest-badge ${dc}" style="margin-bottom:2px">${esc(d.trim())}</span>`;}).join(' ')):'<span style="color:var(--text-ter);font-size:11px">—</span>'}</td>
       <td class="agent-cell">${esc(a.agente||'—')}</td>
       <td class="note-cell" title="${esc(a.note)}">${esc(a.note||'—')}</td>
       <td>${a.rating?`<span class="rating-badge rating-${a.rating}">&#x2605;${a.rating}</span>`:'<span style="color:#d1d5db">—</span>'}</td>
@@ -787,7 +811,15 @@ function openDrawer(id){
   });
   document.getElementById('edit-societa').value=a.societa||'';
   document.getElementById('edit-agente').value=a.agente||'';
-  document.getElementById('edit-dest').value=a.dest||'';
+  const destChecks=document.querySelectorAll('#edit-dest-checks input');
+  const destAtleta=(a.dest||'').split('|').map(d=>d.trim()).filter(Boolean);
+  destChecks.forEach(cb=>{
+    cb.checked=destAtleta.includes(cb.value);
+    const lbl=cb.parentElement;
+    if(cb.checked){lbl.style.background='var(--navy)';lbl.style.color='#fff';lbl.style.borderColor='var(--navy)';}
+    else{lbl.style.background='var(--bg)';lbl.style.color='';lbl.style.borderColor='var(--border-med)';}
+    cb.onchange=function(){if(this.checked){lbl.style.background='var(--navy)';lbl.style.color='#fff';lbl.style.borderColor='var(--navy)';}else{lbl.style.background='var(--bg)';lbl.style.color='';lbl.style.borderColor='var(--border-med)';}};
+  });
   document.getElementById('edit-pct').value=a.pct||50;
   updatePctPreview(a.pct||50);
   const pf=document.getElementById('pct-field');
@@ -820,7 +852,7 @@ async function saveDrawer(){
   a.ruolo=checkedRuoli.join('/');
   a.societa=document.getElementById('edit-societa').value.trim();
   a.agente=document.getElementById('edit-agente').value.trim();
-  a.dest=document.getElementById('edit-dest').value.trim();
+  a.dest=[...document.querySelectorAll('#edit-dest-checks input:checked')].map(cb=>cb.value).join('|');
   a.pct=parseInt(document.getElementById('edit-pct').value);
   a.rating=parseInt(document.getElementById('edit-rating').value)||0;
   a.note=document.getElementById('edit-note').value.trim();
@@ -913,7 +945,7 @@ let rosters={},currentSquad='u19p';
 function loadRosters(){try{rosters=JSON.parse(localStorage.getItem(LS_ROSTER)||'{}');}catch{rosters={};}}
 function saveRosters(){localStorage.setItem(LS_ROSTER,JSON.stringify(rosters));}
 function getRoster(sid){if(!rosters[sid])rosters[sid]={titolari:{},riserve:{},riserve_libere:[]};if(!rosters[sid].riserve||Array.isArray(rosters[sid].riserve)){const old=Array.isArray(rosters[sid].riserve)?rosters[sid].riserve:[];rosters[sid].riserve={};rosters[sid].riserve_libere=old;}return rosters[sid];}
-function getSquadAthletes(label){return athletes.filter(a=>ACTIVE.includes(a.status)&&(a.dest===label||(a.status==='trasferita_aspes'&&label.includes('Aspes'))));}
+function getSquadAthletes(label){return athletes.filter(a=>ACTIVE.includes(a.status)&&((a.dest||'').split('|').map(d=>d.trim()).includes(label)||(a.status==='trasferita_aspes'&&label.includes('Aspes'))));}
 function roleMatch(r,slot){if(!r)return false;const rl=r.toLowerCase();if(slot==='P')return rl.includes('palleg')||rl.includes('alzat');if(slot==='O')return rl.includes('oppos');if(slot==='C')return rl.includes('central');if(slot==='S')return rl.includes('schiacc')||rl.includes('banda')||rl.includes('lateral');if(slot==='L')return rl.includes('libero');return false;}
 function getShortRole(r){if(!r)return'?';const rl=r.toLowerCase();if(rl.includes('palleg')||rl.includes('alzat'))return'P';if(rl.includes('oppos'))return'O';if(rl.includes('central'))return'C';if(rl.includes('schiacc')||rl.includes('banda'))return'S';if(rl.includes('libero'))return'L';return r.substring(0,2).toUpperCase();}
 function renderSquadTabs(){document.getElementById('squad-tabs').innerHTML=SQUADS.map(s=>{const n=getSquadAthletes(s.label).length;const isA=s.club==='Aspes';return`<button class="squad-tab${currentSquad===s.id?' active':''}${isA?' aspes':''}" onclick="selectSquad('${s.id}')">${s.label.replace(' ProPatria','').replace(' Aspes','')} <span style="font-size:10px;opacity:0.7">${n}</span></button>`;}).join('');}
