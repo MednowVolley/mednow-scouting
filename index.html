@@ -944,7 +944,18 @@ const LS_ROSTER='mednow_rosters_v1';
 let rosters={},currentSquad='u19p';
 function loadRosters(){try{rosters=JSON.parse(localStorage.getItem(LS_ROSTER)||'{}');}catch{rosters={};}}
 function saveRosters(){localStorage.setItem(LS_ROSTER,JSON.stringify(rosters));}
-function getRoster(sid){if(!rosters[sid])rosters[sid]={titolari:{},riserve:{},riserve_libere:[]};if(!rosters[sid].riserve||Array.isArray(rosters[sid].riserve)){const old=Array.isArray(rosters[sid].riserve)?rosters[sid].riserve:[];rosters[sid].riserve={};rosters[sid].riserve_libere=old;}return rosters[sid];}
+function getRoster(sid){
+  if(!rosters[sid])rosters[sid]={titolari:{},riserve:{},riserve_libere:[]};
+  const r=rosters[sid];
+  // Migra riserve da array a oggetto se necessario
+  if(!r.riserve||Array.isArray(r.riserve)){
+    r.riserve_libere=Array.isArray(r.riserve)?[...r.riserve]:[];
+    r.riserve={};
+  }
+  if(!r.riserve_libere)r.riserve_libere=[];
+  if(!r.titolari)r.titolari={};
+  return r;
+}
 function getSquadAthletes(label){return athletes.filter(a=>ACTIVE.includes(a.status)&&((a.dest||'').split('|').map(d=>d.trim()).includes(label)||(a.status==='trasferita_aspes'&&label.includes('Aspes'))));}
 function roleMatch(r,slot){if(!r)return false;const rl=r.toLowerCase();if(slot==='P')return rl.includes('palleg')||rl.includes('alzat');if(slot==='O')return rl.includes('oppos');if(slot==='C')return rl.includes('central');if(slot==='S')return rl.includes('schiacc')||rl.includes('banda')||rl.includes('lateral');if(slot==='L')return rl.includes('libero');return false;}
 function getShortRole(r){if(!r)return'?';const rl=r.toLowerCase();if(rl.includes('palleg')||rl.includes('alzat'))return'P';if(rl.includes('oppos'))return'O';if(rl.includes('central'))return'C';if(rl.includes('schiacc')||rl.includes('banda'))return'S';if(rl.includes('libero'))return'L';return r.substring(0,2).toUpperCase();}
