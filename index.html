@@ -974,7 +974,7 @@ function roleMatch(r,slot){if(!r)return false;const rl=r.toLowerCase();if(slot==
 function getShortRole(r){if(!r)return'?';const rl=r.toLowerCase();if(rl.includes('palleg')||rl.includes('alzat'))return'P';if(rl.includes('oppos'))return'O';if(rl.includes('central'))return'C';if(rl.includes('schiacc')||rl.includes('banda'))return'S';if(rl.includes('libero'))return'L';return r.substring(0,2).toUpperCase();}
 function renderSquadTabs(){document.getElementById('squad-tabs').innerHTML=SQUADS.map(s=>{const n=getSquadAthletes(s.label).length;const isA=s.club==='Aspes';return`<button class="squad-tab${currentSquad===s.id?' active':''}${isA?' aspes':''}" onclick="selectSquad('${s.id}')">${s.label.replace(' ProPatria','').replace(' Aspes','')} <span style="font-size:10px;opacity:0.7">${n}</span></button>`;}).join('');}
 function selectSquad(sid){currentSquad=sid;renderSquadTabs();renderRoster();}
-function getAssignedIds(){const r=getRoster(currentSquad);const ids=new Set(Object.values(r.titolari).filter(Boolean));(r.riserve||[]).forEach(id=>ids.add(id));return ids;}
+function getAssignedIds(){const r=getRoster(currentSquad);const ids=new Set(Object.values(r.titolari).filter(Boolean));Object.values(r.riserve||{}).filter(Boolean).forEach(id=>ids.add(id));(r.riserve_libere||[]).forEach(id=>ids.add(id));return ids;}
 function renderRoster(){
   const squad=SQUADS.find(s=>s.id===currentSquad);if(!squad)return;
   const r=getRoster(currentSquad);
