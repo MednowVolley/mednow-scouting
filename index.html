@@ -860,9 +860,14 @@ async function addUser(){
   if(!nome||!email||!password){showToast('Compila tutti i campi','error');return;}
   if(password.length<8){showToast('Password min. 8 caratteri','error');return;}
   try{
-    const res=await fetch(SUPA+'/auth/v1/admin/users',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+currentUser.access_token},body:JSON.stringify({email,password,email_confirm:true})});
+    const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpheGJ3cXhucm9maWdnbGRvYWh3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ0NDc5NSwiZXhwIjoyMDk1MDIwNzk1fQ.8P8EdHT-EHi7KSlV-k0hOyx3bWCLnV8CVDmRFnYSAuM';
+    const res=await fetch(SUPA+'/auth/v1/admin/users',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SKEY,'Authorization':'Bearer '+SKEY},
+      body:JSON.stringify({email,password,email_confirm:true})
+    });
     const data=await res.json();
-    if(!data.id)throw new Error(data.msg||'Errore creazione');
+    if(!data.id)throw new Error(data.msg||data.error_description||'Errore creazione utente');
     await sbFetch('/rest/v1/utenti','POST',[{id:data.id,email,nome,ruolo,societa,attivo:true}]);
     ['u-nome','u-email','u-password'].forEach(id=>document.getElementById(id).value='');
     await loadUtenti();showToast('Utente '+nome+' creato ✓','success');
