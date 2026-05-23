@@ -991,14 +991,7 @@ function renderRoster(){
     }
     return`<div class="roster-slot" onclick="showPoolForSlot('${slot.role}')"><span class="slot-role">${slot.role}</span><span class="slot-empty">${slot.label} — clicca per aggiungere</span><span style="font-size:18px;color:var(--border-med)">+</span></div>`;
   }).join('');
-  const riserve=r.riserve||[];
-  document.getElementById('riserve-count').textContent=riserve.length;
-  document.getElementById('riserve-slots').innerHTML=riserve.map(aid=>{
-    const a=athletes.find(x=>x.id===aid);if(!a)return'';
-    const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FEF3C7';
-    const stCol=CONFIRMED.includes(a.status)?'#065F46':'#854F0B';
-    return`<div class="roster-slot filled"><span class="slot-role" style="color:#6B7280">${getShortRole(a.ruolo)}</span><div style="flex:1"><div class="slot-name">${esc(a.cognome)} <span style="font-weight:400">${esc(a.nome)}</span></div><span style="font-size:11px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')}</span></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeRiserva(${aid})">&#x2715;</button></div>`;
-  }).join('')||'<div style="padding:10px;font-size:12px;color:var(--text-ter);font-style:italic">Nessuna riserva</div>';
+  // riserve gestite sopra con RISERVE_SLOTS
   renderPool();renderSummary(getSquadAthletes(squad.label),r);
 }
 let pendingSlotRole=null;
