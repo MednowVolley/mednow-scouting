@@ -991,7 +991,20 @@ function renderRoster(){
     }
     return`<div class="roster-slot" onclick="showPoolForSlot('${slot.role}')"><span class="slot-role">${slot.role}</span><span class="slot-empty">${slot.label} — clicca per aggiungere</span><span style="font-size:18px;color:var(--border-med)">+</span></div>`;
   }).join('');
-  // riserve gestite sopra con RISERVE_SLOTS
+  // Riserve con slot fissi
+  const risFilledCount=Object.values(r.riserve||{}).filter(Boolean).length+(r.riserve_libere||[]).length;
+  document.getElementById('riserve-count').textContent=risFilledCount;
+  document.getElementById('riserve-slots').innerHTML=RISERVE_SLOTS.map(slot=>{
+    const aid=r.riserve?.[slot.key];const a=aid?athletes.find(x=>x.id===aid):null;
+    const roleColor={S:'#185FA5',P:'#0F6E56',C:'#6B21A8',L:'#854F0B',O:'#DC3545','?':'#6B7280'}[slot.role]||'#6B7280';
+    if(a){
+      const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FEF3C7';
+      const stCol=CONFIRMED.includes(a.status)?'#065F46':'#854F0B';
+      const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px">&#x2605;${a.rating}</span>`:'';
+      return`<div class="roster-slot filled"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><div style="flex:1"><div style="font-size:10px;color:var(--text-ter);margin-bottom:1px">${slot.label}</div><div class="slot-name">${esc(a.cognome)} <span style="font-weight:400">${esc(a.nome)}</span></div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeRiservaSlot('${slot.key}')">&#x2715;</button></div>`;
+    }
+    return`<div class="roster-slot" onclick="addToRiservaSlot('${slot.role}','${slot.key}')"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><span class="slot-empty">${slot.label} — clicca per aggiungere</span><span style="font-size:18px;color:var(--border-med)">+</span></div>`;
+  }).join('');
   renderPool();renderSummary(getSquadAthletes(squad.label),r);
 }
 let pendingSlotRole=null;
