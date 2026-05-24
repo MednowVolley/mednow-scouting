@@ -71,7 +71,8 @@ tbody tr:hover td{background:#EBF4FF}
 .pill{display:inline-flex;align-items:center;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:inherit;white-space:nowrap}
 .s-nuovo-acquisto{background:#D1FAE5;color:#065F46;font-weight:700;border:1.5px solid #6EE7B7}
 .s-confermata{background:#DBEAFE;color:#1e40af;font-weight:700;border:1.5px solid #93C5FD}
-.s-non-confermata{background:#FFF3CD;color:#856404;border:1px solid #FFCA2C}
+.s-in-prova{background:#FFF0E6;color:#C05621;font-weight:700;border:1.5px solid #FBD38D}
+  .s-non-confermata{background:#FFF3CD;color:#856404;border:1px solid #FFCA2C}
 .s-trasferita{background:var(--purple-bg);color:var(--purple)}
 .s-visione{background:var(--blue-light);color:var(--blue-mid)}
 .s-lista{background:var(--gray-bg);color:var(--gray-text)}
@@ -290,6 +291,7 @@ footer strong{color:var(--blue-mid)}
       <option value="confermata">Confermata</option>
       <option value="trattativa">In trattativa</option>
       <option value="visione">Visionata</option>
+      <option value="in_prova">In prova Aspes</option>
       <option value="non_confermata">Non confermata</option>
       <option value="trasferita_aspes">Trasferita Aspes</option>
       <option value="lista">In lista</option>
@@ -423,6 +425,8 @@ footer strong{color:var(--blue-mid)}
         <select id="edit-status">
           <option value="lista">In lista</option>
           <option value="visione">Visionata</option>
+      <option value="in_prova">In prova Aspes</option>
+          <option value="in_prova">In prova Aspes</option>
           <option value="trattativa">In trattativa</option>
           <option value="nuovo_acquisto">Nuovo acquisto</option>
           <option value="confermata">Confermata</option>
@@ -542,12 +546,12 @@ const SUPA='https://zaxbwqxnrofiggldoahw.supabase.co';
 const KEY='sb_publishable_aS4aRr3OMwWLOT1TmIhGPg_gfY-dwIO';
 let currentUser=null,currentProfile=null,athletes=[],page=0,currentSort='recent',poolFilter='all';
 const PER_PAGE=30;
-const SL={nuovo_acquisto:'Nuovo acquisto',confermata:'Confermata',non_confermata:'Non confermata',trasferita_aspes:'Trasferita Aspes',visione:'Visionata',lista:'In lista',trattativa:'In trattativa',no:'No'};
-const SC={nuovo_acquisto:'s-nuovo-acquisto',confermata:'s-confermata',non_confermata:'s-non-confermata',trasferita_aspes:'s-trasferita',visione:'s-visione',lista:'s-lista',trattativa:'s-trattativa',no:'s-no'};
-const CYCLE=['lista','visione','trattativa','nuovo_acquisto','confermata','non_confermata','trasferita_aspes','no'];
+const SL={nuovo_acquisto:'Nuovo acquisto',confermata:'Confermata',in_prova:'In prova Aspes',non_confermata:'Non confermata',trasferita_aspes:'Trasferita Aspes',visione:'Visionata',lista:'In lista',trattativa:'In trattativa',no:'No'};
+const SC={nuovo_acquisto:'s-nuovo-acquisto',confermata:'s-confermata',in_prova:'s-in-prova',non_confermata:'s-non-confermata',trasferita_aspes:'s-trasferita',visione:'s-visione',lista:'s-lista',trattativa:'s-trattativa',no:'s-no'};
+const CYCLE=['lista','visione','in_prova','trattativa','nuovo_acquisto','confermata','non_confermata','trasferita_aspes','no'];
 const CONFIRMED=['nuovo_acquisto','confermata'];
 const UNCERTAIN=['trattativa','non_confermata'];
-const ACTIVE=['nuovo_acquisto','confermata','trattativa','non_confermata','trasferita_aspes'];
+const ACTIVE=['nuovo_acquisto','confermata','in_prova','trattativa','non_confermata','trasferita_aspes'];
 const NEW_AGENTS=['Gaia Genovesi','Filippo Nicastro','Gold Sport - Donato Saltini','Squadre Regionali'];
 
 async function sbFetch(path,method='GET',body=null,token=null){
@@ -636,6 +640,8 @@ function renderAddCard(){
       <div class="field-wrap"><div class="field-label">Stato</div>
         <select id="a-status">
           <option value="lista">In lista</option><option value="visione">Visionata</option>
+      <option value="in_prova">In prova Aspes</option>
+          <option value="in_prova">In prova Aspes</option>
           <option value="trattativa">In trattativa</option><option value="nuovo_acquisto">Nuovo acquisto</option>
           <option value="confermata">Confermata</option><option value="no">No</option>
         </select></div>
@@ -712,7 +718,7 @@ function getSorted(data){
   if(currentSort==='recent')return d.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
   if(currentSort==='az')return d.sort((a,b)=>(a.cognome+a.nome).localeCompare(b.cognome+b.nome));
   if(currentSort==='anno')return d.sort((a,b)=>parseInt(a.anno||9999)-parseInt(b.anno||9999));
-  if(currentSort==='status'){const o={nuovo_acquisto:0,confermata:1,trattativa:2,non_confermata:3,visione:4,lista:5,trasferita_aspes:6,no:7};return d.sort((a,b)=>(o[a.status]??9)-(o[b.status]??9));}
+  if(currentSort==='status'){const o={nuovo_acquisto:0,confermata:1,in_prova:2,trattativa:3,non_confermata:4,visione:5,lista:6,trasferita_aspes:7,no:8};return d.sort((a,b)=>(o[a.status]??9)-(o[b.status]??9));}
   if(currentSort==='rating')return d.sort((a,b)=>(b.rating||0)-(a.rating||0));
   return d;
 }
