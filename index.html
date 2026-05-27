@@ -1107,23 +1107,23 @@ function buildTodo(){
   }
 
   // 3. Completamento roster per squadra
-  const rosterData = JSON.parse(localStorage.getItem('mednow_rosters_v1')||'{}');
-  const TITOLARI_SLOTS = ['P','O','C1','C2','S1','S2','L'];
+  // Usa variabile in-memory rosters (sincronizzata in tempo reale)
+  const SLOT_KEYS = ['p1','o1','c1','c2','s1','s2','l1'];
+  const slotNames = {'p1':'Palleggiatrice','o1':'Opposto','c1':'Centrale 1','c2':'Centrale 2','s1':'Schiacciatrice 1','s2':'Schiacciatrice 2','l1':'Libero'};
   SQUADS.forEach(sq=>{
-    const r = rosterData[sq.id];
-    if(!r) return;
-    const titolari = r.titolari || {};
-    const filled = TITOLARI_SLOTS.filter(s=>titolari[s]).length;
-    const pct = Math.round((filled/TITOLARI_SLOTS.length)*100);
-    const missing = TITOLARI_SLOTS.filter(s=>!titolari[s]);
-    const slotNames = {'P':'Palleggiatrice','O':'Opposto','C1':'Centrale 1','C2':'Centrale 2','S1':'Schiacciatore 1','S2':'Schiacciatore 2','L':'Libero'};
+    const r = (typeof rosters!=='undefined' && rosters[sq.id]) ? rosters[sq.id] : null;
+    const titolari = r && r.titolari ? r.titolari : {};
+    const filled = SLOT_KEYS.filter(k=>titolari[k]).length;
+    const totalSlots = SLOT_KEYS.length;
+    const pct = Math.round((filled/totalSlots)*100);
+    const missing = SLOT_KEYS.filter(k=>!titolari[k]);
     if(missing.length > 0){
       cards.push({
         type: pct >= 70 ? 'blue' : 'purple',
         tag: sq.label,
-        title: `Roster completo al ${pct}% (${filled}/${TITOLARI_SLOTS.length} titolari)`,
-        body: `Mancano: ${missing.map(s=>slotNames[s]||s).join(', ')}`,
-        action: `todoRoster('${sq.id}')`
+        title: 'Roster completo al '+pct+'% ('+filled+'/'+totalSlots+' titolari)',
+        body: 'Mancano: '+missing.map(k=>slotNames[k]||k).join(', '),
+        action: "todoRoster('"+sq.id+"')"
       });
     }
   });
