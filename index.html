@@ -203,7 +203,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   pointer-events:none;
   transform:translate(-50%, -110%);
 }
-.riserva-avatar-wrap:hover .riserva-preview{display:block;}
+/* preview gestita via JS */
 .riserva-preview img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top center;display:block;}
 .riserva-preview-name{background:rgba(0,140,220,0.92);color:#fff;font-family:'Barlow',sans-serif;font-weight:800;font-size:11px;text-align:center;padding:5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .riserva-info{flex:1;min-width:0;}
@@ -1777,19 +1777,56 @@ function initRosterBuilder(){loadRosters();renderSquadTabs();renderRoster();}
 </div>
 
 <script>
-document.addEventListener('mousemove', function(e){
-  const wrap = e.target.closest('.riserva-avatar-wrap');
-  if(!wrap) return;
-  const preview = wrap.querySelector('.riserva-preview');
-  if(!preview) return;
-  let x = e.clientX;
-  let y = e.clientY - 12;
-  const pw = 160;
-  if(x - pw/2 < 8) x = pw/2 + 8;
-  if(x + pw/2 > window.innerWidth - 8) x = window.innerWidth - pw/2 - 8;
-  preview.style.left = x + 'px';
-  preview.style.top = y + 'px';
-});
+(function(){
+  var activePreview = null;
+  
+  document.addEventListener('mouseover', function(e){
+    const wrap = e.target.closest('.riserva-avatar-wrap');
+    if(!wrap) return;
+    const preview = wrap.querySelector('.riserva-preview');
+    if(!preview) return;
+    // Sposta nel body per evitare overflow:hidden
+    if(preview.parentNode !== document.body){
+      wrap._previewParent = preview.parentNode;
+      document.body.appendChild(preview);
+    }
+    preview.style.display = 'block';
+    activePreview = preview;
+  });
+
+  document.addEventListener('mouseout', function(e){
+    const wrap = e.target.closest('.riserva-avatar-wrap');
+    if(!wrap) return;
+    const related = e.relatedTarget;
+    if(related && wrap.contains(related)) return;
+    const preview = wrap.querySelector('.riserva-preview') || 
+                    (activePreview && activePreview._wrap === wrap ? activePreview : null);
+    // Cerca la preview nel body
+    const allPreviews = document.querySelectorAll('.riserva-preview');
+    allPreviews.forEach(function(p){
+      p.style.display = 'none';
+    });
+    activePreview = null;
+  });
+
+  document.addEventListener('mousemove', function(e){
+    const wrap = e.target.closest('.riserva-avatar-wrap');
+    if(!wrap) return;
+    const preview = wrap.querySelector('.riserva-preview') || activePreview;
+    if(!preview || preview.style.display === 'none') return;
+    let x = e.clientX;
+    let y = e.clientY - 12;
+    const pw = 160;
+    const ph = preview.offsetHeight || 240;
+    if(x - pw/2 < 8) x = pw/2 + 8;
+    if(x + pw/2 > window.innerWidth - 8) x = window.innerWidth - pw/2 - 8;
+    // Se troppo in alto, metti sotto il cursore
+    if(y - ph < 8) y = e.clientY + 20;
+    preview.style.left = x + 'px';
+    preview.style.top = y + 'px';
+    preview.style.transform = 'translate(-50%, -100%)';
+  });
+})();
 </script>
 </body>
 </html>
