@@ -88,51 +88,97 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .photo-modal-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .photo-modal-close:hover{background:rgba(255,255,255,0.35)}
 .volley-court{
-  background:linear-gradient(180deg,#FFA15B 0%,#FF8838 100%);
-  border:3px solid #fff;
-  border-radius:8px;
-  padding:0;
-  margin:14px 10px;
+  background:linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+  border-radius:12px;
+  padding:16px 12px 20px;
+  margin:14px 0;
+  box-shadow:0 8px 32px rgba(0,0,0,0.35);
   position:relative;
-  box-shadow:0 6px 24px rgba(0,0,0,0.18), inset 0 0 0 2px #FF6B14;
   overflow:hidden;
 }
 .volley-court::before{
-  content:'';position:absolute;top:50%;left:0;right:0;height:5px;background:#fff;transform:translateY(-50%);z-index:1;box-shadow:0 0 0 1px rgba(0,0,0,0.08);
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,0.06) 59px,rgba(255,255,255,0.06) 60px),
+             repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,0.06) 59px,rgba(255,255,255,0.06) 60px);
+  pointer-events:none;
 }
-.volley-court::after{
-  content:'NET';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#FF6B14;font-family:'Barlow',sans-serif;font-weight:800;font-size:9px;letter-spacing:.15em;padding:2px 8px;border-radius:4px;z-index:2;
+.court-net{
+  display:flex;align-items:center;gap:8px;
+  color:rgba(255,255,255,0.5);font-size:9px;font-weight:700;letter-spacing:.15em;
+  font-family:'Barlow',sans-serif;text-transform:uppercase;
+  margin:6px 0;
 }
-.court-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:18px 14px;position:relative;z-index:1}
-.court-row.row-front{padding-bottom:14px}
-.court-row.row-back{padding-top:14px}
-.court-slot{
-  background:rgba(255,255,255,0.95);
-  border-radius:10px;
-  padding:8px 6px;
-  min-height:92px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  cursor:pointer;
-  position:relative;
-  border:2px solid transparent;
-  transition:all 0.15s;
+.court-net::before,.court-net::after{content:'';flex:1;height:2px;background:rgba(255,255,255,0.25);}
+.court-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:4px 0;}
+.court-libero-row{display:flex;justify-content:center;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);}
+
+/* Player card */
+.pcard{
+  border-radius:10px;overflow:hidden;cursor:pointer;
+  position:relative;background:#1e2a3a;
+  border:2px solid rgba(255,255,255,0.1);
+  transition:transform 0.15s,border-color 0.15s;
+  display:flex;flex-direction:column;
 }
-.court-slot:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
-.court-slot.empty{background:rgba(255,255,255,0.4);border:2px dashed rgba(255,255,255,0.7)}
-.court-slot.empty:hover{background:rgba(255,255,255,0.6)}
-.court-slot.tratt{border-color:#F97316;border-style:dashed}
-.court-zone{position:absolute;top:4px;left:6px;font-size:9px;font-weight:800;color:#FF6B14;font-family:'Barlow',sans-serif;letter-spacing:.05em}
-.court-role-label{position:absolute;top:4px;right:6px;font-size:9px;font-weight:700;color:var(--blue);font-family:'Barlow',sans-serif}
-.court-name{font-size:11px;font-weight:700;color:var(--navy);line-height:1.15;margin-top:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
-.court-firstname{font-size:10px;color:var(--text-sec);font-weight:400;line-height:1.1}
-.court-empty-text{font-size:10px;color:#fff;font-weight:600;font-family:'Barlow',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
-.court-remove{position:absolute;bottom:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#E24B4A;color:#fff;border:none;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.court-libero-row{padding:10px 14px 14px;display:flex;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,0.05) 0%,transparent 100%)}
-.court-libero-row .court-slot{max-width:33%;min-width:33%}
+.pcard:hover{transform:translateY(-3px);border-color:rgba(100,160,255,0.5);}
+.pcard.tratt{border-color:#F97316;border-style:dashed;}
+.pcard-photo{
+  width:100%;aspect-ratio:3/4;
+  background:linear-gradient(135deg,#2a3a4e,#1a2535);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;
+}
+.pcard-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.pcard-photo .initials{
+  font-family:'Barlow',sans-serif;font-weight:800;font-size:28px;
+  color:rgba(255,255,255,0.85);letter-spacing:.02em;
+}
+.pcard-photo .role-badge{
+  position:absolute;top:5px;left:5px;
+  background:rgba(0,0,0,0.55);color:#fff;
+  font-family:'Barlow',sans-serif;font-size:9px;font-weight:800;
+  padding:2px 6px;border-radius:4px;letter-spacing:.05em;
+}
+.pcard-photo .zone-badge{
+  position:absolute;top:5px;right:5px;
+  background:rgba(0,0,0,0.45);color:rgba(255,255,255,0.7);
+  font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;
+  padding:2px 5px;border-radius:4px;
+}
+.pcard-photo .mark-badge{
+  position:absolute;bottom:5px;right:5px;
+  display:flex;gap:3px;
+}
+.pcard-name{
+  background:rgba(0,180,255,0.85);
+  color:#fff;font-family:'Barlow',sans-serif;font-weight:800;
+  font-size:10px;text-align:center;text-transform:uppercase;
+  padding:4px 4px;letter-spacing:.05em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:1.2;
+}
+.pcard-name.tratt-name{background:rgba(249,115,22,0.9);}
+.pcard-name.new-name{background:rgba(220,38,38,0.9);}
+.pcard-add{
+  width:100%;aspect-ratio:3/4;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;
+  background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.2);
+  border-radius:10px;cursor:pointer;transition:all 0.15s;
+}
+.pcard-add:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,160,255,0.5);}
+.pcard-add .add-role{font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);font-family:'Barlow',sans-serif;text-transform:uppercase;letter-spacing:.05em;}
+.pcard-add .add-icon{font-size:22px;color:rgba(255,255,255,0.3);}
+.pcard-remove{
+  position:absolute;top:3px;right:3px;
+  width:18px;height:18px;border-radius:50%;
+  background:rgba(220,38,38,0.85);color:#fff;border:none;
+  font-size:12px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  z-index:5;opacity:0;transition:opacity 0.15s;
+}
+.pcard:hover .pcard-remove{opacity:1;}
+.court-libero-row .pcard,.court-libero-row .pcard-add{width:33.33%;max-width:120px;}
+
 .court-section-title{padding:8px 14px 4px;font-size:10px;font-weight:700;color:#fff;letter-spacing:.1em;text-transform:uppercase;font-family:'Barlow',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
 
 
@@ -1392,105 +1438,111 @@ function getRiserveSlots(squadId){
 
 
 function renderCourt(titolariSlots, r){
-  // Posizioni standard sestetto volley:
-  // ZONA 4 (banda1) | ZONA 3 (centrale) | ZONA 2 (opposto)
-  // ZONA 5 (banda2) | ZONA 6 (libero/banda) | ZONA 1 (palleggio)
-  // Per categorie con libero (>=U14): banda3 separato; senza libero: solo 6 in campo
-  
   const hasLibero = titolariSlots.some(s=>s.role==='L');
   const slotByKey = {};
   titolariSlots.forEach(s=>{ slotByKey[s.key]=s; });
-  
-  // Mapping zone -> slot.key (logica volley standard)
-  // Front row: 4=S1, 3=C1, 2=O
-  // Back row: 5=S2, 6=C2, 1=P  (con libero che entra in zona 5 o 6)
-  // Diagonali standard volley (rotazione P1):
-  // FRONT (rete sopra):  Z4=Opposto  Z3=Centrale1  Z2=Schiacciatrice1
-  // BACK:                Z5=Schiacciatrice2  Z6=Centrale2  Z1=Palleggio
-  // Coppie in diagonale: P(Z1)↔O(Z4) | S1(Z2)↔S2(Z5) | C1(Z3)↔C2(Z6)
-  const layout = {
-    z4: 'o1',
-    z3: 'c1',
-    z2: 's1',
-    z5: 's2',
-    z6: 'c2',
-    z1: 'p1'
-  };
-  
-  function renderSlot(slotKey, zone){
+
+  // Diagonali standard: P(Z1)↔O(Z4) | S1(Z2)↔S2(Z5) | C1(Z3)↔C2(Z6)
+  const layout = { z4:'o1', z3:'c1', z2:'s1', z5:'s2', z6:'c2', z1:'p1' };
+  const zoneLabels = { z1:'Z1', z2:'Z2', z3:'Z3', z4:'Z4', z5:'Z5', z6:'Z6' };
+
+  function playerCard(slotKey, zone){
     const slot = slotByKey[slotKey];
     if(!slot) return '';
     const aid = r.titolari[slot.key];
     const a = aid ? athletes.find(x=>x.id===aid) : null;
+
     if(!a){
-      return '<div class="court-slot empty" onclick="showPoolForSlot(\''+slot.role+'\')">'+
-        '<div class="court-zone">Z'+zone+'</div>'+
-        '<div class="court-role-label">'+slot.role+'</div>'+
-        '<div class="court-empty-text">'+esc(slot.label)+'</div>'+
-        '<div style="font-size:18px;color:#fff;margin-top:4px">+</div>'+
+      return '<div class="pcard-add" onclick="showPoolForSlot(\''+slot.role+'\')">'+
+        '<div class="add-role">'+esc(slot.label)+'</div>'+
+        '<div class="add-icon">+</div>'+
+        '<div style="font-size:8px;color:rgba(255,255,255,0.3);font-family:Barlow,sans-serif">'+zoneLabels[zone]+'</div>'+
         '</div>';
     }
+
     const isTr = a.status==='trattativa';
     const isNew = a.status==='nuovo_acquisto';
-    const trMark = isTr ? '<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:#F97316;color:#fff;border-radius:50%;font-size:9px;font-weight:700;margin-left:3px">?</span>' : '';
-    const newMark = isNew ? '<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:800;margin-left:3px">NEW</span>' : '';
-    const cls = isTr ? 'court-slot tratt' : 'court-slot';
-    return '<div class="'+cls+'">'+
-      '<div class="court-zone">Z'+zone+'</div>'+
-      '<div class="court-role-label">'+slot.role+'</div>'+
-      renderAvatar(a, 40)+
-      '<div class="court-name">'+esc(a.cognome)+' '+trMark+newMark+'</div>'+
-      '<div class="court-firstname">'+esc(a.nome)+'</div>'+
-      '<button class="court-remove" onclick="event.stopPropagation();removeFromSlot(\''+slot.key+'\')">×</button>'+
+    const nameClass = isTr ? 'pcard-name tratt-name' : isNew ? 'pcard-name new-name' : 'pcard-name';
+    const cardClass = isTr ? 'pcard tratt' : 'pcard';
+    const trMark = isTr ? '<span style="background:#F97316;color:#fff;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">?</span>' : '';
+    const newMark = isNew ? '<span style="background:#DC2626;color:#fff;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:800">NEW</span>' : '';
+    const bg = getRoleColor(a.ruolo);
+
+    let photoHtml;
+    if(a.foto){
+      photoHtml = '<img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block" onclick="event.stopPropagation();openPhoto('+a.id+')">';
+    } else {
+      photoHtml = '<div class="initials" style="color:#fff;background:'+bg+';width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;font-family:Barlow,sans-serif">'+getInitials(a.cognome,a.nome)+'</div>';
+    }
+
+    return '<div class="'+cardClass+'">'+
+      '<div class="pcard-photo">'+
+        '<div class="role-badge">'+slot.role+'</div>'+
+        '<div class="zone-badge">'+zoneLabels[zone]+'</div>'+
+        photoHtml+
+        (trMark||newMark ? '<div class="mark-badge">'+trMark+newMark+'</div>' : '')+
+        '<button class="pcard-remove" onclick="event.stopPropagation();removeFromSlot(\''+slot.key+'\')">×</button>'+
+      '</div>'+
+      '<div class="'+nameClass+'">'+esc(a.cognome)+'</div>'+
       '</div>';
   }
-  
+
   let html = '<div class="volley-court">';
-  html += '<div class="court-section-title">Rete</div>';
-  html += '<div class="court-row row-front">';
-  html += renderSlot(layout.z4, 4);
-  html += renderSlot(layout.z3, 3);
-  html += renderSlot(layout.z2, 2);
+  // Front row (vicino rete)
+  html += '<div class="court-row">';
+  html += playerCard(layout.z4, 'z4');
+  html += playerCard(layout.z3, 'z3');
+  html += playerCard(layout.z2, 'z2');
   html += '</div>';
-  html += '<div class="court-row row-back">';
-  html += renderSlot(layout.z5, 5);
-  html += renderSlot(layout.z6, 6);
-  html += renderSlot(layout.z1, 1);
+
+  html += '<div class="court-net">RETE</div>';
+
+  // Back row
+  html += '<div class="court-row">';
+  html += playerCard(layout.z5, 'z5');
+  html += playerCard(layout.z6, 'z6');
+  html += playerCard(layout.z1, 'z1');
   html += '</div>';
-  
-  // Libero separato (fuori campo, dietro)
+
+  // Libero
   if(hasLibero && slotByKey['l1']){
     const slot = slotByKey['l1'];
     const aid = r.titolari[slot.key];
     const a = aid ? athletes.find(x=>x.id===aid) : null;
-    html += '<div class="court-section-title" style="border-top:2px solid rgba(255,255,255,0.3);margin-top:6px">Libero</div>';
     html += '<div class="court-libero-row">';
     if(!a){
-      html += '<div class="court-slot empty" onclick="showPoolForSlot(\'L\')">'+
-        '<div class="court-role-label">L</div>'+
-        '<div class="court-empty-text">Libero</div>'+
-        '<div style="font-size:18px;color:#fff;margin-top:4px">+</div>'+
+      html += '<div class="pcard-add" onclick="showPoolForSlot(\'L\')">'+
+        '<div class="add-role">Libero</div>'+
+        '<div class="add-icon">+</div>'+
         '</div>';
     } else {
       const isTr = a.status==='trattativa';
       const isNew = a.status==='nuovo_acquisto';
-      const trMark = isTr ? '<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:#F97316;color:#fff;border-radius:50%;font-size:9px;font-weight:700;margin-left:3px">?</span>' : '';
-      const newMark = isNew ? '<span style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:800;margin-left:3px">NEW</span>' : '';
-      const cls = isTr ? 'court-slot tratt' : 'court-slot';
-      html += '<div class="'+cls+'">'+
-        '<div class="court-role-label">L</div>'+
-        renderAvatar(a, 40)+
-        '<div class="court-name">'+esc(a.cognome)+' '+trMark+newMark+'</div>'+
-        '<div class="court-firstname">'+esc(a.nome)+'</div>'+
-        '<button class="court-remove" onclick="event.stopPropagation();removeFromSlot(\''+slot.key+'\')">×</button>'+
+      const nameClass = isTr ? 'pcard-name tratt-name' : isNew ? 'pcard-name new-name' : 'pcard-name';
+      const cardClass = isTr ? 'pcard tratt' : 'pcard';
+      const bg = getRoleColor(a.ruolo);
+      let photoHtml;
+      if(a.foto){
+        photoHtml = '<img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block" onclick="event.stopPropagation();openPhoto('+a.id+')">';
+      } else {
+        photoHtml = '<div class="initials" style="color:#fff;background:'+bg+';width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;font-family:Barlow,sans-serif">'+getInitials(a.cognome,a.nome)+'</div>';
+      }
+      html += '<div class="'+cardClass+'">'+
+        '<div class="pcard-photo">'+
+          '<div class="role-badge">L</div>'+
+          photoHtml+
+          '<button class="pcard-remove" onclick="event.stopPropagation();removeFromSlot(\'l1\')">×</button>'+
+        '</div>'+
+        '<div class="'+nameClass+'">'+esc(a.cognome)+'</div>'+
         '</div>';
     }
     html += '</div>';
   }
-  
+
   html += '</div>';
   document.getElementById('titolari-slots').innerHTML = html;
 }
+
 
 function selectSquad(sid){currentSquad=sid;renderSquadTabs();renderRoster();}
 function getAssignedIds(){const r=getRoster(currentSquad);const ids=new Set(Object.values(r.titolari).filter(Boolean));Object.values(r.riserve||{}).filter(Boolean).forEach(id=>ids.add(id));(r.riserve_libere||[]).forEach(id=>ids.add(id));return ids;}
