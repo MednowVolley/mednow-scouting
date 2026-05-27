@@ -1402,15 +1402,14 @@ function previewPhoto(input){
   reader.onload=function(e){
     const img=new Image();
     img.onload=function(){
-      // Crop quadrato centrato in alto (viso) poi ridimensiona a 300px
+      // Crop quadrato centrato sia orizzontalmente che verticalmente
       const SIZE=300;
       const canvas=document.createElement('canvas');
       canvas.width=SIZE; canvas.height=SIZE;
       const ctx=canvas.getContext('2d');
       const side=Math.min(img.width,img.height);
-      // Crop: centrato orizzontalmente, parte dall'alto per il viso
       const sx=Math.floor((img.width-side)/2);
-      const sy=0; // parte dall'alto per catturare il viso
+      const sy=Math.floor((img.height-side)/2);
       ctx.drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
       const dataUrl=canvas.toDataURL('image/jpeg', 0.80);
       document.getElementById('edit-foto').value=dataUrl;
