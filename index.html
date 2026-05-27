@@ -1047,31 +1047,32 @@ function toggleTodo(){
 
 
 function todoFilter(status, sort){
-  // Resetta tutti i filtri
   ['f-search','f-anno','f-ruolo','f-agente','f-dest'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.querySelectorAll('#dd-status input').forEach(cb=>cb.checked=false);
-  // Imposta stato se richiesto
   if(status){
-    const cb=document.querySelector(`#dd-status input[value="${status}"]`);
+    const cb=document.querySelector('#dd-status input[value="'+status+'"]');
     if(cb){cb.checked=true;}
     updateMultiFilterLabel('status');
   }
-  // Imposta ordinamento
-  if(sort) setSort(sort);
-  // Scrolla alla tabella
+  if(sort){
+    currentSort=sort;
+    document.querySelectorAll('[id^="sort-"]').forEach(b=>b.classList.remove('active'));
+    const sb=document.getElementById('sort-'+sort);
+    if(sb) sb.classList.add('active');
+  }
   page=0;
   renderTable();
-  document.querySelector('.table-wrap')?.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(function(){
+    const tw=document.querySelector('.table-wrap');
+    if(tw) tw.scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
 }
 
 function todoRoster(squadId){
-  // Vai alla tab Roster e seleziona la squadra giusta
-  document.querySelectorAll('.tab-btn').forEach(b=>{
-    if(b.getAttribute('onclick')?.includes("'roster'")){b.click();}
-  });
-  setTimeout(()=>{
-    const btn=document.querySelector(`.squad-btn[onclick*="${squadId}"]`);
-    if(btn) btn.click();
+  selectSquad(squadId);
+  setTimeout(function(){
+    const rs=document.getElementById('roster-section');
+    if(rs) rs.scrollIntoView({behavior:'smooth',block:'start'});
   },100);
 }
 function buildTodo(){
