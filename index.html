@@ -1108,15 +1108,15 @@ function buildTodo(){
 
   // 3. Completamento roster per squadra
   // Usa variabile in-memory rosters (sincronizzata in tempo reale)
-  const SLOT_KEYS = ['p1','o1','c1','c2','s1','s2','l1'];
   const slotNames = {'p1':'Palleggiatrice','o1':'Opposto','c1':'Centrale 1','c2':'Centrale 2','s1':'Schiacciatrice 1','s2':'Schiacciatrice 2','l1':'Libero'};
   SQUADS.forEach(sq=>{
+    const squadSlots = getTitolariSlots(sq.id).map(s=>s.key);
     const r = (typeof rosters!=='undefined' && rosters[sq.id]) ? rosters[sq.id] : null;
     const titolari = r && r.titolari ? r.titolari : {};
-    const filled = SLOT_KEYS.filter(k=>titolari[k]).length;
-    const totalSlots = SLOT_KEYS.length;
+    const filled = squadSlots.filter(k=>titolari[k]).length;
+    const totalSlots = squadSlots.length;
     const pct = Math.round((filled/totalSlots)*100);
-    const missing = SLOT_KEYS.filter(k=>!titolari[k]);
+    const missing = squadSlots.filter(k=>!titolari[k]);
     if(missing.length > 0){
       cards.push({
         type: pct >= 70 ? 'blue' : 'purple',
@@ -1223,6 +1223,19 @@ function getSquadAthletes(label){return athletes.filter(a=>CONFIRMED.includes(a.
 function roleMatch(r,slot){if(!r)return false;const rl=r.toLowerCase();if(slot==='P')return rl.includes('palleg')||rl.includes('alzat');if(slot==='O')return rl.includes('oppos');if(slot==='C')return rl.includes('central');if(slot==='S')return rl.includes('schiacc')||rl.includes('banda')||rl.includes('lateral');if(slot==='L')return rl.includes('libero');return false;}
 function getShortRole(r){if(!r)return'?';const rl=r.toLowerCase();if(rl.includes('palleg')||rl.includes('alzat'))return'P';if(rl.includes('oppos'))return'O';if(rl.includes('central'))return'C';if(rl.includes('schiacc')||rl.includes('banda'))return'S';if(rl.includes('libero'))return'L';return r.substring(0,2).toUpperCase();}
 function renderSquadTabs(){document.getElementById('squad-tabs').innerHTML=SQUADS.map(s=>{const n=getSquadAthletes(s.label).length;const isA=s.club==='Aspes';return`<button class="squad-tab${currentSquad===s.id?' active':''}${isA?' aspes':''}" onclick="selectSquad('${s.id}')">${s.label.replace(' ProPatria','').replace(' Aspes','')} <span style="font-size:10px;opacity:0.7">${n}</span></button>`;}).join('');}
+
+function isYouthCategory(squadId){
+  return /^u(12|13)/.test(squadId);
+}
+function getTitolariSlots(squadId){
+  if(isYouthCategory(squadId)) return TITOLARI_SLOTS.filter(s=>s.role!=='L');
+  return TITOLARI_SLOTS;
+}
+function getRiserveSlots(squadId){
+  if(isYouthCategory(squadId)) return RISERVE_SLOTS.filter(s=>s.role!=='L');
+  return RISERVE_SLOTS;
+}
+
 function selectSquad(sid){currentSquad=sid;renderSquadTabs();renderRoster();}
 function getAssignedIds(){const r=getRoster(currentSquad);const ids=new Set(Object.values(r.titolari).filter(Boolean));Object.values(r.riserve||{}).filter(Boolean).forEach(id=>ids.add(id));(r.riserve_libere||[]).forEach(id=>ids.add(id));return ids;}
 function renderRoster(){
@@ -1231,7 +1244,7 @@ function renderRoster(){
   const r=getRoster(currentSquad);
   const filled=Object.values(r.titolari).filter(Boolean).length;
   document.getElementById('titolari-count').textContent=filled+'/7';
-  document.getElementById('titolari-slots').innerHTML=TITOLARI_SLOTS.map(slot=>{
+  document.getElementById('titolari-slots').innerHTML=getTitolariSlots(currentSquad).map(slot=>{
     const aid=r.titolari[slot.key];const a=aid?athletes.find(x=>x.id===aid):null;
     if(a){
       const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FEF3C7';
@@ -1245,7 +1258,7 @@ function renderRoster(){
   // Riserve con slot fissi
   const risFilledCount=Object.values(r.riserve||{}).filter(Boolean).length+(r.riserve_libere||[]).length;
   document.getElementById('riserve-count').textContent=risFilledCount;
-  document.getElementById('riserve-slots').innerHTML=RISERVE_SLOTS.map(slot=>{
+  document.getElementById('riserve-slots').innerHTML=getRiserveSlots(currentSquad).map(slot=>{
     const aid=r.riserve?.[slot.key];const a=aid?athletes.find(x=>x.id===aid):null;
     const roleColor={S:'#185FA5',P:'#0F6E56',C:'#6B21A8',L:'#854F0B',O:'#DC3545','?':'#6B7280'}[slot.role]||'#6B7280';
     if(a){
@@ -1289,14 +1302,14 @@ function addToRoster(aid){
   if(psk){r.riserve[psk]=aid;saveRosters();renderRoster();return;}
   // Slot titolare selezionato
   if(psr){
-    const slot=TITOLARI_SLOTS.find(s=>s.role===psr&&!r.titolari[s.key]);
+    const slot=getTitolariSlots(currentSquad).find(s=>s.role===psr&&!r.titolari[s.key]);
     if(slot){r.titolari[slot.key]=aid;saveRosters();renderRoster();return;}
   }
   // Auto-assign: prima prova titolari per ruolo
   const ruoli=(a?.ruolo||'').split('/').map(x=>x.trim());
   let assigned=false;
   for(const ru of ruoli){
-    const matchSlot=TITOLARI_SLOTS.find(s=>!r.titolari[s.key]&&roleMatch(ru,s.role));
+    const matchSlot=getTitolariSlots(currentSquad).find(s=>!r.titolari[s.key]&&roleMatch(ru,s.role));
     if(matchSlot){r.titolari[matchSlot.key]=aid;assigned=true;break;}
   }
   if(!assigned){
@@ -1323,13 +1336,13 @@ function autoFillRoster(){
   const priority=a=>['confermata','nuovo_acquisto','trattativa','non_confermata','trasferita_aspes'].indexOf(a.status);
   const sorted=[...available].sort((a,b)=>priority(a)-priority(b));
   const used=new Set();
-  TITOLARI_SLOTS.forEach(slot=>{
+  getTitolariSlots(currentSquad).forEach(slot=>{
     if(r.titolari[slot.key]){used.add(r.titolari[slot.key]);return;}
     const match=sorted.find(a=>!used.has(a.id)&&roleMatch(a.ruolo||'',slot.role));
     if(match){r.titolari[slot.key]=match.id;used.add(match.id);}
   });
   if(!r.riserve)r.riserve={};
-  RISERVE_SLOTS.filter(s=>s.role!=='?').forEach(slot=>{
+  getRiserveSlots(currentSquad).filter(s=>s.role!=='?').forEach(slot=>{
     if(r.riserve[slot.key]){used.add(r.riserve[slot.key]);return;}
     const match=sorted.find(a=>!used.has(a.id)&&roleMatch(a.ruolo||'',slot.role));
     if(match){r.riserve[slot.key]=match.id;used.add(match.id);}
