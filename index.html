@@ -1404,10 +1404,14 @@ function renderCourt(titolariSlots, r){
   // Mapping zone -> slot.key (logica volley standard)
   // Front row: 4=S1, 3=C1, 2=O
   // Back row: 5=S2, 6=C2, 1=P  (con libero che entra in zona 5 o 6)
+  // Diagonali standard volley (rotazione P1):
+  // FRONT (rete sopra):  Z4=Opposto  Z3=Centrale1  Z2=Schiacciatrice1
+  // BACK:                Z5=Schiacciatrice2  Z6=Centrale2  Z1=Palleggio
+  // Coppie in diagonale: P(Z1)↔O(Z4) | S1(Z2)↔S2(Z5) | C1(Z3)↔C2(Z6)
   const layout = {
-    z4: 's1',
+    z4: 'o1',
     z3: 'c1',
-    z2: 'o1',
+    z2: 's1',
     z5: 's2',
     z6: 'c2',
     z1: 'p1'
