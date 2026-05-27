@@ -509,17 +509,21 @@ footer strong{color:var(--blue-mid)}
     <input type="hidden" id="edit-id">
     <input type="hidden" id="edit-rating" value="0">
     <div class="drawer-row2">
-      <div class="drawer-field" style="text-align:center;padding:1rem 0;border-bottom:1px solid var(--border);margin-bottom:1rem">
-      <div id="foto-preview" style="display:inline-block"></div>
-      <input type="hidden" id="edit-foto">
-      <input type="file" id="foto-input" accept="image/*" style="display:none" onchange="previewPhoto(this)">
-      <div style="margin-top:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
-        <button type="button" onclick="document.getElementById('foto-input').click()" style="padding:6px 14px;font-size:12px;background:var(--blue);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:600">📷 Carica foto</button>
-        <button type="button" id="btn-remove-foto" onclick="removePhoto()" style="padding:6px 14px;font-size:12px;background:#E5E7EB;color:#374151;border:none;border-radius:6px;cursor:pointer;font-family:inherit;display:none">Rimuovi</button>
+      <div class="drawer-field" style="display:flex;gap:14px;align-items:flex-start;padding-bottom:1rem;border-bottom:1px solid var(--border);margin-bottom:1rem">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
+        <div id="foto-preview" style="display:inline-block"></div>
+        <input type="hidden" id="edit-foto">
+        <input type="file" id="foto-input" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center">
+          <button type="button" onclick="document.getElementById('foto-input').click()" style="padding:4px 10px;font-size:11px;background:var(--blue);color:#fff;border:none;border-radius:5px;cursor:pointer;font-family:inherit;font-weight:600">📷 Foto</button>
+          <button type="button" id="btn-remove-foto" onclick="removePhoto()" style="padding:4px 10px;font-size:11px;background:#E5E7EB;color:#374151;border:none;border-radius:5px;cursor:pointer;font-family:inherit;display:none">Rimuovi</button>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+        <div><label style="display:block;font-size:10px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:4px">Cognome</label><input type="text" id="edit-cognome"></div>
+        <div><label style="display:block;font-size:10px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:4px">Nome</label><input type="text" id="edit-nome"></div>
       </div>
     </div>
-    <div class="drawer-field"><label>Cognome</label><input type="text" id="edit-cognome"></div>
-      <div class="drawer-field"><label>Nome</label><input type="text" id="edit-nome"></div>
     </div>
     <div class="drawer-row2">
       <div class="drawer-field"><label>Anno nascita</label><input type="text" id="edit-anno"></div>
