@@ -57,6 +57,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .btn-recenti.active{background:var(--blue);border-color:var(--blue);color:#fff}
 .btn-reset{padding:8px 14px;font-size:12px;border:1px solid var(--border-med);border-radius:var(--radius-sm);background:var(--bg-card);cursor:pointer;color:var(--text-sec);font-family:inherit}
 .btn-export{padding:8px 16px;font-size:12px;font-weight:600;border:1.5px solid var(--blue);border-radius:var(--radius-sm);background:var(--blue);cursor:pointer;color:#fff;font-family:inherit;margin-left:auto}
+.todo-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(10,22,40,0.06)}
+.todo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;cursor:pointer;user-select:none}
+.todo-title{font-family:'Barlow',sans-serif;font-weight:800;font-size:13px;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:8px}
+.todo-toggle{font-size:11px;color:var(--text-sec)}
+.todo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.todo-card{border-radius:var(--radius-sm);padding:10px 14px;border-left:4px solid;display:flex;flex-direction:column;gap:4px}
+.todo-card.red{background:#FFF5F5;border-color:#E53E3E}
+.todo-card.orange{background:#FFFAF0;border-color:#DD6B20}
+.todo-card.blue{background:#EBF8FF;border-color:#3182CE}
+.todo-card.green{background:#F0FFF4;border-color:#38A169}
+.todo-card.purple{background:#FAF5FF;border-color:#805AD5}
+.todo-card-title{font-size:12px;font-weight:700;color:var(--navy)}
+.todo-card-body{font-size:12px;color:var(--text-sec);line-height:1.5}
+.todo-card-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
+.todo-empty{text-align:center;padding:1rem;color:var(--text-ter);font-size:13px}
 .multi-filter-wrap{position:relative;display:inline-block}
 .multi-filter-btn{font-size:13px;padding:8px 12px;border:1px solid var(--border-med);border-radius:var(--radius-sm);background:var(--bg-card);cursor:pointer;color:var(--text);font-family:inherit;display:flex;align-items:center;gap:6px;min-width:140px;text-align:left;justify-content:space-between;max-width:160px}
 .multi-filter-btn.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue-mid);font-weight:600}
@@ -286,6 +301,18 @@ footer strong{color:var(--blue-mid)}
     <button class="btn-recenti" onclick="setSort('anno')" id="sort-anno">Anno</button>
     <button class="btn-recenti" onclick="setSort('rating')" id="sort-rating">&#x2605; Voto</button>
   </div>
+
+  <!-- TODO SECTION -->
+  <div class="todo-section" id="todo-section">
+    <div class="todo-header" onclick="toggleTodo()">
+      <div class="todo-title">📋 Da fare <span id="todo-badge" style="background:var(--blue);color:#fff;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">0</span></div>
+      <span class="todo-toggle" id="todo-toggle-icon">▲ nascondi</span>
+    </div>
+    <div id="todo-body">
+      <div class="todo-grid" id="todo-grid"><div class="todo-empty">Caricamento...</div></div>
+    </div>
+  </div>
+
   <div class="filters-bar">
     <input style="min-width:150px;max-width:180px" type="text" id="f-search" placeholder="&#x1F50D; Cerca..." oninput="renderTable()">
     <select id="f-anno" onchange="renderTable()">
@@ -791,6 +818,7 @@ function fmtDate(ts){
 }
 
 function renderTable(){
+  if(athletes.length>0)buildTodo();
   renderStats();updateAgenteFilter();
   const data=getSorted(getFiltered());
   const totalPages=Math.ceil(data.length/PER_PAGE)||1;
@@ -1009,6 +1037,103 @@ function renderStars(val){val=parseInt(val)||0;const c=document.getElementById('
 function renderAddStars(val){val=parseInt(val)||0;const c=document.getElementById('add-stars');if(!c)return;c.innerHTML='';for(let i=1;i<=10;i++){const s=document.createElement('span');s.className='star'+(i<=val?' on':'');s.textContent='★';s.onmouseenter=()=>c.querySelectorAll('.star').forEach((x,j)=>x.classList.toggle('on',j<i));s.onmouseleave=()=>{const cur=parseInt(document.getElementById('a-rating').value)||0;c.querySelectorAll('.star').forEach((x,j)=>x.classList.toggle('on',j<cur));};s.onclick=()=>{document.getElementById('a-rating').value=i;document.getElementById('add-rating-num').textContent=i;renderAddStars(i);};c.appendChild(s);}}
 function clearAddRating(){const el=document.getElementById('a-rating');if(el)el.value=0;const rn=document.getElementById('add-rating-num');if(rn)rn.textContent='—';renderAddStars(0);}
 
+
+let todoOpen = true;
+function toggleTodo(){
+  todoOpen = !todoOpen;
+  document.getElementById('todo-body').style.display = todoOpen ? '' : 'none';
+  document.getElementById('todo-toggle-icon').textContent = todoOpen ? '▲ nascondi' : '▼ mostra';
+}
+
+function buildTodo(){
+  const cards = [];
+  const now = Date.now();
+
+  // 1. Trattative aperte
+  const trattative = athletes.filter(a=>a.status==='trattativa');
+  if(trattative.length > 0){
+    const urgent = trattative.filter(a=>a.rating >= 8).sort((a,b)=>(b.rating||0)-(a.rating||0));
+    cards.push({
+      type: trattative.length > 5 ? 'red' : 'orange',
+      tag: 'Trattative',
+      title: `${trattative.length} trattative ancora aperte`,
+      body: urgent.length
+        ? `⭐ Priorità: ${urgent.slice(0,3).map(a=>a.cognome+' '+a.nome).join(', ')}${urgent.length>3?' e altre...':''}`
+        : 'Nessuna atleta ad alto rating in trattativa'
+    });
+  }
+
+  // 2. Atlete alto rating non ancora confermate
+  const topNotConf = athletes.filter(a=>a.rating>=9 && !['confermata','nuovo_acquisto'].includes(a.status));
+  if(topNotConf.length > 0){
+    cards.push({
+      type: 'red',
+      tag: 'Urgente',
+      title: `${topNotConf.length} atlete con voto ★9-10 non ancora confermate`,
+      body: topNotConf.slice(0,4).map(a=>`${a.cognome} ${a.nome} (★${a.rating} · ${SL[a.status]||a.status})`).join('<br>')
+    });
+  }
+
+  // 3. Completamento roster per squadra
+  const rosterData = JSON.parse(localStorage.getItem('mednow_rosters_v1')||'{}');
+  const TITOLARI_SLOTS = ['P','O','C1','C2','S1','S2','L'];
+  SQUADS.forEach(sq=>{
+    const r = rosterData[sq.id];
+    if(!r) return;
+    const titolari = r.titolari || {};
+    const filled = TITOLARI_SLOTS.filter(s=>titolari[s]).length;
+    const pct = Math.round((filled/TITOLARI_SLOTS.length)*100);
+    const missing = TITOLARI_SLOTS.filter(s=>!titolari[s]);
+    const slotNames = {'P':'Palleggiatrice','O':'Opposto','C1':'Centrale 1','C2':'Centrale 2','S1':'Schiacciatore 1','S2':'Schiacciatore 2','L':'Libero'};
+    if(missing.length > 0){
+      cards.push({
+        type: pct >= 70 ? 'blue' : 'purple',
+        tag: sq.label,
+        title: `Roster completo al ${pct}% (${filled}/${TITOLARI_SLOTS.length} titolari)`,
+        body: `Mancano: ${missing.map(s=>slotNames[s]||s).join(', ')}`
+      });
+    }
+  });
+
+  // 4. Atlete in prova Aspes (da valutare)
+  const inProva = athletes.filter(a=>a.status==='in_prova');
+  if(inProva.length > 0){
+    const senzaVoto = inProva.filter(a=>!a.rating || a.rating===0);
+    cards.push({
+      type: 'green',
+      tag: 'In prova',
+      title: `${inProva.length} atlete in prova Aspes`,
+      body: senzaVoto.length > 0
+        ? `${senzaVoto.length} senza ancora una valutazione — aprile le schede e assegna un voto`
+        : 'Tutte le atlete in prova hanno una valutazione ✓'
+    });
+  }
+
+  // 5. Atlete recenti senza squadra dest
+  const recenti = athletes.filter(a=>a.status==='trattativa'&&(!a.dest||a.dest.trim()===''));
+  if(recenti.length > 0){
+    cards.push({
+      type: 'orange',
+      tag: 'Da assegnare',
+      title: `${recenti.length} atlete in trattativa senza squadra destinazione`,
+      body: recenti.slice(0,3).map(a=>a.cognome+' '+a.nome).join(', ')+(recenti.length>3?' e altre...':'')
+    });
+  }
+
+  // Render
+  document.getElementById('todo-badge').textContent = cards.length;
+  const grid = document.getElementById('todo-grid');
+  if(cards.length === 0){
+    grid.innerHTML = '<div class="todo-empty">✅ Tutto in ordine — nessuna azione richiesta</div>';
+    return;
+  }
+  grid.innerHTML = cards.map(c=>`
+    <div class="todo-card ${c.type}">
+      <div class="todo-card-tag">${c.tag}</div>
+      <div class="todo-card-title">${c.title}</div>
+      <div class="todo-card-body">${c.body}</div>
+    </div>`).join('');
+}
 
 function toggleMultiFilter(name){
   const dd=document.getElementById('dd-'+name);
