@@ -453,7 +453,16 @@ footer strong{color:var(--blue-mid)}
     <input type="hidden" id="edit-id">
     <input type="hidden" id="edit-rating" value="0">
     <div class="drawer-row2">
-      <div class="drawer-field"><label>Cognome</label><input type="text" id="edit-cognome"></div>
+      <div class="drawer-field" style="text-align:center;padding:1rem 0;border-bottom:1px solid var(--border);margin-bottom:1rem">
+      <div id="foto-preview" style="display:inline-block"></div>
+      <input type="hidden" id="edit-foto">
+      <input type="file" id="foto-input" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+      <div style="margin-top:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+        <button type="button" onclick="document.getElementById('foto-input').click()" style="padding:6px 14px;font-size:12px;background:var(--blue);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:600">📷 Carica foto</button>
+        <button type="button" id="btn-remove-foto" onclick="removePhoto()" style="padding:6px 14px;font-size:12px;background:#E5E7EB;color:#374151;border:none;border-radius:6px;cursor:pointer;font-family:inherit;display:none">Rimuovi</button>
+      </div>
+    </div>
+    <div class="drawer-field"><label>Cognome</label><input type="text" id="edit-cognome"></div>
       <div class="drawer-field"><label>Nome</label><input type="text" id="edit-nome"></div>
     </div>
     <div class="drawer-row2">
@@ -836,7 +845,7 @@ function renderTable(){
     const isNuova=a.id>=578&&NEW_AGENTS.includes(a.agente);
     const pctHtml=UNCERTAIN.includes(a.status)&&a.pct?`<div class="pct-wrap ${a.pct>=70?'pct-high':a.pct>=40?'pct-mid':'pct-low'}"><div class="pct-bar-bg"><div class="pct-bar-fill" style="width:${a.pct}%"></div></div><span class="pct-label">${a.pct}%</span></div>`:'';
     return `<tr${editable?` onclick="openDrawer(${a.id})"`:''}>
-      <td class="name-cell">${isNew?'<span class="new-badge">NEW</span>':isNuova?'<span class="nuova-badge">Nuova</span>':''}<span style="font-family:'Barlow',sans-serif">${esc(a.cognome)}</span> <span style="font-weight:400">${esc(a.nome)}</span></td>
+      <td class="name-cell">${isNew?'<span class="new-badge">NEW</span>':isNuova?'<span class="nuova-badge">Nuova</span>':''}<span style="display:inline-flex;align-items:center;gap:8px">${renderAvatar(a,30)}<span><span style="font-family:'Barlow',sans-serif">${esc(a.cognome)}</span> <span style="font-weight:400">${esc(a.nome)}</span></span></span></td>
       <td><strong>${esc(a.anno)}</strong></td>
       <td style="font-size:11px;color:var(--text-sec)">${esc(a.societa||'—')}</td>
       <td><span class="role-badge">${esc(a.ruolo||'—')}</span></td>
@@ -897,6 +906,20 @@ function openDrawer(id){
   const a=athletes.find(x=>x.id===id);if(!a)return;
   document.getElementById('edit-id').value=id;
   document.getElementById('drawer-name').textContent=a.cognome+' '+a.nome;
+  // Init foto
+  const fotoEl=document.getElementById('edit-foto');
+  const previewEl=document.getElementById('foto-preview');
+  const removeBtn=document.getElementById('btn-remove-foto');
+  if(fotoEl){
+    fotoEl.value=a.foto||'';
+    if(a.foto){
+      previewEl.innerHTML='<img src="'+a.foto+'" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--blue)">';
+      if(removeBtn) removeBtn.style.display='inline-block';
+    } else {
+      previewEl.innerHTML='<div style="width:80px;height:80px;border-radius:50%;background:'+getRoleColor(a.ruolo)+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;font-family:Barlow,sans-serif">'+getInitials(a.cognome,a.nome)+'</div>';
+      if(removeBtn) removeBtn.style.display='none';
+    }
+  }
   document.getElementById('edit-cognome').value=a.cognome||'';
   document.getElementById('edit-nome').value=a.nome||'';
   document.getElementById('edit-anno').value=a.anno||'';
@@ -958,6 +981,8 @@ async function saveDrawer(){
   a.note=document.getElementById('edit-note').value.trim();
   const telEl=document.getElementById('edit-telefono');
   if(telEl)a.telefono=telEl.value.trim();
+  const fotoEl=document.getElementById('edit-foto');
+  if(fotoEl)a.foto=fotoEl.value||null;
   const btn=document.querySelector('.btn-save');btn.textContent='Salvataggio...';btn.disabled=true;
   try{await saveAthlete(a);renderTable();closeDrawer();showToast('Salvato ✓','success');}
   catch(e){showToast('Errore: '+e.message,'error');}
@@ -1187,6 +1212,61 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('.multi-filter-wrap'))document.querySelectorAll('.multi-filter-dropdown').forEach(el=>el.classList.remove('open'));
 });
 
+function getInitials(cognome, nome){
+  const c=(cognome||'').trim();
+  const n=(nome||'').trim();
+  const ci=c?c[0].toUpperCase():'';
+  const ni=n?n[0].toUpperCase():'';
+  return (ci+ni)||'?';
+}
+function getRoleColor(ruolo){
+  const r=(ruolo||'').toLowerCase();
+  if(r.includes('palleg')||r.includes('alzat'))return '#0F6E56';
+  if(r.includes('oppos'))return '#DC3545';
+  if(r.includes('central'))return '#6B21A8';
+  if(r.includes('libero'))return '#D97706';
+  if(r.includes('banda')||r.includes('schiacc')||r.includes('ricet'))return '#185FA5';
+  return '#6B7280';
+}
+function renderAvatar(a, size){
+  size = size || 32;
+  const bg = getRoleColor(a.ruolo);
+  if(a.foto){
+    return '<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid '+bg+';background:'+bg+';display:inline-block;vertical-align:middle"><img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;display:block" alt=""></div>';
+  }
+  const fs=Math.round(size*0.4);
+  return '<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+bg+';color:#fff;font-weight:700;font-size:'+fs+'px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Barlow,sans-serif;letter-spacing:.02em;vertical-align:middle">'+getInitials(a.cognome,a.nome)+'</div>';
+}
+function previewPhoto(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>5*1024*1024){alert('Foto troppo grande. Max 5MB.');input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      const MAX=240;
+      let w=img.width, h=img.height;
+      if(w>h){if(w>MAX){h=h*(MAX/w);w=MAX;}}
+      else{if(h>MAX){w=w*(MAX/h);h=MAX;}}
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const dataUrl=canvas.toDataURL('image/jpeg', 0.75);
+      document.getElementById('edit-foto').value=dataUrl;
+      document.getElementById('foto-preview').innerHTML='<img src="'+dataUrl+'" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--blue)">';
+      document.getElementById('btn-remove-foto').style.display='inline-block';
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function removePhoto(){
+  document.getElementById('edit-foto').value='';
+  document.getElementById('foto-preview').innerHTML='<div style="width:80px;height:80px;border-radius:50%;background:#E5E7EB;color:#6B7280;display:flex;align-items:center;justify-content:center;font-size:32px">+</div>';
+  document.getElementById('btn-remove-foto').style.display='none';
+}
+
 const SQUADS=[{id:'u19p',label:'U.19 Ecc. ProPatria',club:'ProPatria'},{id:'u17p',label:'U.17 Ecc. ProPatria',club:'ProPatria'},{id:'u15p',label:'U.15 Ecc. ProPatria',club:'ProPatria'},{id:'u14p',label:'U.14 Ecc. ProPatria',club:'ProPatria'},{id:'u13p',label:'U.13 Ecc. ProPatria',club:'ProPatria'},{id:'u12ap',label:'U.12A ProPatria',club:'ProPatria'},{id:'u12bp',label:'U.12B ProPatria',club:'ProPatria'},{id:'u19a',label:'U.19A Aspes',club:'Aspes'},{id:'u17a',label:'U.17A Aspes',club:'Aspes'},{id:'u15a',label:'U.15A Aspes',club:'Aspes'},{id:'u14a',label:'U.14A Aspes',club:'Aspes'},{id:'u13a',label:'U.13A Aspes',club:'Aspes'}];
 const TITOLARI_SLOTS=[{role:'P',label:'Palleggiatrice',key:'p1'},{role:'O',label:'Opposto',key:'o1'},{role:'C',label:'Centrale 1',key:'c1'},{role:'C',label:'Centrale 2',key:'c2'},{role:'S',label:'Schiacciatrice 1',key:'s1'},{role:'S',label:'Schiacciatrice 2',key:'s2'},{role:'L',label:'Libero',key:'l1'}];
 const RISERVE_SLOTS=[{role:'P',label:'Palleggiatrice 2',key:'ris_p2'},{role:'S',label:'Schiacciatrice 3',key:'ris_s3'},{role:'S',label:'Schiacciatrice 4',key:'ris_s4'},{role:'C',label:'Centrale 3',key:'ris_c3'},{role:'C',label:'Centrale 4',key:'ris_c4'},{role:'O',label:'Opposto 2',key:'ris_o2'},{role:'L',label:'Libero 2',key:'ris_l2'},{role:'?',label:'Slot libero 1',key:'ris_x1'},{role:'?',label:'Slot libero 2',key:'ris_x2'},{role:'?',label:'Slot libero 3',key:'ris_x3'}];
@@ -1256,7 +1336,7 @@ function renderRoster(){
       const pctH=UNCERTAIN.includes(a.status)&&a.pct?`<span style="font-size:10px;font-weight:600;color:${a.pct>=70?'#1D9E75':a.pct>=40?'#EF9F27':'#E24B4A'}">${a.pct}%</span>`:'';
       const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px">&#x2605;${a.rating}</span>`:'';
       const borderStyle=isTr?'border:1.5px dashed #F97316':'';
-      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:var(--blue-mid)">${slot.role}</span><div style="flex:1"><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}${newMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${pctH}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeFromSlot('${slot.key}')">&#x2715;</button></div>`;
+      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:var(--blue-mid)">${slot.role}</span><span style="margin-right:8px">${renderAvatar(a,32)}</span><div style="flex:1"><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}${newMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${pctH}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeFromSlot('${slot.key}')">&#x2715;</button></div>`;
     }
     return`<div class="roster-slot" onclick="showPoolForSlot('${slot.role}')"><span class="slot-role">${slot.role}</span><span class="slot-empty">${slot.label} — clicca per aggiungere</span><span style="font-size:18px;color:var(--border-med)">+</span></div>`;
   }).join('');
@@ -1275,7 +1355,7 @@ function renderRoster(){
       const newMark=isNew?'<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:4px;padding:1px 5px;font-size:8px;font-weight:800;margin-left:6px;letter-spacing:.05em;flex-shrink:0">NEW</span>':'';
       const borderStyle=isTr?'border:1.5px dashed #F97316':'';
       const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px">&#x2605;${a.rating}</span>`:'';
-      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><div style="flex:1"><div style="font-size:10px;color:var(--text-ter);margin-bottom:1px">${slot.label}</div><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}${newMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeRiservaSlot('${slot.key}')">&#x2715;</button></div>`;
+      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><span style="margin-right:8px">${renderAvatar(a,32)}</span><div style="flex:1"><div style="font-size:10px;color:var(--text-ter);margin-bottom:1px">${slot.label}</div><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}${newMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeRiservaSlot('${slot.key}')">&#x2715;</button></div>`;
     }
     return`<div class="roster-slot" onclick="addToRiservaSlot('${slot.role}','${slot.key}')"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><span class="slot-empty">${slot.label} — clicca per aggiungere</span><span style="font-size:18px;color:var(--border-med)">+</span></div>`;
   }).join('');
@@ -1301,7 +1381,7 @@ function renderPool(){
     const tratMark=isTratt?'<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:#F97316;color:#fff;border-radius:50%;font-size:10px;font-weight:700;margin-left:6px">?</span>':'';
     const newMarkPool=isNewA?'<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:4px;padding:1px 5px;font-size:8px;font-weight:800;margin-left:6px;letter-spacing:.05em">NEW</span>':'';
     const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px;margin-left:4px">&#x2605;${a.rating}</span>`:'';
-    return`<div class="pool-item${assigned?' assigned':''}" onclick="addToRoster(${a.id})"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${tratMark}${newMarkPool}</div><div style="font-size:11px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span>${assigned?'<span style="font-size:11px;color:var(--text-ter)">✓</span>':'<span style="font-size:18px;color:var(--blue-mid)">+</span>'}</div>`;
+    return`<div class="pool-item${assigned?' assigned':''}" onclick="addToRoster(${a.id})"><div style="flex:1"><div style="display:flex;align-items:center;gap:8px"><span>${renderAvatar(a,28)}</span><div style="font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${tratMark}${newMarkPool}</div></div><div style="font-size:11px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span>${assigned?'<span style="font-size:11px;color:var(--text-ter)">✓</span>':'<span style="font-size:18px;color:var(--blue-mid)">+</span>'}</div>`;
   }).join('');
 }
 function addToRoster(aid){
