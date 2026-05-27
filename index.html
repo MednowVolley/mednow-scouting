@@ -221,9 +221,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .table-wrap{border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;background:var(--bg-card);margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(10,22,40,0.06)}
 table{width:100%;min-width:1100px;border-collapse:collapse;font-size:13px}
 th{background:var(--navy);padding:9px 10px;text-align:left;font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid rgba(30,106,255,0.3);white-space:nowrap}
-td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle;max-height:52px}
 tr:last-child td{border-bottom:none}
-tbody tr{cursor:pointer}
+tbody tr{cursor:pointer;max-height:52px}
 tbody tr:hover td{background:#EBF4FF}
 .pill{display:inline-flex;align-items:center;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:inherit;white-space:nowrap}
 .s-nuovo-acquisto{background:#D1FAE5;color:#065F46;font-weight:700;border:1.5px solid #6EE7B7}
@@ -239,6 +239,8 @@ tbody tr:hover td{background:#EBF4FF}
 .agent-cell{font-size:12px;color:var(--blue-mid);font-weight:500}
 .note-cell{font-size:11px;color:var(--text-sec);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .name-cell{font-weight:600;color:var(--navy)}
+.name-cell img{max-width:36px!important;max-height:36px!important;width:36px!important;height:36px!important;border-radius:50%;object-fit:cover;object-position:top;}
+.name-cell>span>span:first-child{flex-shrink:0;}
 .ts-cell{font-size:10px;color:var(--text-ter);white-space:nowrap}
 .btn-del{background:none;border:none;cursor:pointer;color:var(--text-ter);font-size:14px;padding:3px 6px;border-radius:4px}
 .btn-del:hover{background:var(--red-bg);color:var(--red)}
@@ -983,7 +985,7 @@ function renderTable(){
     const isNuova=a.id>=578&&NEW_AGENTS.includes(a.agente);
     const pctHtml=UNCERTAIN.includes(a.status)&&a.pct?`<div class="pct-wrap ${a.pct>=70?'pct-high':a.pct>=40?'pct-mid':'pct-low'}"><div class="pct-bar-bg"><div class="pct-bar-fill" style="width:${a.pct}%"></div></div><span class="pct-label">${a.pct}%</span></div>`:'';
     return `<tr${editable?` onclick="openDrawer(${a.id})"`:''}>
-      <td class="name-cell">${isNew?'<span class="new-badge">NEW</span>':isNuova?'<span class="nuova-badge">Nuova</span>':''}<span style="display:inline-flex;align-items:center;gap:8px">${renderAvatar(a,30)}<span><span style="font-family:'Barlow',sans-serif">${esc(a.cognome)}</span> <span style="font-weight:400">${esc(a.nome)}</span></span></span></td>
+      <td class="name-cell">${isNew?'<span class="new-badge">NEW</span>':isNuova?'<span class="nuova-badge">Nuova</span>':''}<span style="display:inline-flex;align-items:center;gap:8px"><span class="riserva-avatar-wrap" onclick="event.stopPropagation()">${renderAvatar(a,34)}${a.foto?`<div class="riserva-preview"><img src="${a.foto}"><div class="riserva-preview-name">${esc(a.cognome)}</div></div>`:''}</span><span><span style="font-family:'Barlow',sans-serif">${esc(a.cognome)}</span> <span style="font-weight:400">${esc(a.nome)}</span></span></span></td>
       <td><strong>${esc(a.anno)}</strong></td>
       <td style="font-size:11px;color:var(--text-sec)">${esc(a.societa||'—')}</td>
       <td><span class="role-badge">${esc(a.ruolo||'—')}</span></td>
