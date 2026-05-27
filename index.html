@@ -1294,10 +1294,14 @@ function renderPool(){
   if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-ter);font-size:13px">Nessuna atleta disponibile</div>';return;}
   list.innerHTML=filtered.map(a=>{
     const assigned=assignedIds.has(a.id);
-    const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FEF3C7';
-    const stCol=CONFIRMED.includes(a.status)?'#065F46':'#854F0B';
+    const isTratt=a.status==='trattativa';
+    const isNewA=a.status==='nuovo_acquisto';
+    const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FFEDD5';
+    const stCol=CONFIRMED.includes(a.status)?'#065F46':'#9A3412';
+    const tratMark=isTratt?'<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:#F97316;color:#fff;border-radius:50%;font-size:10px;font-weight:700;margin-left:6px">?</span>':'';
+    const newMarkPool=isNewA?'<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:4px;padding:1px 5px;font-size:8px;font-weight:800;margin-left:6px;letter-spacing:.05em">NEW</span>':'';
     const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px;margin-left:4px">&#x2605;${a.rating}</span>`:'';
-    return`<div class="pool-item${assigned?' assigned':''}" onclick="addToRoster(${a.id})"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--navy)">${esc(a.cognome)} <span style="font-weight:400">${esc(a.nome)}</span></div><div style="font-size:11px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span>${assigned?'<span style="font-size:11px;color:var(--text-ter)">✓</span>':'<span style="font-size:18px;color:var(--blue-mid)">+</span>'}</div>`;
+    return`<div class="pool-item${assigned?' assigned':''}" onclick="addToRoster(${a.id})"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${tratMark}${newMarkPool}</div><div style="font-size:11px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span>${assigned?'<span style="font-size:11px;color:var(--text-ter)">✓</span>':'<span style="font-size:18px;color:var(--blue-mid)">+</span>'}</div>`;
   }).join('');
 }
 function addToRoster(aid){
