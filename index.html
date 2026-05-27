@@ -1776,22 +1776,20 @@ function initRosterBuilder(){loadRosters();renderSquadTabs();renderRoster();}
   </div>
 </div>
 
-
+<script>
 document.addEventListener('mousemove', function(e){
   const wrap = e.target.closest('.riserva-avatar-wrap');
   if(!wrap) return;
   const preview = wrap.querySelector('.riserva-preview');
   if(!preview) return;
-  // Posiziona centrata sopra il cursore
   let x = e.clientX;
   let y = e.clientY - 12;
-  // Evita uscita a sinistra/destra
   const pw = 160;
   if(x - pw/2 < 8) x = pw/2 + 8;
   if(x + pw/2 > window.innerWidth - 8) x = window.innerWidth - pw/2 - 8;
   preview.style.left = x + 'px';
   preview.style.top = y + 'px';
 });
-
+</script>
 </body>
 </html>
