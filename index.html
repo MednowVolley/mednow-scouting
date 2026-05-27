@@ -181,6 +181,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .riserva-slot:hover{background:#f0f6ff;}
 .riserva-slot.empty{border:1px dashed var(--border-med);background:transparent;cursor:pointer;}
 .riserva-slot.empty:hover{background:rgba(24,95,165,0.05);border-color:var(--blue);}
+.riserva-slot.assigned{opacity:0.6;cursor:not-allowed;}
+.riserva-slot.tratt-pool{border-color:#F97316;border-style:dashed;}
 .riserva-avatar-wrap{position:relative;flex-shrink:0;}
 .riserva-avatar{
   width:42px;height:42px;border-radius:50%;
@@ -1649,12 +1651,35 @@ function renderPool(){
     const assigned=assignedIds.has(a.id);
     const isTratt=a.status==='trattativa';
     const isNewA=a.status==='nuovo_acquisto';
-    const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FFEDD5';
-    const stCol=CONFIRMED.includes(a.status)?'#065F46':'#9A3412';
-    const tratMark=isTratt?'<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:#F97316;color:#fff;border-radius:50%;font-size:10px;font-weight:700;margin-left:6px">?</span>':'';
-    const newMarkPool=isNewA?'<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:4px;padding:1px 5px;font-size:8px;font-weight:800;margin-left:6px;letter-spacing:.05em">NEW</span>':'';
-    const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px;margin-left:4px">&#x2605;${a.rating}</span>`:'';
-    return`<div class="pool-item${assigned?' assigned':''}" onclick="addToRoster(${a.id})"><div style="flex:1"><div style="display:flex;align-items:center;gap:8px"><span>${renderAvatar(a,28)}</span><div style="font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${tratMark}${newMarkPool}</div></div><div style="font-size:11px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span>${assigned?'<span style="font-size:11px;color:var(--text-ter)">✓</span>':'<span style="font-size:18px;color:var(--blue-mid)">+</span>'}</div>`;
+    const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':isTratt?'#FFEDD5':'#E0F2FE';
+    const stCol=CONFIRMED.includes(a.status)?'#065F46':isTratt?'#9A3412':'#0369A1';
+    const bg=getRoleColor(a.ruolo);
+    const tratMark=isTratt?'<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:#F97316;color:#fff;border-radius:50%;font-size:9px;font-weight:700">?</span>':'';
+    const newMarkPool=isNewA?'<span style="background:#DC2626;color:#fff;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:800">NEW</span>':'';
+    const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px">&#x2605;${a.rating}</span>`:'';
+    // Avatar circolare con hover preview
+    const avatarInner=a.foto
+      ?`<img src="${a.foto}" style="width:100%;height:100%;object-fit:cover;object-position:top;">`
+      :`<span style="font-family:Barlow,sans-serif;font-weight:800;font-size:14px;color:#fff">${getInitials(a.cognome,a.nome)}</span>`;
+    const previewHtml=a.foto
+      ?`<div class="riserva-preview"><img src="${a.foto}"><div class="riserva-preview-name">${esc(a.cognome)}</div></div>`
+      :'';
+    return`<div class="riserva-slot${assigned?' assigned':''}${isTratt?' tratt-pool':''}" onclick="${assigned?'':'addToRoster('+a.id+')'}">
+      <div class="riserva-avatar-wrap">
+        <div class="riserva-avatar" style="background:${bg};border-color:${bg};${assigned?'opacity:0.45;':''}">
+          ${avatarInner}
+        </div>
+        ${previewHtml}
+      </div>
+      <div class="riserva-info">
+        <div class="riserva-name"><b>${esc(a.cognome)}</b> <span style="font-weight:400">${esc(a.nome)}</span>${tratMark}${newMarkPool}</div>
+        <div class="riserva-sub">${esc(a.anno||'—')}·${esc(a.ruolo||'—')} ${ratH}</div>
+      </div>
+      <div class="riserva-right">
+        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span>
+        ${assigned?'<span style="font-size:13px;color:var(--text-ter)">✓</span>':'<span style="font-size:18px;color:var(--blue-mid)">+</span>'}
+      </div>
+    </div>`;
   }).join('');
 }
 function addToRoster(aid){
