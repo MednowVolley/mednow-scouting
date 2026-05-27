@@ -1226,6 +1226,7 @@ function renderSquadTabs(){document.getElementById('squad-tabs').innerHTML=SQUAD
 function selectSquad(sid){currentSquad=sid;renderSquadTabs();renderRoster();}
 function getAssignedIds(){const r=getRoster(currentSquad);const ids=new Set(Object.values(r.titolari).filter(Boolean));Object.values(r.riserve||{}).filter(Boolean).forEach(id=>ids.add(id));(r.riserve_libere||[]).forEach(id=>ids.add(id));return ids;}
 function renderRoster(){
+  if(athletes&&athletes.length>0)buildTodo();
   const squad=SQUADS.find(s=>s.id===currentSquad);if(!squad)return;
   const r=getRoster(currentSquad);
   const filled=Object.values(r.titolari).filter(Boolean).length;
