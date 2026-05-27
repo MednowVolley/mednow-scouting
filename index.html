@@ -87,6 +87,54 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .photo-modal-info{color:#fff;font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
 .photo-modal-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .photo-modal-close:hover{background:rgba(255,255,255,0.35)}
+.volley-court{
+  background:linear-gradient(180deg,#FFA15B 0%,#FF8838 100%);
+  border:3px solid #fff;
+  border-radius:8px;
+  padding:0;
+  margin:14px 10px;
+  position:relative;
+  box-shadow:0 6px 24px rgba(0,0,0,0.18), inset 0 0 0 2px #FF6B14;
+  overflow:hidden;
+}
+.volley-court::before{
+  content:'';position:absolute;top:50%;left:0;right:0;height:5px;background:#fff;transform:translateY(-50%);z-index:1;box-shadow:0 0 0 1px rgba(0,0,0,0.08);
+}
+.volley-court::after{
+  content:'NET';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:#FF6B14;font-family:'Barlow',sans-serif;font-weight:800;font-size:9px;letter-spacing:.15em;padding:2px 8px;border-radius:4px;z-index:2;
+}
+.court-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:18px 14px;position:relative;z-index:1}
+.court-row.row-front{padding-bottom:14px}
+.court-row.row-back{padding-top:14px}
+.court-slot{
+  background:rgba(255,255,255,0.95);
+  border-radius:10px;
+  padding:8px 6px;
+  min-height:92px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  cursor:pointer;
+  position:relative;
+  border:2px solid transparent;
+  transition:all 0.15s;
+}
+.court-slot:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.court-slot.empty{background:rgba(255,255,255,0.4);border:2px dashed rgba(255,255,255,0.7)}
+.court-slot.empty:hover{background:rgba(255,255,255,0.6)}
+.court-slot.tratt{border-color:#F97316;border-style:dashed}
+.court-zone{position:absolute;top:4px;left:6px;font-size:9px;font-weight:800;color:#FF6B14;font-family:'Barlow',sans-serif;letter-spacing:.05em}
+.court-role-label{position:absolute;top:4px;right:6px;font-size:9px;font-weight:700;color:var(--blue);font-family:'Barlow',sans-serif}
+.court-name{font-size:11px;font-weight:700;color:var(--navy);line-height:1.15;margin-top:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
+.court-firstname{font-size:10px;color:var(--text-sec);font-weight:400;line-height:1.1}
+.court-empty-text{font-size:10px;color:#fff;font-weight:600;font-family:'Barlow',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
+.court-remove{position:absolute;bottom:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#E24B4A;color:#fff;border:none;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.court-libero-row{padding:10px 14px 14px;display:flex;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,0.05) 0%,transparent 100%)}
+.court-libero-row .court-slot{max-width:33%;min-width:33%}
+.court-section-title{padding:8px 14px 4px;font-size:10px;font-weight:700;color:#fff;letter-spacing:.1em;text-transform:uppercase;font-family:'Barlow',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
+
 
 .pag-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:var(--text-sec)}
 .pag-btn{padding:5px 12px;border:1px solid var(--border-med);border-radius:var(--radius-sm);background:var(--bg-card);cursor:pointer;font-size:12px;font-family:inherit;font-weight:500}
@@ -1338,6 +1386,104 @@ function getRiserveSlots(squadId){
   return RISERVE_SLOTS;
 }
 
+
+function renderCourt(titolariSlots, r){
+  // Posizioni standard sestetto volley:
+  // ZONA 4 (banda1) | ZONA 3 (centrale) | ZONA 2 (opposto)
+  // ZONA 5 (banda2) | ZONA 6 (libero/banda) | ZONA 1 (palleggio)
+  // Per categorie con libero (>=U14): banda3 separato; senza libero: solo 6 in campo
+  
+  const hasLibero = titolariSlots.some(s=>s.role==='L');
+  const slotByKey = {};
+  titolariSlots.forEach(s=>{ slotByKey[s.key]=s; });
+  
+  // Mapping zone -> slot.key (logica volley standard)
+  // Front row: 4=S1, 3=C1, 2=O
+  // Back row: 5=S2, 6=C2, 1=P  (con libero che entra in zona 5 o 6)
+  const layout = {
+    z4: 's1',
+    z3: 'c1',
+    z2: 'o1',
+    z5: 's2',
+    z6: 'c2',
+    z1: 'p1'
+  };
+  
+  function renderSlot(slotKey, zone){
+    const slot = slotByKey[slotKey];
+    if(!slot) return '';
+    const aid = r.titolari[slot.key];
+    const a = aid ? athletes.find(x=>x.id===aid) : null;
+    if(!a){
+      return '<div class="court-slot empty" onclick="showPoolForSlot(\''+slot.role+'\')">'+
+        '<div class="court-zone">Z'+zone+'</div>'+
+        '<div class="court-role-label">'+slot.role+'</div>'+
+        '<div class="court-empty-text">'+esc(slot.label)+'</div>'+
+        '<div style="font-size:18px;color:#fff;margin-top:4px">+</div>'+
+        '</div>';
+    }
+    const isTr = a.status==='trattativa';
+    const isNew = a.status==='nuovo_acquisto';
+    const trMark = isTr ? '<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:#F97316;color:#fff;border-radius:50%;font-size:9px;font-weight:700;margin-left:3px">?</span>' : '';
+    const newMark = isNew ? '<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:800;margin-left:3px">NEW</span>' : '';
+    const cls = isTr ? 'court-slot tratt' : 'court-slot';
+    return '<div class="'+cls+'">'+
+      '<div class="court-zone">Z'+zone+'</div>'+
+      '<div class="court-role-label">'+slot.role+'</div>'+
+      renderAvatar(a, 40)+
+      '<div class="court-name">'+esc(a.cognome)+' '+trMark+newMark+'</div>'+
+      '<div class="court-firstname">'+esc(a.nome)+'</div>'+
+      '<button class="court-remove" onclick="event.stopPropagation();removeFromSlot(\''+slot.key+'\')">×</button>'+
+      '</div>';
+  }
+  
+  let html = '<div class="volley-court">';
+  html += '<div class="court-section-title">Rete</div>';
+  html += '<div class="court-row row-front">';
+  html += renderSlot(layout.z4, 4);
+  html += renderSlot(layout.z3, 3);
+  html += renderSlot(layout.z2, 2);
+  html += '</div>';
+  html += '<div class="court-row row-back">';
+  html += renderSlot(layout.z5, 5);
+  html += renderSlot(layout.z6, 6);
+  html += renderSlot(layout.z1, 1);
+  html += '</div>';
+  
+  // Libero separato (fuori campo, dietro)
+  if(hasLibero && slotByKey['l1']){
+    const slot = slotByKey['l1'];
+    const aid = r.titolari[slot.key];
+    const a = aid ? athletes.find(x=>x.id===aid) : null;
+    html += '<div class="court-section-title" style="border-top:2px solid rgba(255,255,255,0.3);margin-top:6px">Libero</div>';
+    html += '<div class="court-libero-row">';
+    if(!a){
+      html += '<div class="court-slot empty" onclick="showPoolForSlot(\'L\')">'+
+        '<div class="court-role-label">L</div>'+
+        '<div class="court-empty-text">Libero</div>'+
+        '<div style="font-size:18px;color:#fff;margin-top:4px">+</div>'+
+        '</div>';
+    } else {
+      const isTr = a.status==='trattativa';
+      const isNew = a.status==='nuovo_acquisto';
+      const trMark = isTr ? '<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:#F97316;color:#fff;border-radius:50%;font-size:9px;font-weight:700;margin-left:3px">?</span>' : '';
+      const newMark = isNew ? '<span style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:800;margin-left:3px">NEW</span>' : '';
+      const cls = isTr ? 'court-slot tratt' : 'court-slot';
+      html += '<div class="'+cls+'">'+
+        '<div class="court-role-label">L</div>'+
+        renderAvatar(a, 40)+
+        '<div class="court-name">'+esc(a.cognome)+' '+trMark+newMark+'</div>'+
+        '<div class="court-firstname">'+esc(a.nome)+'</div>'+
+        '<button class="court-remove" onclick="event.stopPropagation();removeFromSlot(\''+slot.key+'\')">×</button>'+
+        '</div>';
+    }
+    html += '</div>';
+  }
+  
+  html += '</div>';
+  document.getElementById('titolari-slots').innerHTML = html;
+}
+
 function selectSquad(sid){currentSquad=sid;renderSquadTabs();renderRoster();}
 function getAssignedIds(){const r=getRoster(currentSquad);const ids=new Set(Object.values(r.titolari).filter(Boolean));Object.values(r.riserve||{}).filter(Boolean).forEach(id=>ids.add(id));(r.riserve_libere||[]).forEach(id=>ids.add(id));return ids;}
 function renderRoster(){
@@ -1346,22 +1492,7 @@ function renderRoster(){
   const r=getRoster(currentSquad);
   const filled=Object.values(r.titolari).filter(Boolean).length;
   document.getElementById('titolari-count').textContent=filled+'/7';
-  document.getElementById('titolari-slots').innerHTML=getTitolariSlots(currentSquad).map(slot=>{
-    const aid=r.titolari[slot.key];const a=aid?athletes.find(x=>x.id===aid):null;
-    if(a){
-      const isTr=a.status==='trattativa';
-      const isNew=a.status==='nuovo_acquisto';
-      const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FFEDD5';
-      const stCol=CONFIRMED.includes(a.status)?'#065F46':'#9A3412';
-      const trMark=isTr?'<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#F97316;color:#fff;border-radius:50%;font-size:11px;font-weight:700;margin-left:6px;flex-shrink:0">?</span>':'';
-      const newMark=isNew?'<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:800;margin-left:6px;letter-spacing:.05em;flex-shrink:0">NEW</span>':'';
-      const pctH=UNCERTAIN.includes(a.status)&&a.pct?`<span style="font-size:10px;font-weight:600;color:${a.pct>=70?'#1D9E75':a.pct>=40?'#EF9F27':'#E24B4A'}">${a.pct}%</span>`:'';
-      const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px">&#x2605;${a.rating}</span>`:'';
-      const borderStyle=isTr?'border:1.5px dashed #F97316':'';
-      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:var(--blue-mid)">${slot.role}</span><span style="margin-right:8px">${renderAvatar(a,32)}</span><div style="flex:1"><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}${newMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${pctH}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeFromSlot('${slot.key}')">&#x2715;</button></div>`;
-    }
-    return`<div class="roster-slot" onclick="showPoolForSlot('${slot.role}')"><span class="slot-role">${slot.role}</span><span class="slot-empty">${slot.label} — clicca per aggiungere</span><span style="font-size:18px;color:var(--border-med)">+</span></div>`;
-  }).join('');
+  renderCourt(getTitolariSlots(currentSquad), r);
   // Riserve con slot fissi
   const risFilledCount=Object.values(r.riserve||{}).filter(Boolean).length+(r.riserve_libere||[]).length;
   document.getElementById('riserve-count').textContent=risFilledCount;
