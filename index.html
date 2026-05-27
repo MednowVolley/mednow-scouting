@@ -177,6 +177,36 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   z-index:5;opacity:0;transition:opacity 0.15s;
 }
 .pcard:hover .pcard-remove{opacity:1;}
+.riserva-slot{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);cursor:default;transition:background 0.15s;}
+.riserva-slot:hover{background:#f0f6ff;}
+.riserva-slot.empty{border:1px dashed var(--border-med);background:transparent;cursor:pointer;}
+.riserva-slot.empty:hover{background:rgba(24,95,165,0.05);border-color:var(--blue);}
+.riserva-avatar-wrap{position:relative;flex-shrink:0;}
+.riserva-avatar{
+  width:42px;height:42px;border-radius:50%;
+  overflow:hidden;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.2s;cursor:pointer;
+  flex-shrink:0;
+}
+.riserva-avatar:hover{transform:scale(1.08);}
+.riserva-avatar img{width:100%;height:100%;object-fit:cover;object-position:top;}
+.riserva-preview{
+  display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  width:110px;background:#fff;border-radius:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.22);overflow:hidden;z-index:100;
+  pointer-events:none;
+}
+.riserva-avatar-wrap:hover .riserva-preview{display:block;}
+.riserva-preview img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top;display:block;}
+.riserva-preview-name{background:rgba(0,180,255,0.85);color:#fff;font-family:'Barlow',sans-serif;font-weight:800;font-size:10px;text-align:center;padding:4px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.riserva-info{flex:1;min-width:0;}
+.riserva-name{font-size:12px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.riserva-name b{font-family:'Barlow',sans-serif;}
+.riserva-sub{font-size:10px;color:var(--text-sec);}
+.riserva-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.riserva-slot-label{font-size:9px;color:var(--text-ter);font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+
 .court-libero-row .pcard,.court-libero-row .pcard-add{width:33.33%;max-width:120px;}
 
 .court-section-title{padding:8px 14px 4px;font-size:10px;font-weight:700;color:#fff;letter-spacing:.1em;text-transform:uppercase;font-family:'Barlow',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
@@ -1559,18 +1589,48 @@ function renderRoster(){
   document.getElementById('riserve-slots').innerHTML=getRiserveSlots(currentSquad).map(slot=>{
     const aid=r.riserve?.[slot.key];const a=aid?athletes.find(x=>x.id===aid):null;
     const roleColor={S:'#185FA5',P:'#0F6E56',C:'#6B21A8',L:'#854F0B',O:'#DC3545','?':'#6B7280'}[slot.role]||'#6B7280';
-    if(a){
-      const isTr=a.status==='trattativa';
-      const isNew=a.status==='nuovo_acquisto';
-      const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FFEDD5';
-      const stCol=CONFIRMED.includes(a.status)?'#065F46':'#9A3412';
-      const trMark=isTr?'<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:#F97316;color:#fff;border-radius:50%;font-size:10px;font-weight:700;margin-left:6px;flex-shrink:0">?</span>':'';
-      const newMark=isNew?'<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:4px;padding:1px 5px;font-size:8px;font-weight:800;margin-left:6px;letter-spacing:.05em;flex-shrink:0">NEW</span>':'';
-      const borderStyle=isTr?'border:1.5px dashed #F97316':'';
-      const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px">&#x2605;${a.rating}</span>`:'';
-      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><span style="margin-right:8px">${renderAvatar(a,32)}</span><div style="flex:1"><div style="font-size:10px;color:var(--text-ter);margin-bottom:1px">${slot.label}</div><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}${newMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeRiservaSlot('${slot.key}')">&#x2715;</button></div>`;
+    if(!a){
+      return`<div class="riserva-slot empty" onclick="addToRiservaSlot('${slot.role}','${slot.key}')">
+        <div style="width:42px;height:42px;border-radius:50%;border:2px dashed ${roleColor};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:12px;font-weight:800;color:${roleColor};font-family:Barlow,sans-serif">${slot.role}</span>
+        </div>
+        <div class="riserva-info"><div class="riserva-sub">${esc(slot.label)} — clicca per aggiungere</div></div>
+        <span style="font-size:16px;color:var(--border-med)">+</span>
+      </div>`;
     }
-    return`<div class="roster-slot" onclick="addToRiservaSlot('${slot.role}','${slot.key}')"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><span class="slot-empty">${slot.label} — clicca per aggiungere</span><span style="font-size:18px;color:var(--border-med)">+</span></div>`;
+    const isTr=a.status==='trattativa';
+    const isNew=a.status==='nuovo_acquisto';
+    const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':isTr?'#FFEDD5':'#E0F2FE';
+    const stCol=CONFIRMED.includes(a.status)?'#065F46':isTr?'#9A3412':'#0369A1';
+    const trMark=isTr?'<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:#F97316;color:#fff;border-radius:50%;font-size:9px;font-weight:700">?</span>':'';
+    const newMark=isNew?'<span style="background:#DC2626;color:#fff;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:800">NEW</span>':'';
+    const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px">&#x2605;${a.rating}</span>`:'';
+    const bg=getRoleColor(a.ruolo);
+    // Avatar circolare
+    const avatarInner=a.foto
+      ?`<img src="${a.foto}" style="width:100%;height:100%;object-fit:cover;object-position:top;">`
+      :`<span style="font-family:Barlow,sans-serif;font-weight:800;font-size:14px;color:#fff">${getInitials(a.cognome,a.nome)}</span>`;
+    // Preview hover (solo se ha foto)
+    const previewHtml=a.foto
+      ?`<div class="riserva-preview"><img src="${a.foto}"><div class="riserva-preview-name">${esc(a.cognome)}</div></div>`
+      :'';
+    return`<div class="riserva-slot">
+      <div class="riserva-avatar-wrap">
+        <div class="riserva-avatar" style="background:${bg};border-color:${bg}" onclick="event.stopPropagation();${a.foto?'openPhoto('+a.id+')':''}">
+          ${avatarInner}
+        </div>
+        ${previewHtml}
+      </div>
+      <div class="riserva-info">
+        <div class="riserva-slot-label">${esc(slot.label)}</div>
+        <div class="riserva-name"><b>${esc(a.cognome)}</b> <span style="font-weight:400">${esc(a.nome)}</span>${trMark}${newMark}</div>
+        <div class="riserva-sub">${esc(a.anno||'—')}·${esc(a.ruolo||'—')} ${ratH}</div>
+      </div>
+      <div class="riserva-right">
+        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span>
+        <button class="slot-remove" onclick="removeRiservaSlot('${slot.key}')">&#x2715;</button>
+      </div>
+    </div>`;
   }).join('');
   renderPool();renderSummary(getSquadAthletes(squad.label),r);
 }
