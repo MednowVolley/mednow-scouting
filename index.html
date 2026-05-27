@@ -1248,13 +1248,15 @@ function renderRoster(){
     const aid=r.titolari[slot.key];const a=aid?athletes.find(x=>x.id===aid):null;
     if(a){
       const isTr=a.status==='trattativa';
+      const isNew=a.status==='nuovo_acquisto';
       const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FFEDD5';
       const stCol=CONFIRMED.includes(a.status)?'#065F46':'#9A3412';
       const trMark=isTr?'<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#F97316;color:#fff;border-radius:50%;font-size:11px;font-weight:700;margin-left:6px;flex-shrink:0">?</span>':'';
+      const newMark=isNew?'<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:800;margin-left:6px;letter-spacing:.05em;flex-shrink:0">NEW</span>':'';
       const pctH=UNCERTAIN.includes(a.status)&&a.pct?`<span style="font-size:10px;font-weight:600;color:${a.pct>=70?'#1D9E75':a.pct>=40?'#EF9F27':'#E24B4A'}">${a.pct}%</span>`:'';
       const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px">&#x2605;${a.rating}</span>`:'';
       const borderStyle=isTr?'border:1.5px dashed #F97316':'';
-      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:var(--blue-mid)">${slot.role}</span><div style="flex:1"><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${pctH}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeFromSlot('${slot.key}')">&#x2715;</button></div>`;
+      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:var(--blue-mid)">${slot.role}</span><div style="flex:1"><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}${newMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${pctH}${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeFromSlot('${slot.key}')">&#x2715;</button></div>`;
     }
     return`<div class="roster-slot" onclick="showPoolForSlot('${slot.role}')"><span class="slot-role">${slot.role}</span><span class="slot-empty">${slot.label} — clicca per aggiungere</span><span style="font-size:18px;color:var(--border-med)">+</span></div>`;
   }).join('');
@@ -1266,12 +1268,14 @@ function renderRoster(){
     const roleColor={S:'#185FA5',P:'#0F6E56',C:'#6B21A8',L:'#854F0B',O:'#DC3545','?':'#6B7280'}[slot.role]||'#6B7280';
     if(a){
       const isTr=a.status==='trattativa';
+      const isNew=a.status==='nuovo_acquisto';
       const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':'#FFEDD5';
       const stCol=CONFIRMED.includes(a.status)?'#065F46':'#9A3412';
       const trMark=isTr?'<span title="In trattativa" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:#F97316;color:#fff;border-radius:50%;font-size:10px;font-weight:700;margin-left:6px;flex-shrink:0">?</span>':'';
+      const newMark=isNew?'<span title="Nuovo acquisto" style="display:inline-flex;align-items:center;justify-content:center;background:#DC2626;color:#fff;border-radius:4px;padding:1px 5px;font-size:8px;font-weight:800;margin-left:6px;letter-spacing:.05em;flex-shrink:0">NEW</span>':'';
       const borderStyle=isTr?'border:1.5px dashed #F97316':'';
       const ratH=a.rating?`<span class="rating-badge rating-${a.rating}" style="font-size:9px">&#x2605;${a.rating}</span>`:'';
-      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><div style="flex:1"><div style="font-size:10px;color:var(--text-ter);margin-bottom:1px">${slot.label}</div><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeRiservaSlot('${slot.key}')">&#x2715;</button></div>`;
+      return`<div class="roster-slot filled" style="${borderStyle}"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><div style="flex:1"><div style="font-size:10px;color:var(--text-ter);margin-bottom:1px">${slot.label}</div><div class="slot-name" style="display:flex;align-items:center;flex-wrap:wrap">${esc(a.cognome)} <span style="font-weight:400;margin-left:4px">${esc(a.nome)}</span>${trMark}${newMark}</div><div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-sec)">${esc(a.anno)}·${esc(a.ruolo||'—')} ${ratH}</div></div><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${stBg};color:${stCol}">${SL[a.status]||a.status}</span><button class="slot-remove" onclick="removeRiservaSlot('${slot.key}')">&#x2715;</button></div>`;
     }
     return`<div class="roster-slot" onclick="addToRiservaSlot('${slot.role}','${slot.key}')"><span class="slot-role" style="color:${roleColor}">${slot.role}</span><span class="slot-empty">${slot.label} — clicca per aggiungere</span><span style="font-size:18px;color:var(--border-med)">+</span></div>`;
   }).join('');
