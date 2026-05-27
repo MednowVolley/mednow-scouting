@@ -1045,6 +1045,35 @@ function toggleTodo(){
   document.getElementById('todo-toggle-icon').textContent = todoOpen ? '▲ nascondi' : '▼ mostra';
 }
 
+
+function todoFilter(status, sort){
+  // Resetta tutti i filtri
+  ['f-search','f-anno','f-ruolo','f-agente','f-dest'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.querySelectorAll('#dd-status input').forEach(cb=>cb.checked=false);
+  // Imposta stato se richiesto
+  if(status){
+    const cb=document.querySelector(`#dd-status input[value="${status}"]`);
+    if(cb){cb.checked=true;}
+    updateMultiFilterLabel('status');
+  }
+  // Imposta ordinamento
+  if(sort) setSort(sort);
+  // Scrolla alla tabella
+  page=0;
+  renderTable();
+  document.querySelector('.table-wrap')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function todoRoster(squadId){
+  // Vai alla tab Roster e seleziona la squadra giusta
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    if(b.getAttribute('onclick')?.includes("'roster'")){b.click();}
+  });
+  setTimeout(()=>{
+    const btn=document.querySelector(`.squad-btn[onclick*="${squadId}"]`);
+    if(btn) btn.click();
+  },100);
+}
 function buildTodo(){
   const cards = [];
   const now = Date.now();
@@ -1059,7 +1088,8 @@ function buildTodo(){
       title: `${trattative.length} trattative ancora aperte`,
       body: urgent.length
         ? `⭐ Priorità: ${urgent.slice(0,3).map(a=>a.cognome+' '+a.nome).join(', ')}${urgent.length>3?' e altre...':''}`
-        : 'Nessuna atleta ad alto rating in trattativa'
+        : 'Nessuna atleta ad alto rating in trattativa',
+      action: "todoFilter('trattativa','priority')"
     });
   }
 
@@ -1070,7 +1100,8 @@ function buildTodo(){
       type: 'red',
       tag: 'Urgente',
       title: `${topNotConf.length} atlete con voto ★9-10 non ancora confermate`,
-      body: topNotConf.slice(0,4).map(a=>`${a.cognome} ${a.nome} (★${a.rating} · ${SL[a.status]||a.status})`).join('<br>')
+      body: topNotConf.slice(0,4).map(a=>`${a.cognome} ${a.nome} (★${a.rating} · ${SL[a.status]||a.status})`).join('<br>'),
+      action: "todoFilter(null,'rating')"
     });
   }
 
@@ -1090,7 +1121,8 @@ function buildTodo(){
         type: pct >= 70 ? 'blue' : 'purple',
         tag: sq.label,
         title: `Roster completo al ${pct}% (${filled}/${TITOLARI_SLOTS.length} titolari)`,
-        body: `Mancano: ${missing.map(s=>slotNames[s]||s).join(', ')}`
+        body: `Mancano: ${missing.map(s=>slotNames[s]||s).join(', ')}`,
+        action: `todoRoster('${sq.id}')`
       });
     }
   });
@@ -1105,7 +1137,8 @@ function buildTodo(){
       title: `${inProva.length} atlete in prova Aspes`,
       body: senzaVoto.length > 0
         ? `${senzaVoto.length} senza ancora una valutazione — aprile le schede e assegna un voto`
-        : 'Tutte le atlete in prova hanno una valutazione ✓'
+        : 'Tutte le atlete in prova hanno una valutazione ✓',
+      action: "todoFilter('in_prova','recent')"
     });
   }
 
@@ -1116,7 +1149,8 @@ function buildTodo(){
       type: 'orange',
       tag: 'Da assegnare',
       title: `${recenti.length} atlete in trattativa senza squadra destinazione`,
-      body: recenti.slice(0,3).map(a=>a.cognome+' '+a.nome).join(', ')+(recenti.length>3?' e altre...':'')
+      body: recenti.slice(0,3).map(a=>a.cognome+' '+a.nome).join(', ')+(recenti.length>3?' e altre...':''),
+      action: "todoFilter('trattativa','priority')"
     });
   }
 
@@ -1128,8 +1162,8 @@ function buildTodo(){
     return;
   }
   grid.innerHTML = cards.map(c=>`
-    <div class="todo-card ${c.type}">
-      <div class="todo-card-tag">${c.tag}</div>
+    <div class="todo-card ${c.type}" ${c.action ? `onclick="${c.action}" style="cursor:pointer"` : ''}>
+      <div class="todo-card-tag">${c.tag} ${c.action ? '<span style="float:right;font-size:10px;opacity:.6">→ vai</span>' : ''}</div>
       <div class="todo-card-title">${c.title}</div>
       <div class="todo-card-body">${c.body}</div>
     </div>`).join('');
