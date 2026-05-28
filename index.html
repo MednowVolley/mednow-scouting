@@ -592,7 +592,7 @@ footer strong{color:var(--blue-mid)}
     </div>
   </div>
   <div class="squad-tabs" id="squad-tabs"></div>
-  <div class="roster-grid-wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start">
+  <div class="roster-grid-wrap" style="display:flex;flex-direction:column;gap:0.75rem">
     <!-- TITOLARI -->
     <div class="roster-panel">
       <div class="roster-panel-header">
@@ -607,7 +607,7 @@ footer strong{color:var(--blue-mid)}
         <h3>&#x1F4CB; Riserve</h3>
         <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="riserve-count">0</span>
       </div>
-      <div id="riserve-slots" style="padding:10px;display:flex;flex-direction:column;gap:6px"></div>
+      <div id="riserve-slots" style="padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
     </div>
     <div style="dummy">
     </div><!-- end dummy -->
