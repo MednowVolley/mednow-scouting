@@ -1310,6 +1310,10 @@ function closeDrawer(){document.getElementById('edit-drawer').classList.remove('
 async function saveDrawer(){
   const id=parseInt(document.getElementById('edit-id').value);
   const a=athletes.find(x=>x.id===id);if(!a)return;
+  // Snapshot PRIMA delle modifiche per il log
+  const prima={status:a.status,rating:a.rating,note:a.note,dest:a.dest,ruolo:a.ruolo,
+    pct:a.pct,telefono:a.telefono,agente:a.agente,societa:a.societa,
+    cognome:a.cognome,nome:a.nome,anno:a.anno};
   a.cognome=document.getElementById('edit-cognome').value.trim().toUpperCase();
   a.nome=document.getElementById('edit-nome').value.trim();
   a.anno=document.getElementById('edit-anno').value.trim();
@@ -1336,7 +1340,18 @@ async function saveDrawer(){
     }
   }
   const btn=document.querySelector('.btn-save');btn.textContent='Salvataggio...';btn.disabled=true;
-  try{await saveAthlete(a);renderTable();closeDrawer();showToast('Salvato ✓','success');}
+  try{
+    const cambiati=diffAtleta(prima,a);
+    await saveAthlete(a);
+    if(cambiati.length){
+      const atletaNome=(a.cognome+' '+a.nome).trim();
+      await saveLog(a.id, atletaNome, cambiati);
+      loadRecentActivity();
+      setTimeout(loadNotifications, 500);
+    }
+    renderTable();closeDrawer();showToast('Salvato ✓','success');
+    setTimeout(loadNotifications, 500);
+  }
   catch(e){showToast('Errore: '+e.message,'error');}
   btn.innerHTML='&#x2713; Salva';btn.disabled=false;
 }
