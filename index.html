@@ -130,7 +130,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .riserva-avatar{width:42px;height:42px;border-radius:50%;overflow:hidden;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:transform 0.2s;cursor:pointer;flex-shrink:0}
 .riserva-avatar:hover{transform:scale(1.08)}
 .riserva-avatar img{width:100%;height:100%;object-fit:cover;object-position:top}
-.riserva-preview{display:none;position:fixed;width:160px;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.35);overflow:hidden;z-index:9000;pointer-events:none;transform:translate(-50%,-110%)}
+.riserva-preview{display:none;position:fixed;width:160px;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.35);overflow:hidden;z-index:9000;pointer-events:none;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s}
 .riserva-preview img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top center;display:block}
 .riserva-preview-name{background:rgba(0,140,220,0.92);color:#fff;font-family:'Barlow',sans-serif;font-weight:800;font-size:11px;text-align:center;padding:5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .riserva-info{flex:1;min-width:0}
@@ -1476,7 +1476,7 @@ const CAMPO_LABELS={status:'Stato',rating:'Voto',note:'Note',dest:'Squadra dest.
 const STATUS_LABELS={nuovo_acquisto:'Nuovo acquisto',confermata:'Confermata',in_prova:'In prova Aspes',trattativa:'In trattativa',visione:'Visionata',non_confermata:'Non confermata',trasferita_aspes:'Trasferita Aspes',lista:'In lista',no:'No'};
 async function saveLog(atletaId,atletaNome,campiCambiati){
   if(!campiCambiati.length)return;
-  const logs=campiCambiati.map(c=>({atleta_id:atletaId,atleta_nome:atletaNome,utente_id:currentUser.id,utente_nome:currentProfile?.nome||currentUser.email,campo:c.campo,valore_prima:c.prima,valore_dopo:c.dopo,created_at:Date.now()}));
+  const logs=campiCambiati.map(c=>({atleta_id:atletaId,atleta_nome:atletaNome,utente_id:currentUser?.user?.id||null,utente_nome:currentProfile?.nome||currentUser?.user?.email||'?',campo:c.campo,valore_prima:c.prima,valore_dopo:c.dopo,created_at:Date.now()}));
   try{await sbFetch('/rest/v1/logs','POST',logs);}catch(e){console.warn('Log:',e);}
 }
 function diffAtleta(prima,dopo){
@@ -1867,12 +1867,8 @@ async function loadNotifications(){
     // Carica gli ultimi 80 log escludendo le proprie azioni (solo altrui)
     const all = await sbFetch('/rest/v1/logs?order=created_at.desc&limit=80');
     if(!all) return;
-    // Filtra: per admin mostra tutto tranne le proprie; per altri mostra solo le proprie
-    if(isAdmin()){
-      _notifLogs = all.filter(l => l.utente_id !== currentUser.user.id);
-    } else {
-      _notifLogs = all.filter(l => l.utente_id === currentUser.user.id);
-    }
+    // Admin vede tutto; altri vedono tutte le modifiche + le proprie
+    _notifLogs = all;
     renderNotifications();
   } catch(e){ console.warn('Notif load error:', e); }
 }
@@ -2019,8 +2015,8 @@ window.applyCrop=function(){if(!_cImg||!_cSel)return;var r=getR();var sx=_cImg.n
 (function(){
   var activePreview=null;
   document.addEventListener('mouseover',function(e){const wrap=e.target.closest('.riserva-avatar-wrap');if(!wrap)return;const preview=wrap.querySelector('.riserva-preview');if(!preview)return;if(preview.parentNode!==document.body){document.body.appendChild(preview);}preview.style.display='block';activePreview=preview;});
-  document.addEventListener('mouseout',function(e){const wrap=e.target.closest('.riserva-avatar-wrap');if(!wrap)return;const related=e.relatedTarget;if(related&&wrap.contains(related))return;document.querySelectorAll('.riserva-preview').forEach(function(p){p.style.display='none';});activePreview=null;});
-  document.addEventListener('mousemove',function(e){const wrap=e.target.closest('.riserva-avatar-wrap');if(!wrap)return;const preview=wrap.querySelector('.riserva-preview')||activePreview;if(!preview||preview.style.display==='none')return;var x=e.clientX,y=e.clientY-12,pw=160;if(x-pw/2<8)x=pw/2+8;if(x+pw/2>window.innerWidth-8)x=window.innerWidth-pw/2-8;if(y-(preview.offsetHeight||240)<8)y=e.clientY+20;preview.style.left=x+'px';preview.style.top=y+'px';preview.style.transform='translate(-50%,-100%)';});
+  document.addEventListener('mouseout',function(e){const wrap=e.target.closest('.riserva-avatar-wrap');if(!wrap)return;const related=e.relatedTarget;if(related&&wrap.contains(related))return;document.querySelectorAll('.riserva-preview').forEach(function(p){p.style.display='none';p.style.opacity='0';});activePreview=null;});
+  document.addEventListener('mousemove',function(e){const wrap=e.target.closest('.riserva-avatar-wrap');if(!wrap)return;const preview=wrap.querySelector('.riserva-preview')||activePreview;if(!preview||preview.style.display==='none')return;var x=e.clientX,y=e.clientY-12,pw=160;if(x-pw/2<8)x=pw/2+8;if(x+pw/2>window.innerWidth-8)x=window.innerWidth-pw/2-8;if(y-(preview.offsetHeight||240)<8)y=e.clientY+20;preview.style.left=x+'px';preview.style.top=y+'px';preview.style.transform='translate(-50%,-100%)';preview.style.opacity='1';});
 })();
 </script>
 </body>
