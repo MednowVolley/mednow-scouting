@@ -339,7 +339,7 @@ tbody tr:hover td{background:#EBF4FF}
 .btn-cancel{padding:11px 18px;background:var(--bg-card);color:var(--text-sec);border:1.5px solid var(--border-med);border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
 .btn-del-drawer{padding:11px 14px;background:var(--bg-card);color:var(--red);border:1.5px solid var(--red-bg);border-radius:var(--radius-sm);font-size:14px;cursor:pointer;font-family:inherit}
 .btn-del-drawer:hover{background:var(--red-bg)}
-@media(max-width:700px){.roster-grid-wrap{grid-template-columns:1fr!important}.volley-court{width:100%!important}}
+@media(max-width:700px){.roster-grid-wrap{grid-template-columns:1fr!important}.volley-court{width:100%!important}[style*="grid-template-columns:auto 1fr"]{grid-template-columns:1fr!important}}
 .roster-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .roster-panel-header{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
 .roster-panel-header h3{font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.05em}
@@ -592,44 +592,37 @@ footer strong{color:var(--blue-mid)}
     </div>
   </div>
   <div class="squad-tabs" id="squad-tabs"></div>
-  <div class="roster-grid-wrap" style="display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start">
-    <!-- TITOLARI -->
-    <div class="roster-panel">
-      <div class="roster-panel-header">
-        <h3>&#x26BD; Sestetto titolare</h3>
-        <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="titolari-count">0/7</span>
-      </div>
-      <div id="titolari-slots" style="padding:10px"></div>
-    </div>
-    <!-- RISERVE -->
-    <div class="roster-panel" style="min-width:0">
-      <div class="roster-panel-header" style="background:#374151">
-        <h3>&#x1F4CB; Riserve</h3>
-        <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="riserve-count">0</span>
-      </div>
-      <div id="riserve-slots" style="padding:8px;display:flex;flex-direction:column;gap:5px"></div>
-    </div>
-    <div style="dummy">
-    </div><!-- end dummy -->
-    <!-- POOL -->
-    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <h3 style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase">Atlete disponibili</h3>
-          <span style="font-size:11px;color:var(--text-sec)" id="pool-count">0</span>
+  <div class="roster-grid-wrap" style="display:flex;flex-direction:column;gap:0.75rem">
+    <!-- RIGA 1: campo + pool titolari affiancati -->
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:0.75rem;align-items:start">
+      <!-- CAMPO -->
+      <div class="roster-panel">
+        <div class="roster-panel-header">
+          <h3>&#x26BD; Sestetto titolare</h3>
+          <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="titolari-count">0/7</span>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-          <button class="pool-filter-btn active" onclick="setPoolFilter('all')" id="pf-all">Tutte</button>
-          <button class="pool-filter-btn" onclick="setPoolFilter('P')" id="pf-P">Palleg.</button>
-          <button class="pool-filter-btn" onclick="setPoolFilter('C')" id="pf-C">Centrale</button>
-          <button class="pool-filter-btn" onclick="setPoolFilter('S')" id="pf-S">Schiacc.</button>
-          <button class="pool-filter-btn" onclick="setPoolFilter('O')" id="pf-O">Opposto</button>
-          <button class="pool-filter-btn" onclick="setPoolFilter('L')" id="pf-L">Libero</button>
-          <button class="pool-filter-btn" onclick="setPoolFilter('B')" id="pf-B">Banda</button>
-        </div>
-        <div class="pool-list" id="pool-list"></div>
+        <div id="titolari-slots" style="padding:8px"></div>
       </div>
-      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem" id="roster-summary"></div>
+      <!-- POOL TITOLARI -->
+      <div class="roster-panel" style="min-width:0">
+        <div class="roster-panel-header" style="background:#1e3a5f">
+          <h3>&#x1F464; Atlete disponibili</h3>
+          <span id="pool-count" style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px">0</span>
+        </div>
+        <div style="padding:6px;display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px" id="pool-filter-btns">
+          <button class="pool-filter-btn active" onclick="setPoolFilter('all')">Tutte</button>
+          <button class="pool-filter-btn" onclick="setPoolFilter('P')">Palleg.</button>
+          <button class="pool-filter-btn" onclick="setPoolFilter('C')">Centrale</button>
+          <button class="pool-filter-btn" onclick="setPoolFilter('S')">Schiacc.</button>
+          <button class="pool-filter-btn" onclick="setPoolFilter('O')">Opposto</button>
+          <button class="pool-filter-btn" onclick="setPoolFilter('L')">Libero</button>
+          <button class="pool-filter-btn" onclick="setPoolFilter('B')">Banda</button>
+        </div>
+        <div class="pool-list" id="pool-list" style="max-height:380px;overflow-y:auto;padding:0 6px 6px"></div>
+      </div>
     </div>
+    <!-- RIGA 2: RISERVE tutta larghezza -->
+    
   </div>
 </div>
 
