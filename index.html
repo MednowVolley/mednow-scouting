@@ -893,9 +893,10 @@ const UNCERTAIN=['trattativa','non_confermata'];
 const ACTIVE=['nuovo_acquisto','confermata','in_prova','trattativa','non_confermata','trasferita_aspes'];
 const NEW_AGENTS=['Gaia Genovesi','Filippo Nicastro','Gold Sport - Donato Saltini','Squadre Regionali'];
 
-async function sbFetch(path,method='GET',body=null,token=null){
+async function sbFetch(path,method='GET',body=null,token=null,prefer=null){
   const t=token||(currentUser?.access_token)||KEY;
-  const opts={method,headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+t,'Prefer':'return=representation'}};
+  const preferH=prefer?prefer+';return=representation':'return=representation';
+  const opts={method,headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+t,'Prefer':preferH}};
   if(body)opts.body=JSON.stringify(body);
   const r=await fetch(SUPA+path,opts);
   if(!r.ok){const e=await r.text();throw new Error(e);}
@@ -932,7 +933,7 @@ function startApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app-screen').style.display='block';
   renderUserBadge();renderAdminActions();renderAddCard();
-  loadAthletes().then(()=>{loadRecentActivity();buildTodo();startNotifPolling();});
+  loadAthletes().then(async()=>{await loadRosters();renderRoster();loadRecentActivity();buildTodo();startNotifPolling();});
 }
 
 function doLogout(){
@@ -1545,21 +1546,65 @@ const TITOLARI_SLOTS=[{role:'P',label:'Palleggiatrice',key:'p1'},{role:'O',label
 const RISERVE_SLOTS=[{role:'P',label:'Palleggiatrice 2',key:'ris_p2'},{role:'S',label:'Schiacciatrice 3',key:'ris_s3'},{role:'S',label:'Schiacciatrice 4',key:'ris_s4'},{role:'C',label:'Centrale 3',key:'ris_c3'},{role:'C',label:'Centrale 4',key:'ris_c4'},{role:'O',label:'Opposto 2',key:'ris_o2'},{role:'L',label:'Libero 2',key:'ris_l2'},{role:'?',label:'Slot libero 1',key:'ris_x1'},{role:'?',label:'Slot libero 2',key:'ris_x2'},{role:'?',label:'Slot libero 3',key:'ris_x3'}];
 const LS_ROSTER='mednow_rosters_v1';
 let rosters={},currentSquad='u19p';
-function loadRosters(){
-  try{rosters=JSON.parse(localStorage.getItem(LS_ROSTER)||'{}');}catch{rosters={};}
-  // Migra tutti i roster al nuovo formato
-  Object.keys(rosters).forEach(sid=>{
-    const r=rosters[sid];
-    if(!r)return;
-    if(!r.riserve||Array.isArray(r.riserve)){
-      r.riserve_libere=Array.isArray(r.riserve)?[...r.riserve]:[];
-      r.riserve={};
+// ===== ROSTER SU SUPABASE =====
+async function loadRosters(){
+  try{
+    const rows=await sbFetch('/rest/v1/rosters?select=squad_id,titolari,riserve');
+    rosters={};
+    if(rows&&rows.length){
+      rows.forEach(r=>{
+        rosters[r.squad_id]={
+          titolari:r.titolari||{},
+          riserve:r.riserve||{},
+          riserve_libere:[]
+        };
+      });
     }
-    if(!r.riserve_libere)r.riserve_libere=[];
-    if(!r.titolari)r.titolari={};
-  });
-  saveRosters();}
-function saveRosters(){localStorage.setItem(LS_ROSTER,JSON.stringify(rosters));}
+    // Migrazione: se Supabase è vuoto e localStorage ha dati, migra
+    const ls=localStorage.getItem(LS_ROSTER);
+    if(ls&&(!rows||!rows.length)){
+      try{
+        const old=JSON.parse(ls);
+        const squadsToMigrate=Object.keys(old).filter(sid=>old[sid]&&(Object.keys(old[sid].titolari||{}).length||Object.keys(old[sid].riserve||{}).length));
+        if(squadsToMigrate.length){
+          console.log('Migrazione roster localStorage → Supabase:',squadsToMigrate);
+          for(const sid of squadsToMigrate){
+            const r=old[sid];
+            rosters[sid]={titolari:r.titolari||{},riserve:r.riserve||{},riserve_libere:[]};
+            await _upsertRoster(sid);
+          }
+          localStorage.removeItem(LS_ROSTER);
+          console.log('Migrazione completata');
+        }
+      }catch(e){console.warn('Migrazione fallita:',e);}
+    }
+  }catch(e){
+    console.warn('loadRosters error:',e);
+    // Fallback localStorage
+    try{rosters=JSON.parse(localStorage.getItem(LS_ROSTER)||'{}');}catch{rosters={};}
+  }
+}
+
+async function _upsertRoster(sid){
+  if(!sid)return;
+  const r=rosters[sid]||{titolari:{},riserve:{}};
+  await sbFetch('/rest/v1/rosters','POST',[{
+    squad_id:sid,
+    titolari:r.titolari||{},
+    riserve:r.riserve||{},
+    updated_at:Date.now(),
+    updated_by:currentUser?.user?.id||null,
+    updated_by_nome:currentProfile?.nome||''
+  }],null,'resolution=merge-duplicates');
+}
+
+async function saveRosters(){
+  try{await _upsertRoster(currentSquad);}
+  catch(e){
+    console.warn('saveRosters Supabase error:',e);
+    localStorage.setItem(LS_ROSTER,JSON.stringify(rosters)); // fallback
+  }
+}
 function getRoster(sid){
   if(!rosters[sid])rosters[sid]={titolari:{},riserve:{},riserve_libere:[]};
   const r=rosters[sid];
