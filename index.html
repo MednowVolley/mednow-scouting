@@ -1782,257 +1782,141 @@ function initRosterBuilder(){loadRosters();renderSquadTabs();renderRoster();}
   </div>
 </div>
 
-<script>
-(function(){
-  var activePreview = null;
-  
-  document.addEventListener('mouseover', function(e){
-    const wrap = e.target.closest('.riserva-avatar-wrap');
-    if(!wrap) return;
-    const preview = wrap.querySelector('.riserva-preview');
-    if(!preview) return;
-    // Sposta nel body per evitare overflow:hidden
-    if(preview.parentNode !== document.body){
-      wrap._previewParent = preview.parentNode;
-      document.body.appendChild(preview);
-    }
-    preview.style.display = 'block';
-    activePreview = preview;
-  });
 
-  document.addEventListener('mouseout', function(e){
-    const wrap = e.target.closest('.riserva-avatar-wrap');
-    if(!wrap) return;
-    const related = e.relatedTarget;
-    if(related && wrap.contains(related)) return;
-    const preview = wrap.querySelector('.riserva-preview') || 
-                    (activePreview && activePreview._wrap === wrap ? activePreview : null);
-    // Cerca la preview nel body
-    const allPreviews = document.querySelectorAll('.riserva-preview');
-    allPreviews.forEach(function(p){
-      p.style.display = 'none';
-    });
-    activePreview = null;
-  });
-
-  document.addEventListener('mousemove', function(e){
-    const wrap = e.target.closest('.riserva-avatar-wrap');
-    if(!wrap) return;
-    const preview = wrap.querySelector('.riserva-preview') || activePreview;
-    if(!preview || preview.style.display === 'none') return;
-    let x = e.clientX;
-    let y = e.clientY - 12;
-    const pw = 160;
-    const ph = preview.offsetHeight || 240;
-    if(x - pw/2 < 8) x = pw/2 + 8;
-    if(x + pw/2 > window.innerWidth - 8) x = window.innerWidth - pw/2 - 8;
-    // Se troppo in alto, metti sotto il cursore
-    if(y - ph < 8) y = e.clientY + 20;
-    preview.style.left = x + 'px';
-    preview.style.top = y + 'px';
-    preview.style.transform = 'translate(-50%, -100%)';
-  });
-})();
-</script>
-
-<div id="crop-modal" class="crop-modal-overlay">
-  <div class="crop-modal-box">
-    <div class="crop-modal-title">✂️ Scegli la zona da ritagliare</div>
-    <div class="crop-modal-hint">Trascina il riquadro · Usa gli angoli per ridimensionare</div>
-    <div class="crop-wrap" id="crop-wrap">
-      <img id="crop-img" src="" alt="">
-      <div class="crop-selector" id="crop-selector">
-        <div class="crop-handle tl" data-handle="tl"></div>
-        <div class="crop-handle tr" data-handle="tr"></div>
-        <div class="crop-handle bl" data-handle="bl"></div>
-        <div class="crop-handle br" data-handle="br"></div>
-      </div>
-    </div>
-    <div class="crop-btns">
-      <button class="crop-btn-ok" onclick="applyCrop()">✓ Ritaglia e salva</button>
-      <button class="crop-btn-cancel" onclick="closeCropModal()">Annulla</button>
-    </div>
-  </div>
-</div>
 
 <script>
 (function(){
-  var _cropOrigSrc = '';
-  var _cropFile = null;
-  var sel, wrap, img;
-  var drag = null; // {type:'move'|'tl'|'tr'|'bl'|'br', startX, startY, origRect}
+  var cropImg, cropSel, cropWrap;
+  var drag = null;
 
   window.openCropModal = function(src){
-    _cropOrigSrc = src;
     var modal = document.getElementById('crop-modal');
-    img = document.getElementById('crop-img');
-    wrap = document.getElementById('crop-wrap');
-    sel = document.getElementById('crop-selector');
-    img.onload = function(){
-      // Selettore iniziale: quadrato centrato al 60% dell'immagine
-      var iw = img.offsetWidth, ih = img.offsetHeight;
-      var side = Math.round(Math.min(iw, ih) * 0.6);
-      var x = Math.round((iw - side) / 2);
-      var y = Math.round((ih - side) / 2);
-      setSel(x, y, side, side);
+    cropImg  = document.getElementById('crop-img');
+    cropSel  = document.getElementById('crop-selector');
+    cropWrap = document.getElementById('crop-wrap');
+    cropImg.onload = function(){
+      var iw = cropImg.offsetWidth, ih = cropImg.offsetHeight;
+      var side = Math.round(Math.min(iw, ih) * 0.65);
+      var x = Math.round((iw - side)/2);
+      var y = Math.round((ih - side)/2);
+      applySel(x, y, side, side);
+      // Attacca listener DOPO che l'immagine è caricata
+      attachListeners();
     };
-    img.src = src;
+    cropImg.src = src;
     modal.classList.add('open');
   };
 
   window.closeCropModal = function(){
     document.getElementById('crop-modal').classList.remove('open');
+    drag = null;
   };
 
-  function setSel(x, y, w, h){
-    sel.style.left = x + 'px';
-    sel.style.top = y + 'px';
-    sel.style.width = w + 'px';
-    sel.style.height = h + 'px';
+  function applySel(x,y,w,h){
+    cropSel.style.left   = x+'px';
+    cropSel.style.top    = y+'px';
+    cropSel.style.width  = w+'px';
+    cropSel.style.height = h+'px';
   }
-
-  function getSelRect(){
+  function getSel(){
     return {
-      x: parseInt(sel.style.left) || 0,
-      y: parseInt(sel.style.top) || 0,
-      w: parseInt(sel.style.width) || 100,
-      h: parseInt(sel.style.height) || 100
+      x: parseFloat(cropSel.style.left)||0,
+      y: parseFloat(cropSel.style.top)||0,
+      w: parseFloat(cropSel.style.width)||100,
+      h: parseFloat(cropSel.style.height)||100
     };
   }
 
-  // Drag logic
-  sel.addEventListener('mousedown', function(e){
-    if(e.target.dataset.handle) return; // gestito dai handle
-    e.preventDefault();
-    var r = getSelRect();
-    drag = {type:'move', startX:e.clientX, startY:e.clientY, origRect:{...r}};
-  });
+  function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
 
-  sel.querySelectorAll('.crop-handle').forEach(function(h){
-    h.addEventListener('mousedown', function(e){
-      e.preventDefault(); e.stopPropagation();
-      var r = getSelRect();
-      drag = {type:e.target.dataset.handle, startX:e.clientX, startY:e.clientY, origRect:{...r}};
+  function onStart(cx,cy,target){
+    var r = getSel();
+    var type = target.dataset && target.dataset.handle ? target.dataset.handle : 'move';
+    drag = { type:type, sx:cx, sy:cy, r:{x:r.x,y:r.y,w:r.w,h:r.h} };
+  }
+
+  function onMove(cx,cy){
+    if(!drag) return;
+    var dx = cx - drag.sx, dy = cy - drag.sy;
+    var o = drag.r;
+    var iw = cropImg.offsetWidth, ih = cropImg.offsetHeight;
+    var MIN = 50;
+    var x=o.x,y=o.y,w=o.w,h=o.h;
+    if(drag.type==='move'){
+      x = clamp(o.x+dx, 0, iw-w);
+      y = clamp(o.y+dy, 0, ih-h);
+    } else if(drag.type==='br'){
+      w = clamp(o.w+dx, MIN, iw-o.x);
+      h = clamp(o.h+dy, MIN, ih-o.y);
+    } else if(drag.type==='bl'){
+      var nw=clamp(o.w-dx,MIN,o.x+o.w);
+      x=o.x+o.w-nw; w=nw;
+      h=clamp(o.h+dy,MIN,ih-o.y);
+    } else if(drag.type==='tr'){
+      w=clamp(o.w+dx,MIN,iw-o.x);
+      var nh=clamp(o.h-dy,MIN,o.y+o.h);
+      y=o.y+o.h-nh; h=nh;
+    } else if(drag.type==='tl'){
+      var nw2=clamp(o.w-dx,MIN,o.x+o.w);
+      x=o.x+o.w-nw2; w=nw2;
+      var nh2=clamp(o.h-dy,MIN,o.y+o.h);
+      y=o.y+o.h-nh2; h=nh2;
+    }
+    applySel(x,y,w,h);
+  }
+
+  function attachListeners(){
+    // Rimuovo vecchi listener clonando gli elementi
+    var newSel = cropSel.cloneNode(true);
+    cropSel.parentNode.replaceChild(newSel, cropSel);
+    cropSel = newSel;
+
+    // Mouse
+    cropSel.addEventListener('mousedown', function(e){
+      e.preventDefault();
+      onStart(e.clientX, e.clientY, e.target);
     });
-  });
+    document.addEventListener('mousemove', function(e){
+      if(drag) onMove(e.clientX, e.clientY);
+    });
+    document.addEventListener('mouseup', function(){ drag=null; });
 
-  document.addEventListener('mousemove', function(e){
-    if(!drag) return;
-    var dx = e.clientX - drag.startX;
-    var dy = e.clientY - drag.startY;
-    var r = {...drag.origRect};
-    var iw = img ? img.offsetWidth : 9999;
-    var ih = img ? img.offsetHeight : 9999;
-    var MIN = 40;
-    if(drag.type === 'move'){
-      r.x = Math.max(0, Math.min(iw - r.w, r.x + dx));
-      r.y = Math.max(0, Math.min(ih - r.h, r.y + dy));
-    } else if(drag.type === 'br'){
-      r.w = Math.max(MIN, Math.min(iw - r.x, r.w + dx));
-      r.h = Math.max(MIN, Math.min(ih - r.y, r.h + dy));
-    } else if(drag.type === 'bl'){
-      var nw = Math.max(MIN, r.w - dx);
-      r.x = Math.max(0, r.x + r.w - nw);
-      r.w = nw;
-      r.h = Math.max(MIN, Math.min(ih - r.y, r.h + dy));
-    } else if(drag.type === 'tr'){
-      r.w = Math.max(MIN, Math.min(iw - r.x, r.w + dx));
-      var nh = Math.max(MIN, r.h - dy);
-      r.y = Math.max(0, r.y + r.h - nh);
-      r.h = nh;
-    } else if(drag.type === 'tl'){
-      var nw2 = Math.max(MIN, r.w - dx);
-      r.x = Math.max(0, r.x + r.w - nw2);
-      r.w = nw2;
-      var nh2 = Math.max(MIN, r.h - dy);
-      r.y = Math.max(0, r.y + r.h - nh2);
-      r.h = nh2;
-    }
-    setSel(r.x, r.y, r.w, r.h);
-  });
-
-  document.addEventListener('mouseup', function(){ drag = null; });
-
-  // Touch support
-  sel.addEventListener('touchstart', function(e){
-    if(e.target.dataset.handle) return;
-    e.preventDefault();
-    var t = e.touches[0];
-    var r = getSelRect();
-    drag = {type:'move', startX:t.clientX, startY:t.clientY, origRect:{...r}};
-  }, {passive:false});
-
-  sel.querySelectorAll('.crop-handle').forEach(function(h){
-    h.addEventListener('touchstart', function(e){
-      e.preventDefault(); e.stopPropagation();
-      var t = e.touches[0];
-      var r = getSelRect();
-      drag = {type:e.target.dataset.handle, startX:t.clientX, startY:t.clientY, origRect:{...r}};
-    }, {passive:false});
-  });
-
-  document.addEventListener('touchmove', function(e){
-    if(!drag) return;
-    var t = e.touches[0];
-    var fake = {clientX:t.clientX, clientY:t.clientY};
-    // riusa la logica mouse
-    var dx = t.clientX - drag.startX;
-    var dy = t.clientY - drag.startY;
-    var r = {...drag.origRect};
-    var iw = img ? img.offsetWidth : 9999;
-    var ih = img ? img.offsetHeight : 9999;
-    var MIN = 40;
-    if(drag.type === 'move'){
-      r.x = Math.max(0, Math.min(iw - r.w, r.x + dx));
-      r.y = Math.max(0, Math.min(ih - r.h, r.y + dy));
-    } else if(drag.type === 'br'){
-      r.w = Math.max(MIN, Math.min(iw - r.x, r.w + dx));
-      r.h = Math.max(MIN, Math.min(ih - r.y, r.h + dy));
-    } else if(drag.type === 'bl'){
-      var nw = Math.max(MIN, r.w - dx);
-      r.x = Math.max(0, r.x + r.w - nw);
-      r.w = nw;
-      r.h = Math.max(MIN, Math.min(ih - r.y, r.h + dy));
-    } else if(drag.type === 'tr'){
-      r.w = Math.max(MIN, Math.min(iw - r.x, r.w + dx));
-      var nh = Math.max(MIN, r.h - dy);
-      r.y = Math.max(0, r.y + r.h - nh);
-      r.h = nh;
-    } else if(drag.type === 'tl'){
-      var nw2 = Math.max(MIN, r.w - dx);
-      r.x = Math.max(0, r.x + r.w - nw2);
-      r.w = nw2;
-      var nh2 = Math.max(MIN, r.h - dy);
-      r.y = Math.max(0, r.y + r.h - nh2);
-      r.h = nh2;
-    }
-    setSel(r.x, r.y, r.w, r.h);
-  }, {passive:false});
-
-  document.addEventListener('touchend', function(){ drag = null; });
+    // Touch
+    cropSel.addEventListener('touchstart', function(e){
+      e.preventDefault();
+      var t=e.touches[0];
+      onStart(t.clientX, t.clientY, e.target);
+    },{passive:false});
+    document.addEventListener('touchmove', function(e){
+      if(!drag) return;
+      e.preventDefault();
+      var t=e.touches[0];
+      onMove(t.clientX, t.clientY);
+    },{passive:false});
+    document.addEventListener('touchend', function(){ drag=null; });
+  }
 
   window.applyCrop = function(){
-    var r = getSelRect();
-    var iw = img.offsetWidth, ih = img.offsetHeight;
-    var natW = img.naturalWidth, natH = img.naturalHeight;
-    var scaleX = natW / iw, scaleY = natH / ih;
+    var r = getSel();
+    var iw = cropImg.offsetWidth, ih = cropImg.offsetHeight;
+    var scaleX = cropImg.naturalWidth/iw;
+    var scaleY = cropImg.naturalHeight/ih;
     var SIZE = 300;
     var canvas = document.createElement('canvas');
-    canvas.width = SIZE; canvas.height = SIZE;
-    var ctx = canvas.getContext('2d');
-    ctx.drawImage(img,
-      r.x * scaleX, r.y * scaleY, r.w * scaleX, r.h * scaleY,
+    canvas.width=SIZE; canvas.height=SIZE;
+    canvas.getContext('2d').drawImage(
+      cropImg,
+      r.x*scaleX, r.y*scaleY, r.w*scaleX, r.h*scaleY,
       0, 0, SIZE, SIZE
     );
     var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
     document.getElementById('edit-foto').value = dataUrl;
     document.getElementById('foto-preview').innerHTML =
       '<img src="'+dataUrl+'" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--blue)">';
-    document.getElementById('btn-remove-foto').style.display = 'inline-block';
+    document.getElementById('btn-remove-foto').style.display='inline-block';
     closeCropModal();
   };
 })();
 </script>
-
 </body>
 </html>
