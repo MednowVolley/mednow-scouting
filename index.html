@@ -808,7 +808,21 @@ function renderAddCard(){
           <option value="trattativa">In trattativa</option><option value="nuovo_acquisto">Nuovo acquisto</option>
           <option value="confermata">Confermata</option><option value="no">No</option>
         </select></div>
-      <div class="field-wrap"><div class="field-label">Agente</div><input type="text" id="a-agente" list="dl-agente" placeholder="es. Paolo Buongiorno"></div>
+      <div class="field-wrap"><div class="field-label">Agente</div><select id="a-agente" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--bg-card);color:var(--text)">
+          <option value="">-- Seleziona agente --</option>
+          <option value="Aspes">Aspes</option>
+          <option value="Paolo Buongiorno">Paolo Buongiorno</option>
+          <option value="Gaia Genovesi">Gaia Genovesi</option>
+          <option value="Filippo Nicastro">Filippo Nicastro</option>
+          <option value="Gold Sport - Donato Saltini">Gold Sport - Donato Saltini</option>
+          <option value="Stefano Borla">Stefano Borla</option>
+          <option value="Vannoni">Vannoni</option>
+          <option value="Giugni">Giugni</option>
+          <option value="Squadre Regionali">Squadre Regionali</option>
+          <option value="Selezione Territoriale MML">Selezione Territoriale MML</option>
+          <option value="Open Day">Open Day</option>
+          <option value="Senza agente">Senza agente</option>
+        </select></div>
     </div>
     <div style="margin-bottom:10px"><div class="field-label" style="margin-bottom:4px">Note</div>
       <input type="text" id="a-note" style="width:100%;font-size:13px;padding:9px 12px;border:1px solid var(--border-med);border-radius:var(--radius-sm);font-family:inherit;outline:none" placeholder="Note libere"></div>
@@ -981,22 +995,25 @@ async function addAthlete(){
   const anno=document.getElementById('a-anno').value.trim();
   if(!cognome||!nome||!anno){alert('Inserisci cognome, nome e anno');return;}
   const now=Date.now();
-  const maxId=athletes.length?Math.max(...athletes.map(a=>a.id)):0;
-  const newId=Math.max(maxId,999)+1;
-  const a={id:newId,cognome,nome,anno,
+  const agenteVal=document.getElementById('a-agente').value||(currentProfile&&currentProfile.societa?currentProfile.societa:'');
+  const payload={cognome,nome,anno,
     ruolo:[...document.querySelectorAll('#add-ruolo-checks input:checked')].map(cb=>cb.value).join('/'),
     societa:document.getElementById('a-societa').value.trim(),
-    status:document.getElementById('a-status').value,
-    agente:document.getElementById('a-agente').value.trim()||'',
+    status:document.getElementById('a-status').value||'lista',
+    agente:agenteVal,
     note:document.getElementById('a-note').value.trim(),
     dest:'',rating:parseInt(document.getElementById('a-rating').value)||0,
-    pct:50,createdAt:now,updatedAt:now};
+    pct:50,created_at:now,updated_at:now};
   try{
-    await saveAthlete(a);
-    ['a-cognome','a-nome','a-anno','a-societa','a-note','a-agente'].forEach(id=>document.getElementById(id).value='');
+    const result=await sbFetch('/rest/v1/atlete','POST',[payload]);
+    const newA=result&&result[0]?dbToApp(result[0]):{...payload,id:Date.now(),createdAt:now,updatedAt:now};
+    athletes.push(newA);
+    ['a-cognome','a-nome','a-anno','a-societa','a-note'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('a-status').value='lista';
+    document.getElementById('a-agente').value='';
     clearAddRating();renderTable();showToast('Atleta aggiunta ✓','success');
-  }catch(e){showToast('Errore: '+e.message,'error');}
+    loadRecentActivity();
+  }catch(e){showToast('Errore inserimento: '+e.message,'error');console.error(e);}
 }
 
 async function delAthlete(id){
