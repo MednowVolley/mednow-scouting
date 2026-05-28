@@ -84,13 +84,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .pcard-name{background:rgba(0,180,255,0.85);color:#fff;font-family:'Barlow',sans-serif;font-weight:800;font-size:8px;text-align:center;text-transform:uppercase;padding:2px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;width:100%;box-sizing:border-box}
 .pcard-name.tratt-name{background:rgba(249,115,22,0.9)}
 .pcard-name.new-name{background:rgba(220,38,38,0.9)}
-.pcard-add{width:100%;aspect-ratio:3/4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;transition:all 0.15s}
+.pcard-add{width:100%;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;transition:all 0.15s;box-sizing:border-box}
 .pcard-add:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,160,255,0.5)}
 .pcard-add .add-role{font-size:9px;font-weight:700;color:rgba(255,255,255,0.5);font-family:'Barlow',sans-serif;text-transform:uppercase;letter-spacing:.05em}
 .pcard-add .add-icon{font-size:18px;color:rgba(255,255,255,0.3)}
 .pcard-remove{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(220,38,38,0.85);color:#fff;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;opacity:0;transition:opacity 0.15s}
 .pcard:hover .pcard-remove{opacity:1}
-.court-libero-row .pcard,.court-libero-row .pcard-add{width:33.33%;max-width:100px}
+.court-libero-row .pcard,.court-libero-row .pcard-add{width:33.33%;max-width:120px}
 @media(max-width:960px){.roster-grid-wrap{grid-template-columns:1fr 1fr!important}.roster-grid-wrap>*:first-child{grid-column:1/-1}}@media(max-width:600px){.roster-grid-wrap{grid-template-columns:1fr!important}}
 
 .riserva-slot{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);transition:background 0.15s}
