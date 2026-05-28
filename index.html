@@ -1148,7 +1148,12 @@ async function saveDrawer(){
   const fotoEl=document.getElementById('edit-foto');
   if(fotoEl)a.foto=fotoEl.value||null;
   const btn=document.querySelector('.btn-save');btn.textContent='Salvataggio...';btn.disabled=true;
-  try{await saveAthlete(a);renderTable();closeDrawer();showToast('Salvato ✓','success');}
+  const _cambiati=diffAtleta(prima,a);
+  try{
+    await saveAthlete(a);
+    if(_cambiati.length) saveLog(a.id,(a.cognome+' '+a.nome).trim(),_cambiati);
+    renderTable();closeDrawer();showToast('Salvato ✓','success');
+  }
   catch(e){showToast('Errore: '+e.message,'error');}
   btn.innerHTML='&#x2713; Salva';btn.disabled=false;
 }
