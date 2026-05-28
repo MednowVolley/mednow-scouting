@@ -935,12 +935,23 @@ async function loadAthletes(){
 
 function setSyncPill(s,t){const p=document.getElementById('sync-pill');p.className='sync-pill '+s;p.innerHTML=t;}
 function dbToApp(r){return{id:r.id,cognome:r.cognome,nome:r.nome,anno:r.anno||'',ruolo:r.ruolo||'',societa:r.societa||'',status:r.status||'lista',agente:r.agente||'',note:r.note||'',dest:r.dest||'',rating:r.rating||0,pct:r.pct||50,telefono:r.telefono||'',foto:r.foto||null,createdAt:r.created_at||0,updatedAt:r.updated_at||0};}
-function appToDB(a){return{id:a.id,cognome:a.cognome,nome:a.nome,anno:a.anno,ruolo:a.ruolo||null,societa:a.societa||null,status:a.status||'lista',agente:a.agente||null,note:a.note||null,dest:a.dest||null,telefono:a.telefono||null,foto:a.foto||null,rating:a.rating||0,pct:a.pct||50,created_at:a.createdAt||Date.now(),updated_at:Date.now()};}
+function appToDB(a){return{id:a.id,cognome:a.cognome,nome:a.nome,anno:a.anno,ruolo:a.ruolo||null,societa:a.societa||null,status:a.status||'lista',agente:a.agente||null,note:a.note||null,dest:a.dest||null,telefono:a.telefono||null,rating:a.rating||0,pct:a.pct||50,created_at:a.createdAt||Date.now(),updated_at:Date.now()};}
 
 async function saveAthlete(a){
   a.updatedAt=Date.now();
-  try{await sbFetch('/rest/v1/atlete?id=eq.'+a.id,'PATCH',appToDB(a));}
-  catch{await sbFetch('/rest/v1/atlete','POST',[appToDB(a)]);}
+  const payload=appToDB(a);
+  try{
+    await sbFetch('/rest/v1/atlete?id=eq.'+a.id,'PATCH',payload);
+    // Salva foto separatamente solo se presente (payload separato per non appesantire)
+    if(a.foto!==undefined){
+      try{ await sbFetch('/rest/v1/atlete?id=eq.'+a.id,'PATCH',{foto:a.foto||null}); }
+      catch(e){ console.warn('Foto save error:',e); }
+    }
+  }
+  catch{
+    const fullPayload=Object.assign({},payload,{foto:a.foto||null});
+    await sbFetch('/rest/v1/atlete','POST',[fullPayload]);
+  }
   const i=athletes.findIndex(x=>x.id===a.id);
   if(i>=0)athletes[i]=a;else athletes.push(a);
 }
@@ -1108,6 +1119,7 @@ function openDrawer(id){
   const removeBtn=document.getElementById('btn-remove-foto');
   if(fotoEl){
     fotoEl.value=a.foto||'';
+    a._fotoOriginale=a.foto||null; // Salva per confronto al save
     if(a.foto){
       previewEl.innerHTML='<img src="'+a.foto+'" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--blue)">';
       if(removeBtn) removeBtn.style.display='inline-block';
@@ -1178,12 +1190,26 @@ async function saveDrawer(){
   const telEl=document.getElementById('edit-telefono');
   if(telEl)a.telefono=telEl.value.trim();
   const fotoEl=document.getElementById('edit-foto');
-  if(fotoEl)a.foto=fotoEl.value||null;
+  if(fotoEl){
+    const nuovaFoto=fotoEl.value||null;
+    // Marca foto come "cambiata" solo se diversa da quella originale
+    if(nuovaFoto !== (a._fotoOriginale||null)){
+      a.foto=nuovaFoto;
+    } else {
+      // Non cambiata — non la includiamo nel diff ma la manteniamo in memoria
+      delete a.foto; // verrà re-aggiunta dopo il save dal dbToApp
+    }
+  }
   const btn=document.querySelector('.btn-save');btn.textContent='Salvataggio...';btn.disabled=true;
   const _cambiati=diffAtleta(prima,a);
   try{
     await saveAthlete(a);
     if(_cambiati.length){ await saveLog(a.id,(a.cognome+' '+a.nome).trim(),_cambiati); loadRecentActivity(); }
+    // Ricarica foto in memoria se non era cambiata
+    const _savedA=athletes.find(x=>x.id===a.id);
+    if(_savedA&&_savedA._fotoOriginale!==undefined&&_savedA.foto===undefined){
+      _savedA.foto=_savedA._fotoOriginale;
+    }
     renderTable();closeDrawer();showToast('Salvato ✓','success');
   }
   catch(e){showToast('Errore: '+e.message,'error');}
