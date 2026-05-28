@@ -1784,135 +1784,108 @@ function initRosterBuilder(){loadRosters();renderSquadTabs();renderRoster();}
 
 
 
-<script>
+
+
+<div id="crop-modal" class="crop-modal-overlay">
+  <div class="crop-modal-box">
+    <div class="crop-modal-title">✂️ Scegli la zona da ritagliare</div>
+    <div class="crop-modal-hint">Trascina il riquadro · Tira gli angoli per ridimensionare</div>
+    <div class="crop-wrap" id="crop-wrap">
+      <img id="crop-img" src="" alt="" draggable="false">
+      <div class="crop-selector" id="crop-selector">
+        <div class="crop-handle tl" data-handle="tl"></div>
+        <div class="crop-handle tr" data-handle="tr"></div>
+        <div class="crop-handle bl" data-handle="bl"></div>
+        <div class="crop-handle br" data-handle="br"></div>
+      </div>
+    </div>
+    <div class="crop-btns">
+      <button class="crop-btn-ok" onclick="applyCrop()">✓ Ritaglia e salva</button>
+      <button class="crop-btn-cancel" onclick="closeCropModal()">Annulla</button>
+    </div>
+  </div>
+</div><script>
 (function(){
-  var cropImg, cropSel, cropWrap;
-  var drag = null;
+  var cImg, cSel, drag=null;
 
   window.openCropModal = function(src){
-    var modal = document.getElementById('crop-modal');
-    cropImg  = document.getElementById('crop-img');
-    cropSel  = document.getElementById('crop-selector');
-    cropWrap = document.getElementById('crop-wrap');
-    cropImg.onload = function(){
-      var iw = cropImg.offsetWidth, ih = cropImg.offsetHeight;
-      var side = Math.round(Math.min(iw, ih) * 0.65);
-      var x = Math.round((iw - side)/2);
-      var y = Math.round((ih - side)/2);
-      applySel(x, y, side, side);
-      // Attacca listener DOPO che l'immagine è caricata
-      attachListeners();
+    cImg = document.getElementById('crop-img');
+    cSel = document.getElementById('crop-selector');
+    document.getElementById('crop-modal').classList.add('open');
+    cImg.onload = function(){
+      var iw=cImg.offsetWidth, ih=cImg.offsetHeight;
+      var s=Math.round(Math.min(iw,ih)*0.65);
+      setS(Math.round((iw-s)/2), Math.round((ih-s)/2), s, s);
     };
-    cropImg.src = src;
-    modal.classList.add('open');
+    cImg.src = src;
   };
 
   window.closeCropModal = function(){
     document.getElementById('crop-modal').classList.remove('open');
-    drag = null;
+    drag=null;
   };
 
-  function applySel(x,y,w,h){
-    cropSel.style.left   = x+'px';
-    cropSel.style.top    = y+'px';
-    cropSel.style.width  = w+'px';
-    cropSel.style.height = h+'px';
+  function setS(x,y,w,h){
+    cSel.style.left=x+'px'; cSel.style.top=y+'px';
+    cSel.style.width=w+'px'; cSel.style.height=h+'px';
   }
-  function getSel(){
-    return {
-      x: parseFloat(cropSel.style.left)||0,
-      y: parseFloat(cropSel.style.top)||0,
-      w: parseFloat(cropSel.style.width)||100,
-      h: parseFloat(cropSel.style.height)||100
-    };
+  function getS(){
+    return {x:+cSel.style.left||0, y:+cSel.style.top||0,
+            w:+cSel.style.width||100, h:+cSel.style.height||100};
   }
+  function cl(v,a,b){return Math.max(a,Math.min(b,v));}
 
-  function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
-
-  function onStart(cx,cy,target){
-    var r = getSel();
-    var type = target.dataset && target.dataset.handle ? target.dataset.handle : 'move';
-    drag = { type:type, sx:cx, sy:cy, r:{x:r.x,y:r.y,w:r.w,h:r.h} };
+  function startDrag(cx,cy,handle){
+    var r=getS();
+    drag={h:handle,sx:cx,sy:cy,r:{x:r.x,y:r.y,w:r.w,h:r.h}};
   }
-
-  function onMove(cx,cy){
-    if(!drag) return;
-    var dx = cx - drag.sx, dy = cy - drag.sy;
-    var o = drag.r;
-    var iw = cropImg.offsetWidth, ih = cropImg.offsetHeight;
-    var MIN = 50;
+  function moveDrag(cx,cy){
+    if(!drag)return;
+    var dx=cx-drag.sx, dy=cy-drag.sy, o=drag.r;
+    var iw=cImg.offsetWidth, ih=cImg.offsetHeight, M=50;
     var x=o.x,y=o.y,w=o.w,h=o.h;
-    if(drag.type==='move'){
-      x = clamp(o.x+dx, 0, iw-w);
-      y = clamp(o.y+dy, 0, ih-h);
-    } else if(drag.type==='br'){
-      w = clamp(o.w+dx, MIN, iw-o.x);
-      h = clamp(o.h+dy, MIN, ih-o.y);
-    } else if(drag.type==='bl'){
-      var nw=clamp(o.w-dx,MIN,o.x+o.w);
-      x=o.x+o.w-nw; w=nw;
-      h=clamp(o.h+dy,MIN,ih-o.y);
-    } else if(drag.type==='tr'){
-      w=clamp(o.w+dx,MIN,iw-o.x);
-      var nh=clamp(o.h-dy,MIN,o.y+o.h);
-      y=o.y+o.h-nh; h=nh;
-    } else if(drag.type==='tl'){
-      var nw2=clamp(o.w-dx,MIN,o.x+o.w);
-      x=o.x+o.w-nw2; w=nw2;
-      var nh2=clamp(o.h-dy,MIN,o.y+o.h);
-      y=o.y+o.h-nh2; h=nh2;
+    if(drag.h==='move'){x=cl(o.x+dx,0,iw-w);y=cl(o.y+dy,0,ih-h);}
+    else if(drag.h==='br'){w=cl(o.w+dx,M,iw-o.x);h=cl(o.h+dy,M,ih-o.y);}
+    else if(drag.h==='bl'){var nw=cl(o.w-dx,M,o.x+o.w);x=o.x+o.w-nw;w=nw;h=cl(o.h+dy,M,ih-o.y);}
+    else if(drag.h==='tr'){w=cl(o.w+dx,M,iw-o.x);var nh=cl(o.h-dy,M,o.y+o.h);y=o.y+o.h-nh;h=nh;}
+    else if(drag.h==='tl'){var nw2=cl(o.w-dx,M,o.x+o.w);x=o.x+o.w-nw2;w=nw2;var nh2=cl(o.h-dy,M,o.y+o.h);y=o.y+o.h-nh2;h=nh2;}
+    setS(x,y,w,h);
+  }
+
+  // Attacca listener al documento — funzionano sempre
+  document.addEventListener('mousedown', function(e){
+    if(!cSel||!document.getElementById('crop-modal').classList.contains('open'))return;
+    if(e.target.dataset&&e.target.dataset.handle){
+      e.preventDefault(); startDrag(e.clientX,e.clientY,e.target.dataset.handle);
+    } else if(e.target===cSel||cSel.contains(e.target)){
+      e.preventDefault(); startDrag(e.clientX,e.clientY,'move');
     }
-    applySel(x,y,w,h);
-  }
+  });
+  document.addEventListener('mousemove', function(e){if(drag){e.preventDefault();moveDrag(e.clientX,e.clientY);}});
+  document.addEventListener('mouseup', function(){drag=null;});
 
-  function attachListeners(){
-    // Rimuovo vecchi listener clonando gli elementi
-    var newSel = cropSel.cloneNode(true);
-    cropSel.parentNode.replaceChild(newSel, cropSel);
-    cropSel = newSel;
-
-    // Mouse
-    cropSel.addEventListener('mousedown', function(e){
-      e.preventDefault();
-      onStart(e.clientX, e.clientY, e.target);
-    });
-    document.addEventListener('mousemove', function(e){
-      if(drag) onMove(e.clientX, e.clientY);
-    });
-    document.addEventListener('mouseup', function(){ drag=null; });
-
-    // Touch
-    cropSel.addEventListener('touchstart', function(e){
-      e.preventDefault();
-      var t=e.touches[0];
-      onStart(t.clientX, t.clientY, e.target);
-    },{passive:false});
-    document.addEventListener('touchmove', function(e){
-      if(!drag) return;
-      e.preventDefault();
-      var t=e.touches[0];
-      onMove(t.clientX, t.clientY);
-    },{passive:false});
-    document.addEventListener('touchend', function(){ drag=null; });
-  }
+  document.addEventListener('touchstart', function(e){
+    if(!cSel||!document.getElementById('crop-modal').classList.contains('open'))return;
+    var t=e.touches[0];
+    if(e.target.dataset&&e.target.dataset.handle){
+      e.preventDefault(); startDrag(t.clientX,t.clientY,e.target.dataset.handle);
+    } else if(e.target===cSel||cSel.contains(e.target)){
+      e.preventDefault(); startDrag(t.clientX,t.clientY,'move');
+    }
+  },{passive:false});
+  document.addEventListener('touchmove', function(e){
+    if(drag){e.preventDefault();var t=e.touches[0];moveDrag(t.clientX,t.clientY);}
+  },{passive:false});
+  document.addEventListener('touchend', function(){drag=null;});
 
   window.applyCrop = function(){
-    var r = getSel();
-    var iw = cropImg.offsetWidth, ih = cropImg.offsetHeight;
-    var scaleX = cropImg.naturalWidth/iw;
-    var scaleY = cropImg.naturalHeight/ih;
-    var SIZE = 300;
-    var canvas = document.createElement('canvas');
-    canvas.width=SIZE; canvas.height=SIZE;
-    canvas.getContext('2d').drawImage(
-      cropImg,
-      r.x*scaleX, r.y*scaleY, r.w*scaleX, r.h*scaleY,
-      0, 0, SIZE, SIZE
-    );
-    var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-    document.getElementById('edit-foto').value = dataUrl;
-    document.getElementById('foto-preview').innerHTML =
-      '<img src="'+dataUrl+'" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--blue)">';
+    var r=getS();
+    var sx=cImg.naturalWidth/cImg.offsetWidth, sy=cImg.naturalHeight/cImg.offsetHeight;
+    var c=document.createElement('canvas'); c.width=300; c.height=300;
+    c.getContext('2d').drawImage(cImg, r.x*sx,r.y*sy,r.w*sx,r.h*sy, 0,0,300,300);
+    var d=c.toDataURL('image/jpeg',0.82);
+    document.getElementById('edit-foto').value=d;
+    document.getElementById('foto-preview').innerHTML='<img src="'+d+'" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--blue)">';
     document.getElementById('btn-remove-foto').style.display='inline-block';
     closeCropModal();
   };
