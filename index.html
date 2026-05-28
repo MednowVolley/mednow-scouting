@@ -103,9 +103,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .riserva-preview img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top center;display:block}
 .riserva-preview-name{background:rgba(0,140,220,0.92);color:#fff;font-family:'Barlow',sans-serif;font-weight:800;font-size:11px;text-align:center;padding:5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .riserva-info{flex:1;min-width:0}
-.riserva-name{font-size:12px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.riserva-name{font-size:13px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .riserva-name b{font-family:'Barlow',sans-serif}
-.riserva-sub{font-size:10px;color:var(--text-sec)}
+.riserva-sub{font-size:12px;color:var(--text-sec)}
 .riserva-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
 td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle;max-height:52px}
 tbody tr{cursor:pointer;max-height:52px}
@@ -244,13 +244,15 @@ tbody tr:hover td{background:#EBF4FF}
 .drawer-field textarea{min-height:80px;resize:vertical}
 .drawer-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .drawer-footer{padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;background:var(--bg)}
+.page-footer{padding:1.5rem;text-align:center;font-size:13px;color:var(--text-sec);border-top:1px solid var(--border);margin-top:2rem;background:var(--bg)}
+.page-footer strong{color:var(--blue)}
 .btn-save{flex:1;padding:11px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
 .btn-cancel{padding:11px 18px;background:var(--bg-card);color:var(--text-sec);border:1.5px solid var(--border-med);border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
 .btn-del-drawer{padding:11px 14px;background:var(--bg-card);color:var(--red);border:1.5px solid var(--red-bg);border-radius:var(--radius-sm);font-size:14px;cursor:pointer;font-family:inherit}
 .btn-del-drawer:hover{background:var(--red-bg)}
 .roster-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.roster-panel-header{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
-.roster-panel-header h3{font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.05em}
+.roster-panel-header{background:var(--navy);padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+.roster-panel-header h3{font-family:'Barlow',sans-serif;font-size:15px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.04em}
 .roster-slot{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);border:1px dashed var(--border-med);margin-bottom:6px;min-height:44px;cursor:pointer;background:var(--bg)}
 .roster-slot.filled{border:1px solid var(--border);background:var(--bg-card);cursor:default}
 .roster-slot:hover{border-color:var(--blue);background:var(--blue-light)}
@@ -261,11 +263,11 @@ tbody tr:hover td{background:#EBF4FF}
 .slot-remove{background:none;border:none;cursor:pointer;color:var(--text-ter);font-size:14px;padding:2px 4px;border-radius:3px}
 .slot-remove:hover{color:var(--red);background:var(--red-bg)}
 .squad-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
-.squad-tab{padding:7px 14px;font-size:12px;font-weight:600;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg-card);color:var(--text-sec);font-family:inherit;white-space:nowrap}
+.squad-tab{padding:8px 16px;font-size:13px;font-weight:600;border:1.5px solid var(--border-med);border-radius:20px;cursor:pointer;background:var(--bg-card);color:var(--text-sec);font-family:inherit;white-space:nowrap}
 .squad-tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
 .squad-tab.aspes{border-color:#0F6E56;color:#0F6E56}
 .squad-tab.aspes.active{background:#0F6E56;color:#fff}
-.pool-filter-btn{padding:4px 10px;font-size:11px;font-weight:500;border:1px solid var(--border-med);border-radius:12px;cursor:pointer;background:var(--bg);color:var(--text-sec);font-family:inherit}
+.pool-filter-btn{padding:7px 14px;font-size:13px;font-weight:600;border:1px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg);color:var(--text-sec);font-family:inherit}
 .pool-filter-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
 .pool-list{display:flex;flex-direction:column;gap:4px;max-height:320px;overflow-y:auto}
 .pool-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);cursor:pointer}
@@ -702,7 +704,7 @@ footer strong{color:var(--blue-mid)}
   </div>
 </div>
 
-<footer><strong>MEDNOW VOLLEY</strong> · Database Scouting · mednowscoutingvolley.com · Stagione 2026/27</footer>
+<div class="page-footer"><strong>MEDNOW VOLLEY</strong> · Database Scouting · mednowscoutingvolley.com · Stagione 2026/27</div>
 </div>
 
 <script>
