@@ -330,6 +330,131 @@ tbody tr:hover td{background:#EBF4FF}
 footer{text-align:center;font-size:11px;color:var(--text-ter);padding:2rem;border-top:1px solid var(--border);background:var(--bg-card);margin-top:2rem}
 footer strong{color:var(--blue-mid)}
 </style>
+
+<style id="court-override">
+/* ====== SESTETTO TITOLARE — CSS DEFINITIVO ====== */
+
+/* Ogni card (piena o vuota) = 180px esatti, stessa struttura */
+.pcard,
+.pcard-add {
+  width: 100% !important;
+  height: 180px !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: start !important;
+}
+
+/* Foto: riempie tutto lo spazio sopra il nome */
+.pcard-photo {
+  width: 100% !important;
+  height: 156px !important;
+  flex: 0 0 156px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  background: linear-gradient(135deg,#2a3a4e,#1a2535) !important;
+}
+
+/* Immagine: copre tutta la photo area, centra il viso */
+.pcard-photo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: 50% 25% !important;
+  display: block !important;
+}
+
+/* Barra nome: sempre 24px in fondo */
+.pcard-name,
+.pcard-name.tratt-name,
+.pcard-name.new-name {
+  height: 24px !important;
+  flex: 0 0 24px !important;
+  line-height: 24px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  letter-spacing: .04em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 0 4px !important;
+  color: #fff !important;
+}
+.pcard-name            { background: rgba(0,180,255,0.92) !important; }
+.pcard-name.tratt-name { background: rgba(249,115,22,0.9) !important; }
+.pcard-name.new-name   { background: rgba(220,38,38,0.9)  !important; }
+
+/* Slot vuoto: centrato, no aspect-ratio */
+.pcard-add {
+  background: rgba(255,255,255,0.04) !important;
+  border: 2px dashed rgba(255,255,255,0.2) !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  flex-direction: column !important;
+}
+.pcard-add:hover {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(100,160,255,0.5) !important;
+}
+.add-icon { font-size: 28px !important; color: rgba(255,255,255,0.35) !important; }
+.add-role { font-size: 11px !important; font-weight: 700 !important;
+  color: rgba(255,255,255,0.6) !important; font-family: 'Barlow',sans-serif !important;
+  text-transform: uppercase !important; letter-spacing: .05em !important; }
+
+/* Griglia campo: righe NON si allungano */
+.court-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 4px !important;
+  padding: 2px 0 !important;
+  align-items: start !important;
+}
+
+/* Libero: stessa altezza, larghezza proporzionata */
+.court-libero-row {
+  display: flex !important;
+  justify-content: center !important;
+  margin-top: 4px !important;
+  padding-top: 4px !important;
+  border-top: 1px solid rgba(255,255,255,0.1) !important;
+}
+.court-libero-row .pcard,
+.court-libero-row .pcard-add {
+  width: 33.33% !important;
+  max-width: 140px !important;
+  height: 180px !important;
+}
+.court-libero-row .pcard-photo {
+  height: 156px !important;
+  flex: 0 0 156px !important;
+}
+
+/* Badge ruolo e zona */
+.role-badge {
+  position: absolute !important; top: 4px !important; left: 4px !important;
+  background: rgba(0,0,0,0.65) !important; color: #fff !important;
+  font-size: 11px !important; font-weight: 800 !important;
+  padding: 2px 6px !important; border-radius: 4px !important;
+  font-family: 'Barlow',sans-serif !important;
+  pointer-events: none !important;
+}
+.zone-badge {
+  position: absolute !important; top: 4px !important; right: 4px !important;
+  background: rgba(0,0,0,0.55) !important; color: rgba(255,255,255,0.85) !important;
+  font-size: 11px !important; font-weight: 700 !important;
+  padding: 2px 6px !important; border-radius: 4px !important;
+  font-family: 'Barlow',sans-serif !important;
+  pointer-events: none !important;
+}
+</style>
 </head>
 <body>
 
