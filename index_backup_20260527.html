@@ -490,12 +490,16 @@ footer strong{color:var(--blue-mid)}
       <h2 style="font-family:'Barlow',sans-serif;font-weight:800;font-size:20px;color:var(--navy)">Roster <span style="color:var(--blue)">2026/27</span></h2>
       <p style="font-size:13px;color:var(--text-sec);margin-top:2px">Sestetto ipotetico per squadra</p>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn-auto" onclick="autoFillRoster()">&#x26A1; Compila automatico</button>
-      <button class="btn-clear-roster" onclick="clearRoster()">&#x2715; Svuota</button>
+    <div style="display:flex;gap:8px" id="roster-actions">
+      <button class="btn-auto" id="btn-auto-fill" onclick="autoFillRoster()">&#x26A1; Compila automatico</button>
+      <button class="btn-clear-roster" id="btn-clear-roster" onclick="clearRoster()">&#x2715; Svuota</button>
     </div>
   </div>
   <div class="squad-tabs" id="squad-tabs"></div>
+  <div id="roster-readonly-banner" style="display:none;align-items:center;gap:10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#92400E">
+    <span style="font-size:16px">&#x1F512;</span>
+    <span><b>Sola lettura</b> — Solo l'Admin può modificare i roster ProPatria. Puoi consultare il sestetto ma non modificarlo.</span>
+  </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
     <div class="roster-grid-wrap" style="display:grid;grid-template-columns:minmax(0,260px) 1fr;gap:0.75rem;align-items:start">
     <!-- COLONNA SINISTRA: solo campo -->
@@ -773,9 +777,41 @@ function renderAdminActions(){
   else el.innerHTML='';
 }
 
-function canEdit(){return['admin','allenatore','dirigente','reclutatore'].includes(currentProfile?.ruolo);}
-function canDelete(){return currentProfile?.ruolo==='admin';}
-function canAdd(){return['admin','allenatore','reclutatore'].includes(currentProfile?.ruolo);}
+
+// ===== MATRICE PERMESSI =====
+function isAdmin(){return currentProfile?.ruolo==='admin';}
+function myClub(){return currentProfile?.societa||'';}
+// Verifica se un'atleta appartiene alla società dell'utente
+function isMyClubAthlete(a){
+  if(!a)return false;
+  const club=myClub();
+  return (a.societa===club)||((a.dest||'').toLowerCase().includes(club.toLowerCase()))||(a.status==='in_prova'&&club==='Aspes');
+}
+// AGGIUNGERE atlete: admin + ruoli Aspes
+function canAdd(){return['admin','allenatore','dirigente','reclutatore','scouting'].includes(currentProfile?.ruolo);}
+// MODIFICARE atleta: admin sempre; utenti club solo le proprie
+function canEditAthlete(a){
+  if(isAdmin())return true;
+  if(!canAdd())return false;
+  return isMyClubAthlete(a);
+}
+// ELIMINARE atleta: admin sempre; utenti Aspes SOLO atlete Aspes (mai ProPatria/altre)
+function canDeleteAthlete(a){
+  if(isAdmin())return true;
+  if(!a)return false;
+  // Utenti non-admin: possono eliminare solo atlete della loro società (es. Aspes)
+  return isMyClubAthlete(a) && a.status!=='trasferita_aspes';
+}
+// Compat: canDelete generico (senza atleta) = solo admin
+function canDelete(){return isAdmin();}
+function canEdit(){return canAdd()||isAdmin();}
+// COSTRUIRE roster: admin tutti; utenti club solo i roster della propria società
+function canEditRoster(squadId){
+  if(isAdmin())return true;
+  const sq=SQUADS.find(s=>s.id===squadId);
+  if(!sq)return false;
+  return sq.club===myClub();
+}
 
 function renderAddCard(){
   const wrap=document.getElementById('add-card-wrap');
@@ -956,8 +992,8 @@ function renderTable(){
   document.getElementById('btn-next').disabled=page>=totalPages-1;
   const tbody=document.getElementById('table-body');
   if(!slice.length){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--text-ter)">Nessuna atleta trovata</td></tr>';return;}
-  const editable=canEdit();const deletable=canDelete();
-  tbody.innerHTML=slice.map(a=>{
+  const editable=canEdit();tbody.innerHTML=slice.map(a=>{
+    const deletable=canDeleteAthlete(a);
     const destClass=(a.dest||'').includes('Aspes')?'aspes':(a.dest||'').includes('PGS')?'pgs':'';
     const isNew=a.status==='nuovo_acquisto';
     const isNuova=a.id>=578&&NEW_AGENTS.includes(a.agente);
@@ -1016,17 +1052,25 @@ async function addAthlete(){
 }
 
 async function delAthlete(id){
-  if(!canDelete())return;
-  if(!confirm('Eliminare?'))return;
+  const a=athletes.find(x=>x.id===id);
+  if(!canDeleteAthlete(a)){showToast('Non hai i permessi per eliminare questa atleta','error');return;}
+  if(!confirm('Eliminare '+(a?a.cognome+' '+a.nome:'')+'?'))return;
   try{await deleteAthlete(id);renderTable();showToast('Eliminata ✓','success');}
   catch(e){showToast('Errore: '+e.message,'error');}
 }
 
 function openDrawer(id){
-  if(!canEdit())return;
   const a=athletes.find(x=>x.id===id);if(!a)return;
+  if(!canEditAthlete(a)){showToast('Puoi visualizzare ma non modificare questa atleta','error');}
   document.getElementById('edit-id').value=id;
   document.getElementById('drawer-name').textContent=a.cognome+' '+a.nome;
+  // Pulsante elimina: visibile solo se l'utente può eliminare questa atleta
+  const delBtn=document.getElementById('btn-del-drawer');
+  if(delBtn)delBtn.style.display=canDeleteAthlete(a)?'':'none';
+  // Pulsante salva: disabilitato se non può modificare
+  const saveBtn=document.querySelector('.btn-save');
+  const canEd=canEditAthlete(a);
+  if(saveBtn){saveBtn.style.display=canEd?'':'none';}
   switchDrawerTab('modifica');
   const fotoEl=document.getElementById('edit-foto');
   const previewEl=document.getElementById('foto-preview');
@@ -1108,7 +1152,9 @@ async function saveDrawer(){
 
 async function deleteFromDrawer(){
   const id=parseInt(document.getElementById('edit-id').value);
-  if(!confirm('Eliminare?'))return;
+  const a=athletes.find(x=>x.id===id);
+  if(!canDeleteAthlete(a)){showToast('Non hai i permessi per eliminare questa atleta','error');return;}
+  if(!confirm('Eliminare '+(a?a.cognome+' '+a.nome:'')+'?'))return;
   try{await deleteAthlete(id);renderTable();closeDrawer();showToast('Eliminata ✓','success');}
   catch(e){showToast('Errore: '+e.message,'error');}
 }
@@ -1369,6 +1415,12 @@ function selectSquad(sid){currentSquad=sid;renderSquadTabs();renderRoster();}
 function getAssignedIds(){const r=getRoster(currentSquad);const ids=new Set(Object.values(r.titolari).filter(Boolean));Object.values(r.riserve||{}).filter(Boolean).forEach(id=>ids.add(id));(r.riserve_libere||[]).forEach(id=>ids.add(id));return ids;}
 function renderRoster(){
   if(athletes&&athletes.length>0)buildTodo();
+  // Banner sola lettura per roster non modificabili
+  const roEl=document.getElementById('roster-readonly-banner');
+  const readOnly=!canEditRoster(currentSquad);
+  if(roEl){roEl.style.display=readOnly?'flex':'none';}
+  const actEl=document.getElementById('roster-actions');
+  if(actEl){actEl.style.display=readOnly?'none':'flex';}
   const squad=SQUADS.find(s=>s.id===currentSquad);if(!squad)return;
   const r=getRoster(currentSquad);
   const filled=Object.values(r.titolari).filter(Boolean).length;
@@ -1402,7 +1454,7 @@ function renderRoster(){
   renderPool();renderSummary(getSquadAthletes(squad.label),r);
 }
 let pendingSlotRole=null;
-function showPoolForSlot(role){pendingSlotRole=role;pendingSlotKey=null;setPoolFilter(role);}
+function showPoolForSlot(role){if(!canEditRoster(currentSquad)){showToast("Solo l'Admin può modificare i roster ProPatria","error");return;}pendingSlotRole=role;pendingSlotKey=null;setPoolFilter(role);}
 function setPoolFilter(f){poolFilter=f;document.querySelectorAll('.pool-filter-btn').forEach(b=>{const bid=b.id.replace('pf-','');b.classList.toggle('active',bid===f);});renderPool();}
 function renderPool(){
   const squad=SQUADS.find(s=>s.id===currentSquad);
@@ -1434,6 +1486,7 @@ function renderPool(){
   }).join('');
 }
 function addToRoster(aid){
+  if(!canEditRoster(currentSquad)){showToast("Solo l'Admin può modificare i roster ProPatria","error");return;}
   const r=getRoster(currentSquad);
   if(!r.riserve)r.riserve={};
   if(!r.titolari)r.titolari={};
@@ -1468,11 +1521,12 @@ function addToRoster(aid){
   }
   saveRosters();renderRoster();
 }
-function removeFromSlot(key){const r=getRoster(currentSquad);r.titolari[key]=null;saveRosters();renderRoster();}
+function removeFromSlot(key){if(!canEditRoster(currentSquad)){showToast("Solo l'Admin può modificare i roster ProPatria","error");return;}const r=getRoster(currentSquad);r.titolari[key]=null;saveRosters();renderRoster();}
 function removeRiserva(aid){const r=getRoster(currentSquad);r.riserve_libere=(r.riserve_libere||[]).filter(id=>id!==aid);saveRosters();renderRoster();}
-function removeRiservaSlot(key){const r=getRoster(currentSquad);if(r.riserve)r.riserve[key]=null;saveRosters();renderRoster();}
-function addToRiservaSlot(role,key){pendingSlotRole=role;pendingSlotKey=key;setPoolFilter(role==='?'?'all':role);}
+function removeRiservaSlot(key){if(!canEditRoster(currentSquad)){showToast("Solo l'Admin può modificare i roster ProPatria","error");return;}const r=getRoster(currentSquad);if(r.riserve)r.riserve[key]=null;saveRosters();renderRoster();}
+function addToRiservaSlot(role,key){if(!canEditRoster(currentSquad)){showToast("Solo l'Admin può modificare i roster ProPatria","error");return;}pendingSlotRole=role;pendingSlotKey=key;setPoolFilter(role==='?'?'all':role);}
 function autoFillRoster(){
+  if(!canEditRoster(currentSquad)){showToast("Solo l'Admin può modificare i roster ProPatria","error");return;}
   const squad=SQUADS.find(s=>s.id===currentSquad);
   const available=getSquadAthletes(squad.label);
   const r=getRoster(currentSquad);
@@ -1493,7 +1547,7 @@ function autoFillRoster(){
   r.riserve_libere=sorted.filter(a=>!used.has(a.id)).map(a=>a.id);
   saveRosters();renderRoster();
 }
-function clearRoster(){if(!confirm('Svuotare il roster?'))return;rosters[currentSquad]={titolari:{},riserve:{},riserve_libere:[]};saveRosters();renderRoster();}
+function clearRoster(){if(!canEditRoster(currentSquad)){showToast("Solo l'Admin può modificare i roster ProPatria","error");return;}if(!confirm('Svuotare il roster?'))return;rosters[currentSquad]={titolari:{},riserve:{},riserve_libere:[]};saveRosters();renderRoster();}
 function renderSummary(sa,r){
   const el=document.getElementById('roster-summary');if(!el)return;
   const na=sa.filter(a=>a.status==='nuovo_acquisto').length;
