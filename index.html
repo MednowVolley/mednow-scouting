@@ -1069,6 +1069,7 @@ function openDrawer(id){
   const a=athletes.find(x=>x.id===id);if(!a)return;
   document.getElementById('edit-id').value=id;
   document.getElementById('drawer-name').textContent=a.cognome+' '+a.nome;
+  switchDrawerTab('modifica');
   // Init foto
   const fotoEl=document.getElementById('edit-foto');
   const previewEl=document.getElementById('foto-preview');
@@ -1430,6 +1431,103 @@ function removePhoto(){
   document.getElementById('btn-remove-foto').style.display='none';
 }
 
+
+// ===== LOG MODIFICHE =====
+const CAMPO_LABELS = {
+  status:'Stato', rating:'Voto', note:'Note', dest:'Squadra dest.',
+  ruolo:'Ruolo', pct:'% trattativa', telefono:'Telefono',
+  agente:'Agente', societa:'Società', anno:'Anno',
+  cognome:'Cognome', nome:'Nome'
+};
+const STATUS_LABELS = {
+  nuovo_acquisto:'Nuovo acquisto', confermata:'Confermata',
+  in_prova:'In prova Aspes', trattativa:'In trattativa',
+  visione:'Visionata', non_confermata:'Non confermata',
+  trasferita_aspes:'Trasferita Aspes', lista:'In lista', no:'No'
+};
+
+async function saveLog(atletaId, atletaNome, campiCambiati){
+  if(!campiCambiati.length) return;
+  const logs = campiCambiati.map(c=>({
+    atleta_id: atletaId,
+    atleta_nome: atletaNome,
+    utente_id: currentUser.id,
+    utente_nome: currentProfile?.nome || currentUser.email,
+    campo: c.campo,
+    valore_prima: c.prima,
+    valore_dopo: c.dopo,
+    created_at: Date.now()
+  }));
+  try{ await sbFetch('/rest/v1/logs','POST', logs); } catch(e){ console.warn('Log error:',e); }
+}
+
+function diffAtleta(prima, dopo){
+  const campi = ['status','rating','note','dest','ruolo','pct','telefono','agente','societa'];
+  const changes = [];
+  campi.forEach(function(k){
+    var va = String(prima[k]||''), vb = String(dopo[k]||'');
+    if(va !== vb){
+      changes.push({
+        campo: k,
+        prima: k==='status'?(STATUS_LABELS[prima[k]]||prima[k]||'—'):String(prima[k]||'—'),
+        dopo:  k==='status'?(STATUS_LABELS[dopo[k]] ||dopo[k] ||'—'):String(dopo[k] ||'—')
+      });
+    }
+  });
+  return changes;
+}
+
+async function loadAtletaLogs(atletaId){
+  try{
+    const logs = await sbFetch('/rest/v1/logs?atleta_id=eq.'+atletaId+'&order=created_at.desc&limit=30');
+    return logs||[];
+  }catch(e){ return []; }
+}
+
+function renderLogs(logs){
+  if(!logs||!logs.length) return '<div style="color:var(--text-ter);font-size:12px;text-align:center;padding:16px">Nessuna modifica registrata</div>';
+  return logs.map(function(l){
+    var d = new Date(l.created_at);
+    var ds = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    var label = CAMPO_LABELS[l.campo]||l.campo;
+    return '<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:3px">'+
+        '<span style="font-weight:700;color:var(--navy)">'+esc(label)+'</span>'+
+        '<span style="color:var(--text-ter);font-size:10px">'+ds+'</span>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+        '<span style="background:#FEE2E2;color:#991B1B;padding:1px 8px;border-radius:10px;font-size:11px;text-decoration:line-through">'+esc(l.valore_prima)+'</span>'+
+        '<span style="color:var(--text-ter)">→</span>'+
+        '<span style="background:#D1FAE5;color:#065F46;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700">'+esc(l.valore_dopo)+'</span>'+
+      '</div>'+
+      '<div style="color:var(--text-sec);font-size:10px;margin-top:3px">'+esc(l.utente_nome||'')+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+async function switchDrawerTab(tab){
+  var modBtn=document.getElementById('dtab-modifica');
+  var stoBtn=document.getElementById('dtab-storico');
+  var dc=document.getElementById('drawer-content');
+  var ds=document.getElementById('drawer-storico');
+  if(tab==='modifica'){
+    if(dc)dc.style.display='';
+    if(ds)ds.style.display='none';
+    modBtn.style.background='var(--blue)';modBtn.style.color='#fff';modBtn.style.borderColor='var(--blue)';
+    stoBtn.style.background='transparent';stoBtn.style.color='var(--text-sec)';stoBtn.style.borderColor='var(--border)';
+  } else {
+    if(dc)dc.style.display='none';
+    if(ds)ds.style.display='';
+    stoBtn.style.background='var(--blue)';stoBtn.style.color='#fff';stoBtn.style.borderColor='var(--blue)';
+    modBtn.style.background='transparent';modBtn.style.color='var(--text-sec)';modBtn.style.borderColor='var(--border)';
+    // Carica i log
+    var id=parseInt(document.getElementById('edit-id').value);
+    if(id){
+      var logs=await loadAtletaLogs(id);
+      document.getElementById('storico-content').innerHTML=renderLogs(logs);
+    }
+  }
+}
 
 const SQUADS=[{id:'u19p',label:'U.19 Ecc. ProPatria',club:'ProPatria'},{id:'u17p',label:'U.17 Ecc. ProPatria',club:'ProPatria'},{id:'u15p',label:'U.15 Ecc. ProPatria',club:'ProPatria'},{id:'u14p',label:'U.14 Ecc. ProPatria',club:'ProPatria'},{id:'u13p',label:'U.13 Ecc. ProPatria',club:'ProPatria'},{id:'u12ap',label:'U.12A ProPatria',club:'ProPatria'},{id:'u12bp',label:'U.12B ProPatria',club:'ProPatria'},{id:'u19a',label:'U.19A Aspes',club:'Aspes'},{id:'u17a',label:'U.17A Aspes',club:'Aspes'},{id:'u15a',label:'U.15A Aspes',club:'Aspes'},{id:'u14a',label:'U.14A Aspes',club:'Aspes'},{id:'u13a',label:'U.13A Aspes',club:'Aspes'}];
 const TITOLARI_SLOTS=[{role:'P',label:'Palleggiatrice',key:'p1'},{role:'O',label:'Opposto',key:'o1'},{role:'C',label:'Centrale 1',key:'c1'},{role:'C',label:'Centrale 2',key:'c2'},{role:'S',label:'Schiacciatrice 1',key:'s1'},{role:'S',label:'Schiacciatrice 2',key:'s2'},{role:'L',label:'Libero',key:'l1'}];
