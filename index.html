@@ -84,7 +84,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .pcard-name{background:rgba(0,180,255,0.85);color:#fff;font-family:'Barlow',sans-serif;font-weight:800;font-size:8px;text-align:center;text-transform:uppercase;padding:2px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;width:100%;box-sizing:border-box}
 .pcard-name.tratt-name{background:rgba(249,115,22,0.9)}
 .pcard-name.new-name{background:rgba(220,38,38,0.9)}
-.pcard-add{width:100%;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;transition:all 0.15s;box-sizing:border-box}
+.pcard-add{width:100%;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;transition:all 0.15s;box-sizing:border-box}
 .pcard-add:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,160,255,0.5)}
 .pcard-add .add-role{font-size:9px;font-weight:700;color:rgba(255,255,255,0.5);font-family:'Barlow',sans-serif;text-transform:uppercase;letter-spacing:.05em}
 .pcard-add .add-icon{font-size:18px;color:rgba(255,255,255,0.3)}
@@ -1576,37 +1576,37 @@ function renderSummary(sa,r){
 }
 function initRosterBuilder(){loadRosters();renderSquadTabs();renderRoster();}
 
+
+
 // Auto-login al caricamento pagina
-(async function initSession(){
+(async function(){
   try{
     const saved=localStorage.getItem('mv_session');
     if(!saved)return;
     const sess=JSON.parse(saved);
-    if(!sess.refresh_token)return;
-    // Refresh del token
-    const res=await fetch(SUPA+'/auth/v1/token?grant_type=refresh_token',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':KEY},
+    if(!sess||!sess.refresh_token)return;
+    // Prova refresh token
+    const r=await fetch(SUPA+'/auth/v1/token?grant_type=refresh_token',{
+      method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},
       body:JSON.stringify({refresh_token:sess.refresh_token})
     });
-    const data=await res.json();
-    if(!data.access_token){localStorage.removeItem('mv_session');return;}
-    // Aggiorna sessione
-    currentUser=data;
+    const d=await r.json();
+    if(!d||!d.access_token){localStorage.removeItem('mv_session');return;}
+    // Token valido: aggiorna sessione
+    currentUser=d;
     localStorage.setItem('mv_session',JSON.stringify({
-      access_token:data.access_token,
-      refresh_token:data.refresh_token,
-      user:data.user
+      access_token:d.access_token,
+      refresh_token:d.refresh_token||sess.refresh_token,
+      user:d.user
     }));
-    // Carica profilo
-    const profiles=await sbFetch('/rest/v1/utenti?id=eq.'+data.user.id+'&select=*');
-    if(!profiles||!profiles.length||!profiles[0].attivo){
-      localStorage.removeItem('mv_session');return;
-    }
-    currentProfile=profiles[0];
+    // Carica profilo utente
+    const p=await sbFetch('/rest/v1/utenti?id=eq.'+d.user.id+'&select=*');
+    if(!p||!p[0]||!p[0].attivo){localStorage.removeItem('mv_session');return;}
+    currentProfile=p[0];
+    // Avvia app
     startApp();
-  }catch(e){
-    console.warn('Auto-login fallito:',e);
+  }catch(ex){
+    console.warn('Session restore failed:',ex);
     try{localStorage.removeItem('mv_session');}catch(e2){}
   }
 })();
