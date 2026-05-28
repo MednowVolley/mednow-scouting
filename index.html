@@ -124,8 +124,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .volley-court{
   background:linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
   border-radius:12px;
-  padding:16px 12px 20px;
-  margin:14px 0;
+  padding:12px 10px 16px;
+  margin:10px 0;max-width:560px;
   box-shadow:0 8px 32px rgba(0,0,0,0.35);
   position:relative;
   overflow:hidden;
@@ -143,8 +143,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   margin:6px 0;
 }
 .court-net::before,.court-net::after{content:'';flex:1;height:2px;background:rgba(255,255,255,0.25);}
-.court-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:4px 0;}
-.court-libero-row{display:flex;justify-content:center;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);}
+.court-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:3px 0;}
+.court-libero-row{display:flex;justify-content:center;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.1);}
 
 /* Player card */
 .pcard{
@@ -157,7 +157,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .pcard:hover{transform:translateY(-3px);border-color:rgba(100,160,255,0.5);}
 .pcard.tratt{border-color:#F97316;border-style:dashed;}
 .pcard-photo{
-  width:100%;aspect-ratio:3/4;
+  width:100%;height:110px;
   background:linear-gradient(135deg,#2a3a4e,#1a2535);
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;position:relative;
