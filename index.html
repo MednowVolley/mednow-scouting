@@ -84,13 +84,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .pcard-name{background:rgba(0,180,255,0.85);color:#fff;font-family:'Barlow',sans-serif;font-weight:800;font-size:8px;text-align:center;text-transform:uppercase;padding:2px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;width:100%;box-sizing:border-box}
 .pcard-name.tratt-name{background:rgba(249,115,22,0.9)}
 .pcard-name.new-name{background:rgba(220,38,38,0.9)}
-.pcard-add{width:100%;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;transition:all 0.15s;box-sizing:border-box}
+.pcard-add{width:100%;height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:rgba(255,255,255,0.04);border:2px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;transition:all 0.15s;box-sizing:border-box}
 .pcard-add:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,160,255,0.5)}
 .pcard-add .add-role{font-size:9px;font-weight:700;color:rgba(255,255,255,0.5);font-family:'Barlow',sans-serif;text-transform:uppercase;letter-spacing:.05em}
 .pcard-add .add-icon{font-size:28px;color:rgba(255,255,255,0.35)}
 .pcard-remove{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(220,38,38,0.85);color:#fff;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;opacity:0;transition:opacity 0.15s}
 .pcard:hover .pcard-remove{opacity:1}
-.court-libero-row .pcard,.court-libero-row .pcard-add{width:33.33%;max-width:120px}
+.court-libero-row .pcard,.court-libero-row .pcard-add{width:33.33%;max-width:140px}
 @media(max-width:960px){.roster-grid-wrap{grid-template-columns:1fr 1fr!important}.roster-grid-wrap>*:first-child{grid-column:1/-1}}@media(max-width:600px){.roster-grid-wrap{grid-template-columns:1fr!important}}
 
 .riserva-slot{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);transition:background 0.15s}
@@ -1258,7 +1258,7 @@ function getInitials(cognome,nome){const c=(cognome||'').trim();const n=(nome||'
 function getRoleColor(ruolo){const r=(ruolo||'').toLowerCase();if(r.includes('palleg')||r.includes('alzat'))return '#0F6E56';if(r.includes('oppos'))return '#DC3545';if(r.includes('central'))return '#6B21A8';if(r.includes('libero'))return '#D97706';if(r.includes('banda')||r.includes('schiacc')||r.includes('ricet'))return '#185FA5';return '#6B7280';}
 function renderAvatar(a,size){
   size=size||32;const bg=getRoleColor(a.ruolo);
-  if(a.foto){return '<div onclick="event.stopPropagation();openPhoto('+a.id+')" style="width:'+size+'px;height:'+size+'px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid '+bg+';background:'+bg+';display:inline-block;vertical-align:middle;cursor:zoom-in"><img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block" alt=""></div>';}
+  if(a.foto){return '<div onclick="event.stopPropagation();openPhoto('+a.id+')" style="width:'+size+'px;height:'+size+'px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid '+bg+';background:'+bg+';display:inline-block;vertical-align:middle;cursor:zoom-in"><img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block" alt=""></div>';}
   const fs=Math.round(size*0.4);
   return '<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+bg+';color:#fff;font-weight:700;font-size:'+fs+'px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Barlow,sans-serif;vertical-align:middle">'+getInitials(a.cognome,a.nome)+'</div>';
 }
@@ -1401,7 +1401,7 @@ function renderCourt(titolariSlots,r){
     const nc=isTr?'pcard-name tratt-name':isNew?'pcard-name new-name':'pcard-name';
     const cc=isTr?'pcard tratt':'pcard';
     const bg=getRoleColor(a.ruolo);
-    const ph=a.foto?'<img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block" onclick="event.stopPropagation();openPhoto('+a.id+')">'
+    const ph=a.foto?'<img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block" onclick="event.stopPropagation();openPhoto('+a.id+')">'
       :'<div style="color:#fff;background:'+bg+';width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;font-family:Barlow,sans-serif">'+getInitials(a.cognome,a.nome)+'</div>';
     const trMk=isTr?'<span style="background:#F97316;color:#fff;border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">?</span>':'';
     const nwMk=isNew?'<span style="background:#DC2626;color:#fff;border-radius:3px;padding:1px 4px;font-size:7px;font-weight:800">NEW</span>':'';
@@ -1415,7 +1415,7 @@ function renderCourt(titolariSlots,r){
     const slot=slotByKey['l1'];const aid=r.titolari[slot.key];const a=aid?athletes.find(x=>x.id===aid):null;
     h+='<div class="court-libero-row">';
     if(!a){h+='<div class="pcard-add" onclick="showPoolForSlot(\'L\')"><div class="add-role">Libero</div><div class="add-icon">+</div></div>';}
-    else{const isTr=a.status==='trattativa',isNew=a.status==='nuovo_acquisto';const nc=isTr?'pcard-name tratt-name':isNew?'pcard-name new-name':'pcard-name';const cc=isTr?'pcard tratt':'pcard';const bg=getRoleColor(a.ruolo);const ph=a.foto?'<img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block" onclick="event.stopPropagation();openPhoto('+a.id+')">':'<div style="color:#fff;background:'+bg+';width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;font-family:Barlow,sans-serif">'+getInitials(a.cognome,a.nome)+'</div>';h+='<div class="'+cc+'"><div class="pcard-photo"><div class="role-badge">L</div>'+ph+'<button class="pcard-remove" onclick="event.stopPropagation();removeFromSlot(\'l1\')">×</button></div><div class="'+nc+'">'+esc(a.cognome)+'</div></div>';}
+    else{const isTr=a.status==='trattativa',isNew=a.status==='nuovo_acquisto';const nc=isTr?'pcard-name tratt-name':isNew?'pcard-name new-name':'pcard-name';const cc=isTr?'pcard tratt':'pcard';const bg=getRoleColor(a.ruolo);const ph=a.foto?'<img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block" onclick="event.stopPropagation();openPhoto('+a.id+')">':'<div style="color:#fff;background:'+bg+';width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;font-family:Barlow,sans-serif">'+getInitials(a.cognome,a.nome)+'</div>';h+='<div class="'+cc+'"><div class="pcard-photo"><div class="role-badge">L</div>'+ph+'<button class="pcard-remove" onclick="event.stopPropagation();removeFromSlot(\'l1\')">×</button></div><div class="'+nc+'">'+esc(a.cognome)+'</div></div>';}
     h+='</div>';
   }
   h+='</div>';
