@@ -743,6 +743,12 @@ async function doLogin(){
   const data=await res.json();
   if(data.error||data.error_code){err.textContent=data.error_description||data.msg||'Credenziali non valide';err.classList.add('show');btn.disabled=false;btn.textContent='Accedi';return;}
   currentUser=data;
+  // Salva sessione in localStorage per persistere i refresh
+  try{localStorage.setItem('mv_session',JSON.stringify({
+    access_token:data.access_token,
+    refresh_token:data.refresh_token,
+    user:data.user
+  }));}catch(e){}
   try{
     const profiles=await sbFetch('/rest/v1/utenti?id=eq.'+data.user.id+'&select=*');
     if(!profiles?.length){err.textContent='Utente non autorizzato';err.classList.add('show');btn.disabled=false;btn.textContent='Accedi';return;}
