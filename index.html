@@ -339,6 +339,7 @@ tbody tr:hover td{background:#EBF4FF}
 .btn-cancel{padding:11px 18px;background:var(--bg-card);color:var(--text-sec);border:1.5px solid var(--border-med);border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
 .btn-del-drawer{padding:11px 14px;background:var(--bg-card);color:var(--red);border:1.5px solid var(--red-bg);border-radius:var(--radius-sm);font-size:14px;cursor:pointer;font-family:inherit}
 .btn-del-drawer:hover{background:var(--red-bg)}
+@media(max-width:700px){.roster-grid-wrap{grid-template-columns:1fr!important}}
 .roster-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .roster-panel-header{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
 .roster-panel-header h3{font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.05em}
@@ -591,7 +592,7 @@ footer strong{color:var(--blue-mid)}
     </div>
   </div>
   <div class="squad-tabs" id="squad-tabs"></div>
-  <div style="display:flex;flex-direction:column;gap:1rem">
+  <div class="roster-grid-wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start">
     <!-- TITOLARI -->
     <div class="roster-panel">
       <div class="roster-panel-header">
@@ -606,7 +607,7 @@ footer strong{color:var(--blue-mid)}
         <h3>&#x1F4CB; Riserve</h3>
         <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="riserve-count">0</span>
       </div>
-      <div id="riserve-slots" style="padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+      <div id="riserve-slots" style="padding:10px;display:flex;flex-direction:column;gap:6px"></div>
     </div>
     <div style="dummy">
     </div><!-- end dummy -->
