@@ -1398,7 +1398,7 @@ function renderRoster(){
       +'<div class="riserva-name"><b>'+esc(a.cognome)+'</b> <span style="font-weight:400">'+esc(a.nome)+'</span>'+trMark+newMark+'</div>'
       +'<div class="riserva-sub">'+esc(a.anno||'—')+'·'+esc(a.ruolo||'—')+' '+ratH+'</div></div>'
       +'<div class="riserva-right"><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:'+stBg+';color:'+stCol+'">'+( SL[a.status]||a.status)+'</span>'
-      +'<button class="slot-remove" onclick="removeRiservaSlot(''+slot.key+'')">&#x2715;</button></div></div>';
+      +'<button class="slot-remove" onclick="removeRiservaSlot(&#39;'+slot.key+'&#39;)">&#x2715;</button></div></div>';
   }).join('');
   renderPool();renderSummary(getSquadAthletes(squad.label),r);
 }
