@@ -1381,7 +1381,7 @@ function renderRoster(){
   document.getElementById('riserve-slots').innerHTML=getRiserveSlots(currentSquad).map(slot=>{
     const aid=r.riserve?.[slot.key];const a=aid?athletes.find(x=>x.id===aid):null;
     const roleColor={S:'#185FA5',P:'#0F6E56',C:'#6B21A8',L:'#854F0B',O:'#DC3545','?':'#6B7280'}[slot.role]||'#6B7280';
-    if(!a){return '<div class="riserva-slot empty" onclick="addToRiservaSlot(''+slot.role+'',''+slot.key+'')"><div style="width:42px;height:42px;border-radius:50%;border:2px dashed '+roleColor+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:12px;font-weight:800;color:'+roleColor+';font-family:Barlow,sans-serif">'+slot.role+'</span></div><div class="riserva-info"><div class="riserva-sub">'+esc(slot.label)+' — clicca per aggiungere</div></div><span style="font-size:16px;color:var(--border-med)">+</span></div>';}
+    if(!a){return '<div class="riserva-slot empty" onclick="addToRiservaSlot(&#39;'+slot.role+'&#39;,&#39;'+slot.key+'&#39;)"><div style="width:42px;height:42px;border-radius:50%;border:2px dashed '+roleColor+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:12px;font-weight:800;color:'+roleColor+';font-family:Barlow,sans-serif">'+slot.role+'</span></div><div class="riserva-info"><div class="riserva-sub">'+esc(slot.label)+' — clicca per aggiungere</div></div><span style="font-size:16px;color:var(--border-med)">+</span></div>';}
     const isTr=a.status==='trattativa',isNew=a.status==='nuovo_acquisto';
     const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':isTr?'#FFEDD5':'#E0F2FE';
     const stCol=CONFIRMED.includes(a.status)?'#065F46':isTr?'#9A3412':'#0369A1';
