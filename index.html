@@ -761,10 +761,12 @@ async function doLogin(){
 function startApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app-screen').style.display='block';
-  renderUserBadge();renderAdminActions();renderAddCard();loadAthletes();
+  renderUserBadge();renderAdminActions();renderAddCard();
+  loadAthletes().then(()=>{loadRecentActivity();buildTodo();});
 }
 
 function doLogout(){
+  try{localStorage.removeItem('mv_session');}catch(e){}
   currentUser=null;currentProfile=null;athletes=[];
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app-screen').style.display='none';
@@ -1573,6 +1575,41 @@ function renderSummary(sa,r){
     ${missing>0?`<div class="summary-row"><span style="color:var(--text-sec)">Posti mancanti</span><span style="font-weight:600;color:var(--red)">${missing}</span></div>`:''}`;
 }
 function initRosterBuilder(){loadRosters();renderSquadTabs();renderRoster();}
+
+// Auto-login al caricamento pagina
+(async function initSession(){
+  try{
+    const saved=localStorage.getItem('mv_session');
+    if(!saved)return;
+    const sess=JSON.parse(saved);
+    if(!sess.refresh_token)return;
+    // Refresh del token
+    const res=await fetch(SUPA+'/auth/v1/token?grant_type=refresh_token',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':KEY},
+      body:JSON.stringify({refresh_token:sess.refresh_token})
+    });
+    const data=await res.json();
+    if(!data.access_token){localStorage.removeItem('mv_session');return;}
+    // Aggiorna sessione
+    currentUser=data;
+    localStorage.setItem('mv_session',JSON.stringify({
+      access_token:data.access_token,
+      refresh_token:data.refresh_token,
+      user:data.user
+    }));
+    // Carica profilo
+    const profiles=await sbFetch('/rest/v1/utenti?id=eq.'+data.user.id+'&select=*');
+    if(!profiles||!profiles.length||!profiles[0].attivo){
+      localStorage.removeItem('mv_session');return;
+    }
+    currentProfile=profiles[0];
+    startApp();
+  }catch(e){
+    console.warn('Auto-login fallito:',e);
+    try{localStorage.removeItem('mv_session');}catch(e2){}
+  }
+})();
 </script>
 <div class="toast" id="toast"></div>
 
