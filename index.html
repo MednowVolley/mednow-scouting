@@ -487,7 +487,6 @@ footer strong{color:var(--blue-mid)}
 <body>
 
 <datalist id="dl-societa"></datalist>
-<datalist id="dl-agente"></datalist>
 <datalist id="dl-dest">
   <option>U.19 Ecc. ProPatria</option><option>U.17 Ecc. ProPatria</option>
   <option>U.15 Ecc. ProPatria</option><option>U.14 Ecc. ProPatria</option>
@@ -1188,7 +1187,7 @@ function renderTable(){
       <td><button class="pill ${SC[a.status]||'s-lista'}" onclick="event.stopPropagation();${editable?'cycleStatus('+a.id+')':''}">${SL[a.status]||a.status}</button>${pctHtml}</td>
       <td>${a.dest?(a.dest.split('|').map(d=>{const dc=d.includes('Aspes')?'aspes':d.includes('PGS')?'pgs':'';return`<span class="dest-badge ${dc}" style="margin-bottom:2px">${esc(d.trim())}</span>`;}).join(' ')):'<span style="color:var(--text-ter);font-size:11px">—</span>'}</td>
       <td class="agent-cell">${esc(a.agente||'—')}</td>
-      <td class="note-cell" title="${esc(a.note)}">${esc(a.note||'—')}</td>
+      <td class="note-cell">${esc(a.note||'—')}</td>
       <td>${a.rating?`<span class="rating-badge rating-${a.rating}">&#x2605;${a.rating}</span>`:'<span style="color:#d1d5db">—</span>'}</td>
       <td class="ts-cell">${fmtDate(a.updatedAt||a.createdAt)}</td>
       <td style="text-align:center">${deletable?`<button class="btn-del" onclick="event.stopPropagation();delAthlete(${a.id})">&#x2715;</button>`:''}</td>
