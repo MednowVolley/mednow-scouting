@@ -244,7 +244,7 @@ tbody tr:hover td{background:#EBF4FF}
 .drawer-field textarea{min-height:80px;resize:vertical}
 .drawer-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .drawer-footer{padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;background:var(--bg)}
-.page-footer{padding:1.5rem;text-align:center;font-size:13px;color:var(--text-sec);border-top:1px solid var(--border);margin-top:2rem;background:var(--bg)}
+.page-footer{padding:1.5rem;text-align:center;font-size:13px;color:var(--text-sec);border-top:1px solid var(--border);background:var(--bg);display:block!important}
 .page-footer strong{color:var(--blue)}
 .btn-save{flex:1;padding:11px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
 .btn-cancel{padding:11px 18px;background:var(--bg-card);color:var(--text-sec);border:1.5px solid var(--border-med);border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
@@ -485,7 +485,7 @@ footer strong{color:var(--blue-mid)}
 </div>
 
 <!-- ROSTER -->
-<div style="max-width:1280px;margin:0 auto;padding:0 1.5rem 2rem" id="roster-section">
+<div style="width:100%;padding:0 1.5rem 2rem;box-sizing:border-box" id="roster-section">
   <hr style="border:none;border-top:2px solid #dde3ec;margin:2rem 0">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1.25rem">
     <div>
@@ -704,8 +704,9 @@ footer strong{color:var(--blue-mid)}
   </div>
 </div>
 
-<div class="page-footer"><strong>MEDNOW VOLLEY</strong> · Database Scouting · mednowscoutingvolley.com · Stagione 2026/27</div>
 </div>
+
+<div class="page-footer"><strong>MEDNOW VOLLEY</strong> · Database Scouting · mednowscoutingvolley.com · Stagione 2026/27</div>
 
 <script>
 const SUPA='https://zaxbwqxnrofiggldoahw.supabase.co';
