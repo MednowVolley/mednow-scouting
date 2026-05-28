@@ -591,25 +591,27 @@ footer strong{color:var(--blue-mid)}
     </div>
   </div>
   <div class="squad-tabs" id="squad-tabs"></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-    <div>
-      <div class="roster-panel">
-        <div class="roster-panel-header">
-          <h3>&#x26BD; Sestetto titolare</h3>
-          <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="titolari-count">0/7</span>
-        </div>
-        <div id="titolari-slots" style="padding:10px"></div>
+  <div style="display:flex;flex-direction:column;gap:1rem">
+    <!-- TITOLARI -->
+    <div class="roster-panel">
+      <div class="roster-panel-header">
+        <h3>&#x26BD; Sestetto titolare</h3>
+        <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="titolari-count">0/7</span>
       </div>
-      <div class="roster-panel" style="margin-top:1rem">
-        <div class="roster-panel-header" style="background:#374151">
-          <h3>&#x1F4CB; Riserve</h3>
-          <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="riserve-count">0</span>
-        </div>
-        <div id="riserve-slots" style="padding:10px"></div>
-      </div>
+      <div id="titolari-slots" style="padding:10px"></div>
     </div>
-    <div>
-      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem">
+    <!-- RISERVE -->
+    <div class="roster-panel">
+      <div class="roster-panel-header" style="background:#374151">
+        <h3>&#x1F4CB; Riserve</h3>
+        <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="riserve-count">0</span>
+      </div>
+      <div id="riserve-slots" style="padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+    </div>
+    <div style="dummy">
+    </div><!-- end dummy -->
+    <!-- POOL -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
           <h3 style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase">Atlete disponibili</h3>
           <span style="font-size:11px;color:var(--text-sec)" id="pool-count">0</span>
