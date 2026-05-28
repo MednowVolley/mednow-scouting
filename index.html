@@ -1032,7 +1032,7 @@ async function saveAthlete(a){
   const payload=appToDB(a);
   try{
     await sbFetch('/rest/v1/atlete?id=eq.'+a.id,'PATCH',payload);
-    if(a.foto!==undefined){
+    if(a._fotoChanged===true){
       try{await sbFetch('/rest/v1/atlete?id=eq.'+a.id,'PATCH',{foto:a.foto||null});}catch(e){console.warn('Foto save:',e);}
     }
   }
@@ -1279,7 +1279,16 @@ async function saveDrawer(){
   const telEl=document.getElementById('edit-telefono');
   if(telEl)a.telefono=telEl.value.trim();
   const fotoEl2=document.getElementById('edit-foto');
-  if(fotoEl2){const nf=fotoEl2.value||null;if(nf!==(a._fotoOriginale||null)){a.foto=nf;}else{delete a.foto;}}
+  if(fotoEl2){
+    const nf=fotoEl2.value||null;
+    if(nf!==(a._fotoOriginale||null)){
+      a.foto=nf;          // foto cambiata → aggiorna
+      a._fotoChanged=true;
+    } else {
+      a.foto=a._fotoOriginale; // foto invariata → mantieni in memoria
+      a._fotoChanged=false;
+    }
+  }
   const btn=document.querySelector('.btn-save');btn.textContent='Salvataggio...';btn.disabled=true;
   try{await saveAthlete(a);renderTable();closeDrawer();showToast('Salvato ✓','success');}
   catch(e){showToast('Errore: '+e.message,'error');}
