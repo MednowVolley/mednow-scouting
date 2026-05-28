@@ -357,6 +357,13 @@ tbody tr:hover td{background:#EBF4FF}
 .btn-toggle-user{font-size:11px;padding:3px 8px;border-radius:8px;cursor:pointer;border:1px solid var(--border-med);background:#fff;font-family:inherit}
 footer{text-align:center;font-size:11px;color:var(--text-ter);padding:2rem;border-top:1px solid var(--border);background:var(--bg-card);margin-top:2rem}
 footer strong{color:var(--blue-mid)}
+
+/* Blocca tooltip nativi del browser su elementi con testo troncato */
+.role-badge, .agent-cell, .note-cell, .dest-tag, .pct-label {
+  -webkit-user-select: none;
+}
+td[title=""] { pointer-events: auto; }
+
 </style>
 
 <style id="court-override">
@@ -1183,11 +1190,11 @@ function renderTable(){
     return `<tr${editable?` onclick="openDrawer(${a.id})"`:''}>
       <td class="name-cell">${isNew?'<span class="new-badge">NEW</span>':isNuova?'<span class="nuova-badge">Nuova</span>':''}<span style="display:inline-flex;align-items:center;gap:8px"><span class="riserva-avatar-wrap" onclick="event.stopPropagation()">${renderAvatar(a,34)}${a.foto?`<div class="riserva-preview"><img src="${a.foto}"><div class="riserva-preview-name">${esc(a.cognome)}</div></div>`:''}</span><span><span style="font-family:'Barlow',sans-serif">${esc(a.cognome)}</span> <span style="font-weight:400">${esc(a.nome)}</span></span></span></td>
       <td><strong>${esc(a.anno)}</strong></td>
-      <td style="font-size:11px;color:var(--text-sec)">${esc(a.societa||'—')}</td>
-      <td><span class="role-badge">${esc(a.ruolo||'—')}</span></td>
+      <td style="font-size:11px;color:var(--text-sec)" title="">${esc(a.societa||'—')}</td>
+      <td><span class="role-badge" title="">${esc(a.ruolo||'—')}</span></td>
       <td><button class="pill ${SC[a.status]||'s-lista'}" onclick="event.stopPropagation();${editable?'cycleStatus('+a.id+')':''}">${SL[a.status]||a.status}</button>${pctHtml}</td>
       <td>${a.dest?(a.dest.split('|').map(d=>{const dc=d.includes('Aspes')?'aspes':d.includes('PGS')?'pgs':'';return`<span class="dest-badge ${dc}" style="margin-bottom:2px">${esc(d.trim())}</span>`;}).join(' ')):'<span style="color:var(--text-ter);font-size:11px">—</span>'}</td>
-      <td class="agent-cell">${esc(a.agente||'—')}</td>
+      <td class="agent-cell" title="">${esc(a.agente||'—')}</td>
       <td class="note-cell">${esc(a.note||'—')}</td>
       <td>${a.rating?`<span class="rating-badge rating-${a.rating}">&#x2605;${a.rating}</span>`:'<span style="color:#d1d5db">—</span>'}</td>
       <td class="ts-cell">${fmtDate(a.updatedAt||a.createdAt)}</td>
