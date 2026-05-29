@@ -591,11 +591,22 @@ td[title=""] { pointer-events: auto; }
 
   <div class="filters-bar">
     <input style="min-width:150px;max-width:180px" type="text" id="f-search" placeholder="&#x1F50D; Cerca..." oninput="renderTable()">
-    <select id="f-anno" onchange="renderTable()">
-      <option value="">Tutti gli anni</option>
-      <option>2007</option><option>2008</option><option>2009</option><option>2010</option>
-      <option>2011</option><option>2012</option><option>2013</option><option>2014</option><option>2015</option>
-    </select>
+    <div class="multi-filter-wrap">
+      <button type="button" class="multi-filter-btn" onclick="toggleMultiFilter('anno')" id="btn-multi-anno">Tutti gli anni <span style="font-size:10px">&#x25BC;</span></button>
+      <div class="multi-filter-dropdown" id="dd-anno">
+        <label><input type="checkbox" value="2006" onchange="renderTable();updateMultiFilterLabel('anno')"> 2006</label>
+        <label><input type="checkbox" value="2007" onchange="renderTable();updateMultiFilterLabel('anno')"> 2007</label>
+        <label><input type="checkbox" value="2008" onchange="renderTable();updateMultiFilterLabel('anno')"> 2008</label>
+        <label><input type="checkbox" value="2009" onchange="renderTable();updateMultiFilterLabel('anno')"> 2009</label>
+        <label><input type="checkbox" value="2010" onchange="renderTable();updateMultiFilterLabel('anno')"> 2010</label>
+        <label><input type="checkbox" value="2011" onchange="renderTable();updateMultiFilterLabel('anno')"> 2011</label>
+        <label><input type="checkbox" value="2012" onchange="renderTable();updateMultiFilterLabel('anno')"> 2012</label>
+        <label><input type="checkbox" value="2013" onchange="renderTable();updateMultiFilterLabel('anno')"> 2013</label>
+        <label><input type="checkbox" value="2014" onchange="renderTable();updateMultiFilterLabel('anno')"> 2014</label>
+        <label><input type="checkbox" value="2015" onchange="renderTable();updateMultiFilterLabel('anno')"> 2015</label>
+        <label><input type="checkbox" value="2016" onchange="renderTable();updateMultiFilterLabel('anno')"> 2016</label>
+      </div>
+    </div>
     <div class="multi-filter-wrap">
       <button type="button" class="multi-filter-btn" onclick="toggleMultiFilter('status')" id="btn-multi-status">Tutti gli stati <span style="font-size:10px">&#x25BC;</span></button>
       <div class="multi-filter-dropdown" id="dd-status">
