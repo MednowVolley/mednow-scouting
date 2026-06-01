@@ -501,6 +501,7 @@ td[title=""] { pointer-events: auto; }
   <option>U.12B ProPatria</option><option>U.15B ProPatria</option>
   <option>U.14B ProPatria</option><option>U.13B ProPatria</option>
   <option>U.19A Aspes</option><option>U.17A Aspes</option>
+  <option>U.17B Aspes</option>
   <option>U.15A Aspes</option><option>U.14A Aspes</option>
   <option>U.13A Aspes</option><option>U.12A Aspes</option>
   <option>U.12B Aspes</option><option>PGS</option>
@@ -641,6 +642,7 @@ td[title=""] { pointer-events: auto; }
       <option>U.14B ProPatria</option>
       <option>U.13B ProPatria</option>
       <option>U.17A Aspes</option>
+  <option>U.17B Aspes</option>
       <option>PGS</option>
       <option>1 Divisione Aspes</option>
       <option>Corso Aspes</option>
@@ -1569,7 +1571,7 @@ async function switchDrawerTab(tab){
   else{if(dc)dc.style.display='none';if(ds)ds.style.display='';stoBtn.style.background='var(--blue)';stoBtn.style.color='#fff';stoBtn.style.borderColor='var(--blue)';modBtn.style.background='transparent';modBtn.style.color='var(--text-sec)';modBtn.style.borderColor='var(--border)';var id=parseInt(document.getElementById('edit-id').value);if(id){var logs=await loadAtletaLogs(id);document.getElementById('storico-content').innerHTML=renderLogs(logs);}}
 }
 
-const SQUADS=[{id:'u19p',label:'U.19 Ecc. ProPatria',club:'ProPatria'},{id:'u17p',label:'U.17 Ecc. ProPatria',club:'ProPatria'},{id:'u15p',label:'U.15 Ecc. ProPatria',club:'ProPatria'},{id:'u14p',label:'U.14 Ecc. ProPatria',club:'ProPatria'},{id:'u13p',label:'U.13 Ecc. ProPatria',club:'ProPatria'},{id:'u12ap',label:'U.12A ProPatria',club:'ProPatria'},{id:'u12bp',label:'U.12B ProPatria',club:'ProPatria'},{id:'u19a',label:'U.19A Aspes',club:'Aspes'},{id:'u17a',label:'U.17A Aspes',club:'Aspes'},{id:'u15a',label:'U.15A Aspes',club:'Aspes'},{id:'u14a',label:'U.14A Aspes',club:'Aspes'},{id:'u13a',label:'U.13A Aspes',club:'Aspes'}];
+const SQUADS=[{id:'u19p',label:'U.19 Ecc. ProPatria',club:'ProPatria'},{id:'u17p',label:'U.17 Ecc. ProPatria',club:'ProPatria'},{id:'u15p',label:'U.15 Ecc. ProPatria',club:'ProPatria'},{id:'u14p',label:'U.14 Ecc. ProPatria',club:'ProPatria'},{id:'u13p',label:'U.13 Ecc. ProPatria',club:'ProPatria'},{id:'u12ap',label:'U.12A ProPatria',club:'ProPatria'},{id:'u12bp',label:'U.12B ProPatria',club:'ProPatria'},{id:'u19a',label:'U.19A Aspes',club:'Aspes'},{id:'u17a',label:'U.17A Aspes',club:'Aspes'},{id:'u17b',label:'U.17B Aspes',club:'Aspes'},{id:'u15a',label:'U.15A Aspes',club:'Aspes'},{id:'u14a',label:'U.14A Aspes',club:'Aspes'},{id:'u13a',label:'U.13A Aspes',club:'Aspes'}];
 const TITOLARI_SLOTS=[{role:'P',label:'Palleggiatrice',key:'p1'},{role:'O',label:'Opposto',key:'o1'},{role:'C',label:'Centrale 1',key:'c1'},{role:'C',label:'Centrale 2',key:'c2'},{role:'S',label:'Schiacciatrice 1',key:'s1'},{role:'S',label:'Schiacciatrice 2',key:'s2'},{role:'L',label:'Libero',key:'l1'}];
 const RISERVE_SLOTS=[{role:'P',label:'Palleggiatrice 2',key:'ris_p2'},{role:'S',label:'Schiacciatrice 3',key:'ris_s3'},{role:'S',label:'Schiacciatrice 4',key:'ris_s4'},{role:'C',label:'Centrale 3',key:'ris_c3'},{role:'C',label:'Centrale 4',key:'ris_c4'},{role:'O',label:'Opposto 2',key:'ris_o2'},{role:'L',label:'Libero 2',key:'ris_l2'},{role:'?',label:'Slot libero 1',key:'ris_x1'},{role:'?',label:'Slot libero 2',key:'ris_x2'},{role:'?',label:'Slot libero 3',key:'ris_x3'}];
 const LS_ROSTER='mednow_rosters_v1';
