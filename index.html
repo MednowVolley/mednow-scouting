@@ -1718,7 +1718,28 @@ function renderCourt(titolariSlots,r){
 }
 
 function selectSquad(sid){currentSquad=sid;renderSquadTabs();renderRoster();}
-function getAssignedIds(){const r=getRoster(currentSquad);const ids=new Set(Object.values(r.titolari).filter(Boolean));Object.values(r.riserve||{}).filter(Boolean).forEach(id=>ids.add(id));(r.riserve_libere||[]).forEach(id=>ids.add(id));return ids;}
+function getSiblingSquadId(squadId){
+  // Trova il gruppo gemello: A↔B
+  if(squadId.endsWith('a'))return squadId.slice(0,-1)+'b';
+  if(squadId.endsWith('b'))return squadId.slice(0,-1)+'a';
+  return null;
+}
+function getAssignedIds(){
+  // IDs assegnati nel roster corrente
+  const r=getRoster(currentSquad);
+  const ids=new Set(Object.values(r.titolari).filter(Boolean));
+  Object.values(r.riserve||{}).filter(Boolean).forEach(id=>ids.add(id));
+  (r.riserve_libere||[]).forEach(id=>ids.add(id));
+  // Aggiunge IDs del roster gemello (es. U14A esclude chi è già in U14B e viceversa)
+  const siblingId=getSiblingSquadId(currentSquad);
+  if(siblingId&&rosters[siblingId]){
+    const rs=rosters[siblingId];
+    Object.values(rs.titolari||{}).filter(Boolean).forEach(id=>ids.add(id));
+    Object.values(rs.riserve||{}).filter(Boolean).forEach(id=>ids.add(id));
+    (rs.riserve_libere||[]).forEach(id=>ids.add(id));
+  }
+  return ids;
+}
 function renderRoster(){
   if(athletes&&athletes.length>0)buildTodo();
   // Banner sola lettura per roster non modificabili
