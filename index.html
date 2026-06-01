@@ -622,43 +622,55 @@ td[title=""] { pointer-events: auto; }
         <label><input type="checkbox" value="no" onchange="renderTable();updateMultiFilterLabel('status')"> No</label>
       </div>
     </div>
-    <select id="f-ruolo" onchange="renderTable()">
-      <option value="">Tutti i ruoli</option>
-      <option>Palleggiatrice</option>
-      <option>Opposto</option>
-      <option>Centrale</option>
-      <option>Banda</option>
-      <option>Libero</option>
-    </select>
-    <select id="f-agente" onchange="renderTable()"><option value="">Tutti gli agenti</option></select>
-    <select id="f-dest" onchange="renderTable()">
-      <option value="">Tutte le squadre</option>
-      <option>U.19 Ecc. ProPatria</option>
-      <option>U.17 Ecc. ProPatria</option>
-      <option>U.15 Ecc. ProPatria</option>
-      <option>U.14 Ecc. ProPatria</option>
-      <option>U.13 Ecc. ProPatria</option>
-      <option>U.12A ProPatria</option>
-      <option>U.12B ProPatria</option>
-      <option>U.15B ProPatria</option>
-      <option>U.14B ProPatria</option>
-      <option>U.13B ProPatria</option>
-      <option>U.17A Aspes</option>
-  <option>U.17B Aspes</option>
-      <option>PGS</option>
-      <option>1 Divisione Aspes</option>
-      <option>Corso Aspes</option>
-      <option>Minivolley Aspes</option>
-      <option>U12 Aspes</option>
-      <option>U13 Aspes</option>
-      <option>U14 Aspes</option>
-      <option>U15 Aspes</option>
-      <option>U16 Aspes</option>
-      <option>U17 Aspes</option>
-      <option>U18 Aspes</option>
-      <option>U19 Aspes</option>
-      <option>U20 Aspes</option>
-    </select>
+    <div class="multi-filter-wrap">
+      <button type="button" class="multi-filter-btn" onclick="toggleMultiFilter('ruolo')" id="btn-multi-ruolo">Tutti i ruoli <span style="font-size:10px">&#x25BC;</span></button>
+      <div class="multi-filter-dropdown" id="dd-ruolo">
+        <label><input type="checkbox" value="Palleggiatrice" onchange="renderTable();updateMultiFilterLabel('ruolo')"> Palleggiatrice</label>
+        <label><input type="checkbox" value="Opposto" onchange="renderTable();updateMultiFilterLabel('ruolo')"> Opposto</label>
+        <label><input type="checkbox" value="Centrale" onchange="renderTable();updateMultiFilterLabel('ruolo')"> Centrale</label>
+        <label><input type="checkbox" value="Banda" onchange="renderTable();updateMultiFilterLabel('ruolo')"> Banda</label>
+        <label><input type="checkbox" value="Libero" onchange="renderTable();updateMultiFilterLabel('ruolo')"> Libero</label>
+      </div>
+    </div>
+    <div class="multi-filter-wrap">
+      <button type="button" class="multi-filter-btn" onclick="toggleMultiFilter('agente')" id="btn-multi-agente">Tutti gli agenti <span style="font-size:10px">&#x25BC;</span></button>
+      <div class="multi-filter-dropdown" id="dd-agente">
+        <label><input type="checkbox" value="Aspes" onchange="renderTable();updateMultiFilterLabel('agente')"> Aspes</label>
+        <label><input type="checkbox" value="Paolo Buongiorno" onchange="renderTable();updateMultiFilterLabel('agente')"> Paolo Buongiorno</label>
+        <label><input type="checkbox" value="Gaia Genovesi" onchange="renderTable();updateMultiFilterLabel('agente')"> Gaia Genovesi</label>
+        <label><input type="checkbox" value="Filippo Nicastro" onchange="renderTable();updateMultiFilterLabel('agente')"> Filippo Nicastro</label>
+        <label><input type="checkbox" value="Gold Sport - Donato Saltini" onchange="renderTable();updateMultiFilterLabel('agente')"> Gold Sport - Donato Saltini</label>
+        <label><input type="checkbox" value="Stefano Borla" onchange="renderTable();updateMultiFilterLabel('agente')"> Stefano Borla</label>
+        <label><input type="checkbox" value="Vannoni" onchange="renderTable();updateMultiFilterLabel('agente')"> Vannoni</label>
+        <label><input type="checkbox" value="Giugni" onchange="renderTable();updateMultiFilterLabel('agente')"> Giugni</label>
+        <label><input type="checkbox" value="Squadre Regionali" onchange="renderTable();updateMultiFilterLabel('agente')"> Squadre Regionali</label>
+        <label><input type="checkbox" value="Selezione Territoriale MML" onchange="renderTable();updateMultiFilterLabel('agente')"> Selezione Territoriale MML</label>
+        <label><input type="checkbox" value="Open Day" onchange="renderTable();updateMultiFilterLabel('agente')"> Open Day</label>
+        <label><input type="checkbox" value="Open Day 30 Maggio" onchange="renderTable();updateMultiFilterLabel('agente')"> Open Day 30 Maggio</label>
+        <label><input type="checkbox" value="Senza agente" onchange="renderTable();updateMultiFilterLabel('agente')"> Senza agente</label>
+      </div>
+    </div>
+    <div class="multi-filter-wrap">
+      <button type="button" class="multi-filter-btn" onclick="toggleMultiFilter('dest')" id="btn-multi-dest">Tutte le squadre <span style="font-size:10px">&#x25BC;</span></button>
+      <div class="multi-filter-dropdown" id="dd-dest">
+        <label><input type="checkbox" value="U.19 Ecc. ProPatria" onchange="renderTable();updateMultiFilterLabel('dest')"> U.19 Ecc. ProPatria</label>
+        <label><input type="checkbox" value="U.17 Ecc. ProPatria" onchange="renderTable();updateMultiFilterLabel('dest')"> U.17 Ecc. ProPatria</label>
+        <label><input type="checkbox" value="U.15 Ecc. ProPatria" onchange="renderTable();updateMultiFilterLabel('dest')"> U.15 Ecc. ProPatria</label>
+        <label><input type="checkbox" value="U.14 Ecc. ProPatria" onchange="renderTable();updateMultiFilterLabel('dest')"> U.14 Ecc. ProPatria</label>
+        <label><input type="checkbox" value="U.13 Ecc. ProPatria" onchange="renderTable();updateMultiFilterLabel('dest')"> U.13 Ecc. ProPatria</label>
+        <label><input type="checkbox" value="U.12A ProPatria" onchange="renderTable();updateMultiFilterLabel('dest')"> U.12A ProPatria</label>
+        <label><input type="checkbox" value="U.12B ProPatria" onchange="renderTable();updateMultiFilterLabel('dest')"> U.12B ProPatria</label>
+        <label><input type="checkbox" value="U19A Aspes" onchange="renderTable();updateMultiFilterLabel('dest')"> U19A Aspes</label>
+        <label><input type="checkbox" value="U17A Aspes" onchange="renderTable();updateMultiFilterLabel('dest')"> U17A Aspes</label>
+        <label><input type="checkbox" value="U17B Aspes" onchange="renderTable();updateMultiFilterLabel('dest')"> U17B Aspes</label>
+        <label><input type="checkbox" value="U15A Aspes" onchange="renderTable();updateMultiFilterLabel('dest')"> U15A Aspes</label>
+        <label><input type="checkbox" value="U15B Aspes" onchange="renderTable();updateMultiFilterLabel('dest')"> U15B Aspes</label>
+        <label><input type="checkbox" value="U14A Aspes" onchange="renderTable();updateMultiFilterLabel('dest')"> U14A Aspes</label>
+        <label><input type="checkbox" value="U14B Aspes" onchange="renderTable();updateMultiFilterLabel('dest')"> U14B Aspes</label>
+        <label><input type="checkbox" value="U13A Aspes" onchange="renderTable();updateMultiFilterLabel('dest')"> U13A Aspes</label>
+        <label><input type="checkbox" value="U13B Aspes" onchange="renderTable();updateMultiFilterLabel('dest')"> U13B Aspes</label>
+      </div>
+    </div>
     <button class="btn-reset" onclick="resetFilters()">&#x2715; Reset</button>
     <button class="btn-export" onclick="exportCSV()">&#x2B07; CSV</button>
   </div>
@@ -1129,18 +1141,18 @@ function getFiltered(){
   const q=(document.getElementById('f-search').value||'').toLowerCase();
   const annoChecks=[...document.querySelectorAll('#dd-anno input:checked')].map(cb=>cb.value);
   const statusChecks=[...document.querySelectorAll('#dd-status input:checked')].map(cb=>cb.value);
-  const ruolo=document.getElementById('f-ruolo').value;
-  const agente=document.getElementById('f-agente').value;
-  const dest=(document.getElementById('f-dest')?.value||'').trim();
+  const ruoloChecks=[...document.querySelectorAll('#dd-ruolo input:checked')].map(cb=>cb.value);
+  const agenteChecks=[...document.querySelectorAll('#dd-agente input:checked')].map(cb=>cb.value);
+  const destChecks=[...document.querySelectorAll('#dd-dest input:checked')].map(cb=>cb.value);
   return athletes.filter(a=>{
     if(q&&!(a.cognome+' '+a.nome).toLowerCase().includes(q))return false;
     if(annoChecks.length&&!annoChecks.includes(a.anno))return false;
     if(statusChecks.length&&!statusChecks.includes(a.status))return false;
-    if(ruolo&&!(a.ruolo||'').split('/').map(r=>r.trim()).includes(ruolo))return false;
-    if(agente&&a.agente!==agente)return false;
-    if(dest){
+    if(ruoloChecks.length&&!ruoloChecks.some(r=>(a.ruolo||'').split('/').map(x=>x.trim()).includes(r)))return false;
+    if(agenteChecks.length&&!agenteChecks.includes(a.agente))return false;
+    if(destChecks.length){
       const dests=(a.dest||'').split('|').map(d=>d.trim()).filter(Boolean);
-      if(!dests.some(d=>d===dest))return false;
+      if(!destChecks.some(dc=>dests.includes(dc)))return false;
     }
     return true;
   });
@@ -1227,7 +1239,12 @@ function renderTable(){
 }
 
 function changePage(d){page+=d;renderTable();}
-function resetFilters(){['f-search','f-ruolo','f-agente','f-dest'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.querySelectorAll('#dd-status input').forEach(cb=>cb.checked=false);updateMultiFilterLabel('status');document.querySelectorAll('#dd-anno input').forEach(cb=>cb.checked=false);updateMultiFilterLabel('anno');page=0;renderTable();}
+function resetFilters(){document.querySelectorAll('#dd-status input').forEach(cb=>cb.checked=false);updateMultiFilterLabel('status');
+  document.querySelectorAll('#dd-anno input').forEach(cb=>cb.checked=false);updateMultiFilterLabel('anno');
+  document.querySelectorAll('#dd-ruolo input').forEach(cb=>cb.checked=false);updateMultiFilterLabel('ruolo');
+  document.querySelectorAll('#dd-agente input').forEach(cb=>cb.checked=false);updateMultiFilterLabel('agente');
+  document.querySelectorAll('#dd-dest input').forEach(cb=>cb.checked=false);updateMultiFilterLabel('dest');
+  document.getElementById('f-search').value='';page=0;renderTable();}
 
 async function cycleStatus(id){
   const a=athletes.find(x=>x.id===id);if(!a)return;
@@ -1556,7 +1573,7 @@ function buildTodo(){
     '<div class="todo-card-body">'+c.body+'</div></div>').join('');
 }
 function todoFilter(status,sort){
-  ['f-search','f-ruolo','f-agente','f-dest'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  
   document.querySelectorAll('#dd-status input').forEach(cb=>cb.checked=false);
   if(status){const cb=document.querySelector('#dd-status input[value="'+status+'"]');if(cb)cb.checked=true;updateMultiFilterLabel('status');}
   if(sort){currentSort=sort;document.querySelectorAll('[id^="sort-"]').forEach(b=>b.classList.remove('active'));const sb=document.getElementById('sort-'+sort);if(sb)sb.classList.add('active');}
