@@ -1192,11 +1192,7 @@ function renderStats(){
     <div class="stat amber"><div class="s-label">Visionate</div><div class="s-val">${v}</div></div>`;
 }
 
-function updateAgenteFilter(){
-  const agenti=[...new Set(athletes.map(a=>a.agente).filter(Boolean))].sort();
-  const sel=document.getElementById('f-agente'),cur=sel.value;
-  sel.innerHTML='<option value="">Tutti gli agenti</option>'+agenti.map(a=>`<option${a===cur?' selected':''}>${a}</option>`).join('');
-}
+// updateAgenteFilter rimossa (ora multi-select)
 
 function fmtDate(ts){
   if(!ts)return'—';
@@ -1206,7 +1202,7 @@ function fmtDate(ts){
 
 function renderTable(){
   if(athletes&&athletes.length>0)buildTodo();
-  renderStats();updateAgenteFilter();
+  renderStats();
   const data=getSorted(getFiltered());
   const totalPages=Math.ceil(data.length/PER_PAGE)||1;
   if(page>=totalPages)page=Math.max(0,totalPages-1);
