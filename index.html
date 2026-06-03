@@ -607,6 +607,16 @@ td[title=""] { pointer-events: auto; }
     <div id="dash-priority" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:0 1px 4px rgba(10,22,40,0.06)"></div>
     <div id="dash-recent" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:0 1px 4px rgba(10,22,40,0.06)"></div>
   </div>
+  <!-- Riga 3: Tutte le trattative espandibile -->
+  <div id="dash-all-wrap" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:0 1px 4px rgba(10,22,40,0.06);margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer" onclick="toggleDashAll()">
+      <div class="dash-title" style="margin-bottom:0">📋 Tutte le trattative aperte <span id="dash-all-badge" style="background:#FEF3C7;color:#B45309;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:700">0</span></div>
+      <span id="dash-all-toggle" style="font-size:11px;color:var(--text-sec);font-weight:600">▼ espandi</span>
+    </div>
+    <div id="dash-all-body" style="display:none">
+      <div id="dash-all-list"></div>
+    </div>
+  </div>
 </div>
 
   <div class="filters-bar">
@@ -1665,6 +1675,49 @@ function buildDashboard(){
       </div>`;
     }).join('');
   }
+
+  // ===== TUTTE LE TRATTATIVE =====
+  const allTratt=athletes
+    .filter(a=>['trattativa','in_prova','non_confermata'].includes(a.status))
+    .sort((a,b)=>(b.rating||0)-(a.rating||0)||(b.pct||0)-(a.pct||0));
+  const badge=document.getElementById('dash-all-badge');
+  if(badge)badge.textContent=allTratt.length;
+  const allList=document.getElementById('dash-all-list');
+  if(allList){
+    const STATUS_LABELS2={'trattativa':'Trattativa','in_prova':'In prova','non_confermata':'Non conf.'};
+    const STATUS_COLORS2={'trattativa':'#FEF3C7;color:#B45309','in_prova':'#EDE9FE;color:#7C3AED','non_confermata':'#FEE2E2;color:#991B1B'};
+    allList.innerHTML=allTratt.length?
+      `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:6px">` +
+      allTratt.map(a=>{
+        const sc=STATUS_COLORS2[a.status]||'#F3F4F6;color:#374151';
+        const sl=STATUS_LABELS2[a.status]||a.status;
+        const pctCol=(a.pct||50)>=70?'#065F46':(a.pct||50)>=40?'#B45309':'#991B1B';
+        return `<div class="dash-row" onclick="openDrawer(${a.id})" style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
+          ${renderAvatar(a,28)}
+          <div style="flex:1;min-width:0">
+            <div class="dash-cognome">${esc(a.cognome)} ${esc(a.nome)} <span style="font-size:10px;color:var(--text-ter)">${a.anno}</span></div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:2px">
+              <span class="dash-pct" style="background:${sc};font-size:10px">${sl}</span>
+              <span style="font-size:10px;color:${pctCol};font-weight:700">${a.pct||50}%</span>
+              ${a.agente?`<span style="font-size:10px;color:var(--text-ter)">${esc(a.agente)}</span>`:''}
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="color:#F59E0B;font-size:11px">${'★'.repeat(Math.min(a.rating||0,5))}</div>
+            ${a.dest?`<div style="font-size:9px;color:var(--text-ter)">${esc(a.dest.split('|')[0])}</div>`:''}
+          </div>
+        </div>`;
+      }).join('')+`</div>` :
+      '<div style="color:var(--text-ter);font-size:12px;padding:8px 0">Nessuna trattativa aperta</div>';
+  }
+}
+function toggleDashAll(){
+  const body=document.getElementById('dash-all-body');
+  const icon=document.getElementById('dash-all-toggle');
+  if(!body||!icon)return;
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  icon.textContent=open?'▼ espandi':'▲ comprimi';
 }
 // Alias per retrocompatibilità
 function buildTodo(){buildDashboard();}
