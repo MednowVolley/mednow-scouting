@@ -1686,29 +1686,38 @@ function buildDashboard(){
   if(allList){
     const STATUS_LABELS2={'trattativa':'Trattativa','in_prova':'In prova','non_confermata':'Non conf.'};
     const STATUS_COLORS2={'trattativa':'#FEF3C7;color:#B45309','in_prova':'#EDE9FE;color:#7C3AED','non_confermata':'#FEE2E2;color:#991B1B'};
-    allList.innerHTML=allTratt.length?
-      `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:6px">` +
-      allTratt.map(a=>{
+    // Raggruppa per rating (livello)
+    const groups={10:[],9:[],8:[],7:[],6:[],5:[],4:[],3:[],2:[],1:[],0:[]};
+    allTratt.forEach(a=>{ const r=a.rating||0; if(groups[r])groups[r].push(a); else groups[0].push(a); });
+    let html='';
+    for(let r=10;r>=0;r--){
+      if(!groups[r]||!groups[r].length)continue;
+      const stars='★'.repeat(r)+'☆'.repeat(Math.max(0,5-Math.min(r,5)));
+      html+=`<div style="font-size:10px;font-weight:800;color:var(--text-ter);text-transform:uppercase;letter-spacing:.08em;padding:10px 0 4px;border-top:1px solid var(--border);margin-top:4px">`;
+      html+=`${r>=8?'🔴':r>=6?'🟡':'⚪'} Livello ${r} — ★ ${r}/10 <span style="font-weight:400">(${groups[r].length})</span></div>`;
+      html+=groups[r].map(a=>{
         const sc=STATUS_COLORS2[a.status]||'#F3F4F6;color:#374151';
         const sl=STATUS_LABELS2[a.status]||a.status;
         const pctCol=(a.pct||50)>=70?'#065F46':(a.pct||50)>=40?'#B45309':'#991B1B';
-        return `<div class="dash-row" onclick="openDrawer(${a.id})" style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg)">
+        return `<div class="dash-row" onclick="openDrawer(${a.id})">
           ${renderAvatar(a,28)}
           <div style="flex:1;min-width:0">
             <div class="dash-cognome">${esc(a.cognome)} ${esc(a.nome)} <span style="font-size:10px;color:var(--text-ter)">${a.anno}</span></div>
             <div style="display:flex;align-items:center;gap:4px;margin-top:2px">
               <span class="dash-pct" style="background:${sc};font-size:10px">${sl}</span>
               <span style="font-size:10px;color:${pctCol};font-weight:700">${a.pct||50}%</span>
+              ${a.ruolo?`<span style="font-size:10px;color:var(--text-ter)">${esc(a.ruolo.split('/')[0])}</span>`:''}
               ${a.agente?`<span style="font-size:10px;color:var(--text-ter)">${esc(a.agente)}</span>`:''}
             </div>
           </div>
-          <div style="text-align:right">
-            <div style="color:#F59E0B;font-size:11px">${'★'.repeat(Math.min(a.rating||0,5))}</div>
-            ${a.dest?`<div style="font-size:9px;color:var(--text-ter)">${esc(a.dest.split('|')[0])}</div>`:''}
+          <div style="text-align:right;flex-shrink:0">
+            ${a.dest?`<div style="font-size:10px;color:var(--text-sec);font-weight:600">${esc(a.dest.split('|')[0])}</div>`:''}
+            ${a.note?`<div style="font-size:10px;color:var(--text-ter);max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a.note)}</div>`:''}
           </div>
         </div>`;
-      }).join('')+`</div>` :
-      '<div style="color:var(--text-ter);font-size:12px;padding:8px 0">Nessuna trattativa aperta</div>';
+      }).join('');
+    }
+    allList.innerHTML=allTratt.length?html:'<div style="color:var(--text-ter);font-size:12px;padding:8px 0">Nessuna trattativa aperta</div>';
   }
 }
 function toggleDashAll(){
