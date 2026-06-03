@@ -673,6 +673,7 @@ td[title=""] { pointer-events: auto; }
         <label><input type="checkbox" value="Centrale" onchange="renderTable();updateMultiFilterLabel('ruolo')"> Centrale</label>
         <label><input type="checkbox" value="Banda" onchange="renderTable();updateMultiFilterLabel('ruolo')"> Banda</label>
         <label><input type="checkbox" value="Libero" onchange="renderTable();updateMultiFilterLabel('ruolo')"> Libero</label>
+        <label><input type="checkbox" value="Universale" onchange="renderTable();updateMultiFilterLabel('ruolo')"> Universale</label>
       </div>
     </div>
     <div class="multi-filter-wrap">
@@ -1148,6 +1149,7 @@ function renderAddCard(){
           <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Centrale" style="accent-color:var(--blue)"> Centrale</label>
           <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Banda" style="accent-color:var(--blue)"> Banda</label>
           <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Libero" style="accent-color:var(--blue)"> Libero</label>
+          <label style="display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 8px;border:1.5px solid var(--border-med);border-radius:14px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="Universale" style="accent-color:var(--blue)"> Universale</label>
         </div></div>
       <div class="field-wrap"><div class="field-label">Stato</div>
         <select id="a-status">
@@ -1237,7 +1239,7 @@ function getFiltered(){
     if(q&&!(a.cognome+' '+a.nome).toLowerCase().includes(q))return false;
     if(annoChecks.length&&!annoChecks.includes(a.anno))return false;
     if(statusChecks.length&&!statusChecks.includes(a.status))return false;
-    if(ruoloChecks.length&&!ruoloChecks.some(r=>(a.ruolo||'').split('/').map(x=>x.trim()).includes(r)))return false;
+    if(ruoloChecks.length&&!(a.ruolo||'').toLowerCase().includes('universal')&&!ruoloChecks.some(r=>(a.ruolo||'').split('/').map(x=>x.trim()).includes(r)))return false;
     if(agenteChecks.length&&!agenteChecks.includes(a.agente))return false;
     if(destChecks.length){
       const dests=(a.dest||'').split('|').map(d=>d.trim()).filter(Boolean);
@@ -1892,7 +1894,7 @@ function getSquadAthletes(label){
     return false;
   });
 }
-function roleMatch(r,slot){if(!r)return false;const rl=r.toLowerCase();if(slot==='P')return rl.includes('palleg')||rl.includes('alzat');if(slot==='O')return rl.includes('oppos');if(slot==='C')return rl.includes('central');if(slot==='S'||slot==='B')return rl.includes('schiacc')||rl.includes('banda')||rl.includes('lateral');if(slot==='L')return rl.includes('libero');return false;}
+function roleMatch(r,slot){if(!r)return false;const rl=r.toLowerCase();if(rl.includes('universal'))return true;if(slot==='P')return rl.includes('palleg')||rl.includes('alzat');if(slot==='O')return rl.includes('oppos');if(slot==='C')return rl.includes('central');if(slot==='S'||slot==='B')return rl.includes('schiacc')||rl.includes('banda')||rl.includes('lateral');if(slot==='L')return rl.includes('libero');return false;}
 function getShortRole(r){if(!r)return'?';const rl=r.toLowerCase();if(rl.includes('palleg')||rl.includes('alzat'))return'P';if(rl.includes('oppos'))return'O';if(rl.includes('central'))return'C';if(rl.includes('schiacc')||rl.includes('banda'))return'S';if(rl.includes('libero'))return'L';return r.substring(0,2).toUpperCase();}
 function renderSquadTabs(){document.getElementById('squad-tabs').innerHTML=SQUADS.map(s=>{const n=getSquadAthletes(s.label).length;const isA=s.club==='Aspes';return`<button class="squad-tab${currentSquad===s.id?' active':''}${isA?' aspes':''}" onclick="selectSquad('${s.id}')">${s.label.replace(' ProPatria','').replace(' Aspes','')} <span style="font-size:10px;opacity:0.7">${n}</span></button>`;}).join('');}
 
