@@ -366,6 +366,23 @@ footer strong{color:var(--blue-mid)}
 }
 td[title=""] { pointer-events: auto; }
 
+
+/* Dashboard Trattative */
+.kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:0 1px 4px rgba(10,22,40,0.06);cursor:pointer;transition:box-shadow .15s,transform .15s}
+.kpi-card:hover{box-shadow:0 4px 16px rgba(10,22,40,0.12);transform:translateY(-1px)}
+.kpi-label{font-size:11px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.kpi-value{font-size:28px;font-weight:800;font-family:'Barlow',sans-serif;line-height:1;color:var(--navy)}
+.kpi-sub{font-size:11px;color:var(--text-sec);margin-top:4px}
+.kpi-bar{height:3px;border-radius:2px;margin-top:8px;background:var(--border)}
+.kpi-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+.dash-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.dash-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.dash-row:last-child{border-bottom:none}
+.dash-row:hover{background:var(--bg);border-radius:6px;padding-left:4px}
+.dash-cognome{font-size:12px;font-weight:700;color:var(--navy);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-meta{font-size:11px;color:var(--text-sec);white-space:nowrap}
+.dash-pct{font-size:11px;font-weight:700;padding:1px 7px;border-radius:8px;white-space:nowrap}
+
 </style>
 
 <style id="court-override">
@@ -582,15 +599,15 @@ td[title=""] { pointer-events: auto; }
     </div>
   </div>
   <!-- TODO SECTION -->
-  <div class="todo-section" id="todo-section">
-    <div class="todo-header" onclick="toggleTodo()">
-      <div class="todo-title">📋 Da fare <span id="todo-badge" style="background:var(--blue);color:#fff;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700">0</span></div>
-      <span class="todo-toggle" id="todo-toggle-icon">▲ nascondi</span>
-    </div>
-    <div id="todo-body">
-      <div class="todo-grid" id="todo-grid"><div style="color:var(--text-ter);font-size:12px;text-align:center;padding:12px">Caricamento...</div></div>
-    </div>
+  <div id="trattative-dashboard">
+  <!-- Riga 1: KPI cards -->
+  <div id="kpi-row" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px"></div>
+  <!-- Riga 2: Priorità + Recenti -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+    <div id="dash-priority" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:0 1px 4px rgba(10,22,40,0.06)"></div>
+    <div id="dash-recent" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:0 1px 4px rgba(10,22,40,0.06)"></div>
   </div>
+</div>
 
   <div class="filters-bar">
     <input style="min-width:150px;max-width:180px" type="text" id="f-search" placeholder="&#x1F50D; Cerca..." oninput="renderTable()">
@@ -1583,26 +1600,75 @@ function renderActivity(){
   badge.textContent=recentLogs.length;badge.style.background='#185FA5';
   list.innerHTML=recentLogs.map(function(l){const initials=(l.utente_nome||'?').split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2);const color=userColor(l.utente_nome);const campo=CAMPO_LABELS[l.campo]||l.campo;return '<div class="activity-item" onclick="openDrawer('+l.atleta_id+')"><div class="activity-avatar" style="background:'+color+'">'+esc(initials)+'</div><div class="activity-body"><div class="activity-name">'+esc(l.atleta_nome||'?')+'</div><div class="activity-detail"><span style="color:var(--text-ter)">'+esc(campo)+'</span><span class="activity-val-old">'+esc(l.valore_prima||'—')+'</span><span style="color:var(--text-ter)">→</span><span class="activity-val-new">'+esc(l.valore_dopo||'—')+'</span><span style="color:var(--text-ter);font-size:10px">· '+esc(l.utente_nome||'')+'</span></div></div><div class="activity-time">'+timeAgo(l.created_at)+'</div></div>';}).join('');
 }
-function buildTodo(){
-  const cards=[];
-  const trattative=athletes.filter(a=>a.status==='trattativa');
-  if(trattative.length>0){const urgent=trattative.filter(a=>a.rating>=8).sort((a,b)=>(b.rating||0)-(a.rating||0));cards.push({type:trattative.length>5?'red':'orange',tag:'Trattative',title:trattative.length+' trattative ancora aperte',body:urgent.length?'⭐ Priorità: '+urgent.slice(0,3).map(a=>a.cognome+' '+a.nome).join(', ')+(urgent.length>3?' e altre...':''):'Nessuna atleta ad alto rating',action:"todoFilter('trattativa','priority')"});}
-  const topNotConf=athletes.filter(a=>a.rating>=9&&!['confermata','nuovo_acquisto'].includes(a.status));
-  if(topNotConf.length>0){cards.push({type:'red',tag:'Urgente',title:topNotConf.length+' atlete con voto ★9-10 non ancora confermate',body:topNotConf.slice(0,4).map(a=>a.cognome+' '+a.nome+' (★'+a.rating+' · '+(STATUS_LABELS[a.status]||a.status)+')').join('<br>'),action:"todoFilter(null,'rating')"});}
-  const slotNames={p1:'Palleggiatrice',o1:'Opposto',c1:'Centrale 1',c2:'Centrale 2',s1:'Schiacciatrice 1',s2:'Schiacciatrice 2',l1:'Libero'};
-  SQUADS.forEach(function(sq){const squadSlots=getTitolariSlots(sq.id).map(s=>s.key);const r=(typeof rosters!=='undefined'&&rosters[sq.id])?rosters[sq.id]:null;const titolari=r&&r.titolari?r.titolari:{};const filled=squadSlots.filter(k=>titolari[k]).length;const pct=Math.round((filled/squadSlots.length)*100);const missing=squadSlots.filter(k=>!titolari[k]);if(missing.length>0){cards.push({type:pct>=70?'blue':'purple',tag:sq.label,title:'Roster completo al '+pct+'% ('+filled+'/'+squadSlots.length+' titolari)',body:'Mancano: '+missing.map(k=>slotNames[k]||k).join(', '),action:"todoRoster('"+sq.id+"')"});}});
-  const inProva=athletes.filter(a=>a.status==='in_prova');
-  if(inProva.length>0){const senzaVoto=inProva.filter(a=>!a.rating||a.rating===0);cards.push({type:'green',tag:'In prova',title:inProva.length+' atlete in prova Aspes',body:senzaVoto.length>0?senzaVoto.length+' senza ancora una valutazione':'Tutte le atlete in prova hanno una valutazione ✓',action:"todoFilter('in_prova','recent')"});}
-  const recenti=athletes.filter(a=>a.status==='trattativa'&&(!a.dest||a.dest.trim()===''));
-  if(recenti.length>0){cards.push({type:'orange',tag:'Da assegnare',title:recenti.length+' atlete in trattativa senza squadra destinazione',body:recenti.slice(0,3).map(a=>a.cognome+' '+a.nome).join(', ')+(recenti.length>3?' e altre...':''),action:"todoFilter('trattativa','priority')"});}
-  document.getElementById('todo-badge').textContent=cards.length;
-  const grid=document.getElementById('todo-grid');
-  if(!cards.length){grid.innerHTML='<div style="color:var(--text-ter);font-size:12px;text-align:center;padding:12px">✅ Tutto in ordine</div>';return;}
-  grid.innerHTML=cards.map(c=>'<div class="todo-card '+c.type+'" '+(c.action?'onclick="'+c.action+'" style="cursor:pointer"':'')+'>'+
-    '<div class="todo-card-tag">'+c.tag+(c.action?' <span style="float:right;font-size:10px;opacity:.6">→ vai</span>':'')+'</div>'+
-    '<div class="todo-card-title">'+c.title+'</div>'+
-    '<div class="todo-card-body">'+c.body+'</div></div>').join('');
+function buildDashboard(){
+  if(!athletes.length)return;
+  // ===== KPI CARDS =====
+  const statuses=[
+    {key:'trattativa',  label:'Trattative',   color:'#EF9F27',bar:'#EF9F27'},
+    {key:'in_prova',    label:'In prova',      color:'#8B5CF6',bar:'#8B5CF6'},
+    {key:'nuovo_acquisto',label:'Nuovi acq.',  color:'#1D9E75',bar:'#1D9E75'},
+    {key:'visione',     label:'Visione',       color:'#185FA5',bar:'#185FA5'},
+    {key:'confermata',  label:'Confermate',    color:'#059669',bar:'#059669'},
+  ];
+  const total=athletes.filter(a=>ACTIVE.includes(a.status)).length||1;
+  const kpiRow=document.getElementById('kpi-row');
+  if(!kpiRow)return;
+  kpiRow.innerHTML=statuses.map(s=>{
+    const cnt=athletes.filter(a=>a.status===s.key).length;
+    const pct=Math.round(cnt/total*100);
+    return `<div class="kpi-card" onclick="todoFilter('${s.key}','recent')" title="Filtra per ${s.label}">
+      <div class="kpi-label">${s.label}</div>
+      <div class="kpi-value" style="color:${s.color}">${cnt}</div>
+      <div class="kpi-sub">${pct}% del totale</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pct}%;background:${s.bar}"></div></div>
+    </div>`;
+  }).join('');
+
+  // ===== PRIORITÀ ALTA =====
+  const priority=athletes
+    .filter(a=>['trattativa','in_prova','non_confermata'].includes(a.status)&&(a.rating>=8))
+    .sort((a,b)=>(b.rating||0)-(a.rating||0)||(b.pct||0)-(a.pct||0))
+    .slice(0,7);
+  const dashPri=document.getElementById('dash-priority');
+  if(dashPri){
+    dashPri.innerHTML=`<div class="dash-title">⭐ Alta priorità <span style="background:#FEF3C7;color:#B45309;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:700">${priority.length}</span></div>`+
+    (priority.length?priority.map(a=>{
+      const pctCol=a.pct>=70?'#D1FAE5;color:#065F46':a.pct>=40?'#FEF3C7;color:#B45309':'#FEE2E2;color:#991B1B';
+      return `<div class="dash-row" onclick="openDrawer(${a.id})">
+        ${renderAvatar(a,26)}
+        <div class="dash-cognome">${esc(a.cognome)} ${esc(a.nome)}</div>
+        <span style="font-size:10px;color:var(--text-ter)">${a.anno}</span>
+        <span class="dash-pct" style="background:${pctCol}">${a.pct||50}%</span>
+        <span style="color:#F59E0B;font-size:11px">${'★'.repeat(Math.min(a.rating||0,5))}</span>
+      </div>`;
+    }).join(''):'<div style="color:var(--text-ter);font-size:12px;padding:8px 0">Nessuna atleta ad alta priorità</div>');
+  }
+
+  // ===== MODIFICATE DI RECENTE =====
+  const recent=athletes
+    .filter(a=>ACTIVE.includes(a.status))
+    .sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))
+    .slice(0,7);
+  const dashRec=document.getElementById('dash-recent');
+  if(dashRec){
+    const STATUS_LABELS={'trattativa':'In trattativa','in_prova':'In prova','nuovo_acquisto':'Nuovo acq.','visione':'Visionata','confermata':'Confermata','non_confermata':'Non conf.','lista':'Lista'};
+    const STATUS_COLORS={'trattativa':'#FEF3C7;color:#B45309','in_prova':'#EDE9FE;color:#7C3AED','nuovo_acquisto':'#D1FAE5;color:#065F46','visione':'#DBEAFE;color:#1D4ED8','confermata':'#D1FAE5;color:#065F46'};
+    dashRec.innerHTML=`<div class="dash-title">🕐 Modificate recentemente <span style="background:#F0F4FF;color:#185FA5;font-size:10px;padding:1px 7px;border-radius:8px;font-weight:700">${recent.length}</span></div>`+
+    recent.map(a=>{
+      const statusCol=STATUS_COLORS[a.status]||'#F3F4F6;color:#374151';
+      const when=a.updatedAt?fmtDate(a.updatedAt):'—';
+      return `<div class="dash-row" onclick="openDrawer(${a.id})">
+        ${renderAvatar(a,26)}
+        <div class="dash-cognome">${esc(a.cognome)} ${esc(a.nome)}</div>
+        <span class="dash-pct" style="background:${statusCol};font-size:10px">${STATUS_LABELS[a.status]||a.status}</span>
+        <span class="dash-meta">${when}</span>
+      </div>`;
+    }).join('');
+  }
 }
+// Alias per retrocompatibilità
+function buildTodo(){buildDashboard();}
+
 function todoFilter(status,sort){
   
   document.querySelectorAll('#dd-status input').forEach(cb=>cb.checked=false);
