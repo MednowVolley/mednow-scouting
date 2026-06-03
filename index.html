@@ -978,12 +978,15 @@ function startApp(){
 
 function doLogout(){
   try{localStorage.removeItem('mv_session');}catch(e){}
-  currentUser=null;currentProfile=null;athletes=[];
+  currentUser=null;currentProfile=null;athletes=[];rosters={};
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app-screen').style.display='none';
   document.getElementById('login-email').value='';
   document.getElementById('login-password').value='';
   document.getElementById('login-error').classList.remove('show');
+  // Reset pulsante login (rimane "Accesso..." disabilitato dalla sessione precedente)
+  const btn=document.getElementById('btn-login');
+  if(btn){btn.disabled=false;btn.textContent='Accedi';}
 }
 
 function renderUserBadge(){
