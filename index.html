@@ -955,12 +955,54 @@ const UNCERTAIN=['trattativa','non_confermata'];
 const ACTIVE=['nuovo_acquisto','confermata','in_prova','trattativa','non_confermata','trasferita_aspes'];
 const NEW_AGENTS=['Gaia Genovesi','Filippo Nicastro','Gold Sport - Donato Saltini','Squadre Regionali'];
 
+async function refreshSession(){
+  try{
+    const saved=localStorage.getItem('mv_session');
+    if(!saved)return false;
+    const sess=JSON.parse(saved);
+    if(!sess?.refresh_token)return false;
+    const r=await fetch(SUPA+'/auth/v1/token?grant_type=refresh_token',{
+      method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},
+      body:JSON.stringify({refresh_token:sess.refresh_token})
+    });
+    const d=await r.json();
+    if(!d?.access_token)return false;
+    currentUser=d;
+    localStorage.setItem('mv_session',JSON.stringify({
+      access_token:d.access_token,
+      refresh_token:d.refresh_token||sess.refresh_token,
+      user:d.user
+    }));
+    return true;
+  }catch(e){console.warn('refreshSession failed:',e);return false;}
+}
+
 async function sbFetch(path,method='GET',body=null,token=null,prefer=null){
-  const t=token||(currentUser?.access_token)||KEY;
   const preferH=prefer?prefer+';return=representation':'return=representation';
-  const opts={method,headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+t,'Prefer':preferH}};
-  if(body)opts.body=JSON.stringify(body);
-  const r=await fetch(SUPA+path,opts);
+  const makeOpts=(t)=>({method,headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+t,'Prefer':preferH},...(body?{body:JSON.stringify(body)}:{})});
+  
+  let t=token||(currentUser?.access_token)||KEY;
+  let r=await fetch(SUPA+path,makeOpts(t));
+  
+  // Se JWT scaduto (401) → refresh automatico e riprova
+  if(r.status===401||r.status===403){
+    const errText=await r.text();
+    if(errText.includes('JWT')||errText.includes('expired')||errText.includes('invalid')){
+      const refreshed=await refreshSession();
+      if(refreshed){
+        t=currentUser?.access_token||KEY;
+        r=await fetch(SUPA+path,makeOpts(t));
+      } else {
+        // Sessione non rinnovabile: forza logout
+        showToast('Sessione scaduta — effettua il login','error');
+        setTimeout(doLogout,1500);
+        throw new Error('Sessione scaduta');
+      }
+    } else {
+      throw new Error(errText);
+    }
+  }
+  
   if(!r.ok){const e=await r.text();throw new Error(e);}
   try{return await r.json();}catch{return true;}
 }
