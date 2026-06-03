@@ -810,7 +810,6 @@ td[title=""] { pointer-events: auto; }
           <option value="lista">In lista</option>
           <option value="visione">Visionata</option>
       <option value="in_prova">In prova Aspes</option>
-          <option value="in_prova">In prova Aspes</option>
           <option value="trattativa">In trattativa</option>
           <option value="nuovo_acquisto">Nuovo acquisto</option>
           <option value="confermata">Confermata</option>
@@ -1098,7 +1097,6 @@ function renderAddCard(){
         <select id="a-status">
           <option value="lista">In lista</option><option value="visione">Visionata</option>
       <option value="in_prova">In prova Aspes</option>
-          <option value="in_prova">In prova Aspes</option>
           <option value="trattativa">In trattativa</option><option value="nuovo_acquisto">Nuovo acquisto</option>
           <option value="confermata">Confermata</option><option value="no">No</option>
         </select></div>
@@ -1636,7 +1634,7 @@ function buildDashboard(){
 
   // ===== PRIORITÀ ALTA =====
   const priority=athletes
-    .filter(a=>['trattativa','in_prova','non_confermata'].includes(a.status)&&(a.rating>=8))
+    .filter(a=>['trattativa','in_prova'].includes(a.status)&&(a.rating>=8))
     .sort((a,b)=>(b.rating||0)-(a.rating||0)||(b.pct||0)-(a.pct||0))
     .slice(0,7);
   const dashPri=document.getElementById('dash-priority');
@@ -1678,7 +1676,7 @@ function buildDashboard(){
 
   // ===== TUTTE LE TRATTATIVE =====
   const allTratt=athletes
-    .filter(a=>['trattativa','in_prova','non_confermata'].includes(a.status))
+    .filter(a=>['trattativa','in_prova'].includes(a.status))
     .sort((a,b)=>(b.rating||0)-(a.rating||0)||(b.pct||0)-(a.pct||0));
   const badge=document.getElementById('dash-all-badge');
   if(badge)badge.textContent=allTratt.length;
