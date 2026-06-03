@@ -383,6 +383,20 @@ td[title=""] { pointer-events: auto; }
 .dash-meta{font-size:11px;color:var(--text-sec);white-space:nowrap}
 .dash-pct{font-size:11px;font-weight:700;padding:1px 7px;border-radius:8px;white-space:nowrap}
 
+
+/* Avatar hover: ingrandimento uniforme */
+.name-cell .avatar-wrap,
+.name-cell img,
+.name-cell > div {
+  transition: transform .15s ease;
+}
+.name-cell .avatar-wrap:hover,
+.name-cell img:hover,
+.name-cell > div:hover {
+  transform: scale(1.35);
+  z-index: 10;
+}
+
 </style>
 
 <style id="court-override">
@@ -1598,9 +1612,9 @@ function getInitials(cognome,nome){const c=(cognome||'').trim();const n=(nome||'
 function getRoleColor(ruolo){const r=(ruolo||'').toLowerCase();if(r.includes('palleg')||r.includes('alzat'))return '#0F6E56';if(r.includes('oppos'))return '#DC3545';if(r.includes('central'))return '#6B21A8';if(r.includes('libero'))return '#D97706';if(r==='b'||r.includes('banda'))return '#185FA5';return '#6B7280';}
 function renderAvatar(a,size){
   size=size||32;const bg=getRoleColor(a.ruolo);
-  if(a.foto){return '<div onclick="event.stopPropagation();openPhoto('+a.id+')" style="width:'+size+'px;height:'+size+'px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid '+bg+';background:'+bg+';display:inline-block;vertical-align:middle;cursor:zoom-in"><img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block" alt=""></div>';}
+  if(a.foto){return '<div class="avatar-wrap" onclick="event.stopPropagation();openPhoto('+a.id+')" style="width:'+size+'px;height:'+size+'px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid '+bg+';background:'+bg+';display:inline-block;vertical-align:middle;cursor:zoom-in;transition:transform .15s"><img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block" alt=""></div>';}
   const fs=Math.round(size*0.4);
-  return '<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+bg+';color:#fff;font-weight:700;font-size:'+fs+'px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Barlow,sans-serif;vertical-align:middle">'+getInitials(a.cognome,a.nome)+'</div>';
+  return '<div class="avatar-wrap" style="width:'+size+'px;height:'+size+'px;cursor:default;transition:transform .15s;border-radius:50%;background:'+bg+';color:#fff;font-weight:700;font-size:'+fs+'px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Barlow,sans-serif;vertical-align:middle">'+getInitials(a.cognome,a.nome)+'</div>';
 }
 function openPhoto(aid){const a=athletes.find(x=>x.id===aid);if(!a||!a.foto)return;document.getElementById('photo-modal-img').src=a.foto;document.getElementById('photo-modal-info').textContent=a.cognome+' '+a.nome+(a.anno?' · '+a.anno:'')+(a.ruolo?' · '+a.ruolo:'');document.getElementById('photo-modal').classList.add('open');}
 function closePhotoModal(e,force){if(force||e.target===e.currentTarget)document.getElementById('photo-modal').classList.remove('open');}
