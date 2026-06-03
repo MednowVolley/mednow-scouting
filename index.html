@@ -969,7 +969,11 @@ function startApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app-screen').style.display='block';
   renderUserBadge();renderAdminActions();renderAddCard();
-  loadAthletes().then(async()=>{await loadRosters();renderRoster();loadRecentActivity();buildTodo();startNotifPolling();});
+  loadAthletes().then(async()=>{
+    await loadRosters();renderRoster();loadRecentActivity();buildTodo();startNotifPolling();
+    // Ri-renderizza il form aggiungi dopo il caricamento (sicurezza)
+    renderAddCard();
+  });
 }
 
 function doLogout(){
@@ -1251,30 +1255,43 @@ async function cycleStatus(id){
 }
 
 async function addAthlete(){
-  const cognome=document.getElementById('a-cognome').value.trim().toUpperCase();
-  const nome=document.getElementById('a-nome').value.trim();
-  const anno=document.getElementById('a-anno').value.trim();
-  if(!cognome||!nome||!anno){alert('Inserisci cognome, nome e anno');return;}
+  const g=id=>document.getElementById(id);
+  const cognome=(g('a-cognome')?.value||'').trim().toUpperCase();
+  const nome=(g('a-nome')?.value||'').trim();
+  const anno=(g('a-anno')?.value||'').trim();
+  if(!cognome||!nome||!anno){showToast('Inserisci cognome, nome e anno','error');return;}
+  if(!currentProfile){showToast('Sessione scaduta — rieffettua il login','error');return;}
   const now=Date.now();
-  const agenteVal=document.getElementById('a-agente').value||(currentProfile&&currentProfile.societa?currentProfile.societa:'');
+  const agenteVal=(g('a-agente')?.value)||currentProfile.societa||'';
   const payload={cognome,nome,anno,
     ruolo:[...document.querySelectorAll('#add-ruolo-checks input:checked')].map(cb=>cb.value).join('/'),
-    societa:document.getElementById('a-societa').value.trim(),
-    status:document.getElementById('a-status').value||'lista',
+    societa:(g('a-societa')?.value||'').trim()||currentProfile.societa||'',
+    status:(g('a-status')?.value)||'lista',
     agente:agenteVal,
-    note:document.getElementById('a-note').value.trim(),
-    dest:'',rating:parseInt(document.getElementById('a-rating').value)||0,
+    note:(g('a-note')?.value||'').trim(),
+    dest:'',
+    rating:parseInt(g('a-rating')?.value)||0,
     pct:50,created_at:now,updated_at:now};
+  const btn=g('btn-add-submit');
+  if(btn){btn.disabled=true;btn.textContent='Salvataggio...';}
   try{
     const result=await sbFetch('/rest/v1/atlete','POST',[payload]);
-    const newA=result&&result[0]?dbToApp(result[0]):{...payload,id:Date.now(),createdAt:now,updatedAt:now};
+    if(!result||result.error){throw new Error(result?.message||result?.error||'Errore sconosciuto');}
+    const newA=result[0]?dbToApp(result[0]):{...payload,id:Date.now(),createdAt:now,updatedAt:now};
     athletes.push(newA);
-    ['a-cognome','a-nome','a-anno','a-societa','a-note'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('a-status').value='lista';
-    document.getElementById('a-agente').value='';
-    clearAddRating();renderTable();showToast('Atleta aggiunta ✓','success');
-    loadRecentActivity();
-  }catch(e){showToast('Errore inserimento: '+e.message,'error');console.error(e);}
+    ['a-cognome','a-nome','a-anno','a-societa','a-note'].forEach(id=>{if(g(id))g(id).value='';});
+    if(g('a-status'))g('a-status').value='lista';
+    if(g('a-agente'))g('a-agente').value='';
+    document.querySelectorAll('#add-ruolo-checks input').forEach(cb=>cb.checked=false);
+    if(typeof clearAddRating==='function')clearAddRating();
+    renderTable();showToast('Atleta aggiunta ✓','success');
+    loadRecentActivity();setTimeout(loadNotifications,500);
+  }catch(e){
+    console.error('addAthlete error:',e);
+    showToast('Errore: '+e.message,'error');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='+ Aggiungi';}
+  }
 }
 
 async function delAthlete(id){
