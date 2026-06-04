@@ -68,20 +68,12 @@ input:focus,select:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,16
   <div class="error" id="error-msg"></div>
 
   <form id="signup-form">
-    <div class="row">
+    <div>
       <div class="form-group">
         <label>Nome club *</label>
         <input type="text" id="club-nome" placeholder="es. ASD Milano Volley" required>
       </div>
-      <div class="form-group">
-        <label>Sport</label>
-        <select id="sport">
-          <option value="pallavolo">🏐 Pallavolo</option>
-          <option value="basket">🏀 Basket</option>
-          <option value="calcio">⚽ Calcio</option>
-          <option value="altro">Altro</option>
-        </select>
-      </div>
+<input type="hidden" id="sport" value="pallavolo">
     </div>
     <div class="form-group">
       <label>Il tuo nome *</label>
