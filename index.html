@@ -1085,6 +1085,21 @@ function renderAdminActions(){
 
 // ===== MATRICE PERMESSI =====
 function isAdmin(){return currentProfile?.ruolo==='admin';}
+function myClubFilter(){
+  // Ritorna il club dell'utente se ha restrizione di visibilità
+  const club=currentProfile?.societa||'';
+  if(!club||isAdmin())return null; // null = vede tutto
+  return club;
+}
+function canViewAthlete(a){
+  const club=myClubFilter();
+  if(!club)return true; // admin vede tutto
+  const dest=(a.dest||'').toLowerCase();
+  const soc=(a.societa||'').toLowerCase();
+  const cl=club.toLowerCase();
+  // Vede se è della sua società O se è destinata al suo club
+  return soc===cl || dest.includes(cl);
+}
 function myClub(){return currentProfile?.societa||'';}
 // Verifica se un'atleta appartiene alla società dell'utente
 function isMyClubAthlete(a){
@@ -1235,6 +1250,7 @@ function getFiltered(){
   return athletes.filter(a=>{
     if(q&&!(a.cognome+' '+a.nome).toLowerCase().includes(q))return false;
     if(annoChecks.length&&!annoChecks.includes(a.anno))return false;
+    if(!canViewAthlete(a))return false;
     if(statusChecks.length&&!statusChecks.includes(a.status))return false;
     if(ruoloChecks.length&&!(a.ruolo||'').toLowerCase().includes('universal')&&!ruoloChecks.some(r=>(a.ruolo||'').split('/').map(x=>x.trim()).includes(r)))return false;
     if(agenteChecks.length&&!agenteChecks.includes(a.agente))return false;
