@@ -1041,6 +1041,14 @@ async function doLogin(){
     if(!profiles?.length){err.textContent='Utente non autorizzato';err.classList.add('show');btn.disabled=false;btn.textContent='Accedi';return;}
     currentProfile=profiles[0];
     if(!currentProfile.attivo){err.textContent='Account disabilitato';err.classList.add('show');btn.disabled=false;btn.textContent='Accedi';return;}
+    // Cache bust: se l'utente appartiene a un club diverso, pulisce localStorage
+    const _cachedClub=localStorage.getItem('mv_club_id');
+    const _myClub=String(currentProfile.club_id||1);
+    if(_cachedClub && _cachedClub!==_myClub){
+      const _keep=['mv_session','mv_club_id'];
+      Object.keys(localStorage).forEach(k=>{if(!_keep.includes(k))localStorage.removeItem(k);});
+    }
+    localStorage.setItem('mv_club_id',_myClub);
     startApp();
   }catch(e){err.textContent='Errore: '+e.message;err.classList.add('show');btn.disabled=false;btn.textContent='Accedi';}
 }
