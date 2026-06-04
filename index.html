@@ -770,13 +770,12 @@ td[title=""] { pointer-events: auto; }
         <span id="pool-count" style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px">0</span>
       </div>
       <div style="padding:8px;display:flex;gap:6px;flex-wrap:wrap" id="pool-filter-btns">
-        <button class="pool-filter-btn active" onclick="setPoolFilter('all')">Tutte</button>
-        <button class="pool-filter-btn" onclick="setPoolFilter('P')">Palleg.</button>
-        <button class="pool-filter-btn" onclick="setPoolFilter('C')">Centrale</button>
-        <button class="pool-filter-btn" onclick="setPoolFilter('B')">Banda</button>
-        <button class="pool-filter-btn" onclick="setPoolFilter('O')">Opposto</button>
-        <button class="pool-filter-btn" onclick="setPoolFilter('L')">Libero</button>
-        <button class="pool-filter-btn" onclick="setPoolFilter('B')">Banda</button>
+        <button id="pf-all" class="pool-filter-btn active" onclick="setPoolFilter('all')">Tutte</button>
+        <button id="pf-P" class="pool-filter-btn" onclick="setPoolFilter('P')">Palleg.</button>
+        <button id="pf-O" class="pool-filter-btn" onclick="setPoolFilter('O')">Opposto</button>
+        <button id="pf-C" class="pool-filter-btn" onclick="setPoolFilter('C')">Centrale</button>
+        <button id="pf-B" class="pool-filter-btn" onclick="setPoolFilter('B')">Banda</button>
+        <button id="pf-L" class="pool-filter-btn" onclick="setPoolFilter('L')">Libero</button>
       </div>
       <div class="pool-list" id="pool-list" style="max-height:550px;overflow-y:auto;padding:0 8px 8px"></div>
     </div>
@@ -1892,7 +1891,7 @@ function getSquadAthletes(label){
     return false;
   });
 }
-function roleMatch(r,slot){if(!r)return false;const rl=r.toLowerCase();if(rl.includes('universal'))return true;if(slot==='P')return rl.includes('palleg')||rl.includes('alzat');if(slot==='O')return rl.includes('oppos');if(slot==='C')return rl.includes('central');if(slot==='S'||slot==='B')return rl.includes('schiacc')||rl.includes('banda')||rl.includes('lateral');if(slot==='L')return rl.includes('libero');return false;}
+function roleMatch(r,slot){if(!r)return false;const rl=r.toLowerCase();const sl=(slot||'').toUpperCase();if(rl.includes('universal'))return true;if(sl==='P')return rl.includes('palleg')||rl.includes('alzat');if(sl==='O')return rl.includes('oppos');if(sl==='C')return rl.includes('central');if(sl==='S'||sl==='B')return rl.includes('schiacc')||rl.includes('banda')||rl.includes('lateral');if(sl==='L')return rl.includes('libero');return false;}
 function getShortRole(r){if(!r)return'?';const rl=r.toLowerCase();if(rl.includes('palleg')||rl.includes('alzat'))return'P';if(rl.includes('oppos'))return'O';if(rl.includes('central'))return'C';if(rl.includes('schiacc')||rl.includes('banda'))return'S';if(rl.includes('libero'))return'L';return r.substring(0,2).toUpperCase();}
 function renderSquadTabs(){document.getElementById('squad-tabs').innerHTML=SQUADS.map(s=>{const n=getSquadAthletes(s.label).length;const isA=s.club==='Aspes';return`<button class="squad-tab${currentSquad===s.id?' active':''}${isA?' aspes':''}" onclick="selectSquad('${s.id}')">${s.label.replace(' ProPatria','').replace(' Aspes','')} <span style="font-size:10px;opacity:0.7">${n}</span></button>`;}).join('');}
 
@@ -2000,7 +1999,7 @@ function renderRoster(){
 }
 let pendingSlotRole=null;
 function showPoolForSlot(role){if(!canEditRoster(currentSquad)){showToast("Solo l'Admin può modificare i roster ProPatria","error");return;}pendingSlotRole=role;pendingSlotKey=null;setPoolFilter(role);}
-function setPoolFilter(f){poolFilter=f;document.querySelectorAll('.pool-filter-btn').forEach(b=>{const bid=b.id.replace('pf-','');b.classList.toggle('active',bid===f);});renderPool();}
+function setPoolFilter(f){poolFilter=(f||'all').toString().trim();document.querySelectorAll('.pool-filter-btn').forEach(b=>{const bid=b.id.replace('pf-','');b.classList.toggle('active',bid===f);});renderPool();}
 function renderPool(){
   const squad=SQUADS.find(s=>s.id===currentSquad);
   const sa=getSquadAthletes(squad.label);
