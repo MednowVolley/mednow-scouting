@@ -1378,7 +1378,7 @@ async function addAthlete(){
     note:(g('a-note')?.value||'').trim(),
     dest:'',
     rating:parseInt(g('a-rating')?.value)||0,
-    pct:50,created_at:now,updated_at:now};
+    pct:50,club_id:currentProfile?.club_id||1,created_at:now,updated_at:now};
   const btn=g('btn-add-submit');
   if(btn){btn.disabled=true;btn.textContent='Salvataggio...';}
   try{
@@ -1650,7 +1650,7 @@ const CAMPO_LABELS={status:'Stato',rating:'Voto',note:'Note',dest:'Squadra dest.
 const STATUS_LABELS={nuovo_acquisto:'Nuovo acquisto',confermata:'Confermata',in_prova:'In prova Aspes',trattativa:'In trattativa',visione:'Visionata',non_confermata:'Non confermata',trasferita_aspes:'Trasferita Aspes',lista:'In lista',no:'No'};
 async function saveLog(atletaId,atletaNome,campiCambiati){
   if(!campiCambiati.length)return;
-  const logs=campiCambiati.map(c=>({atleta_id:atletaId,atleta_nome:atletaNome,utente_id:currentUser?.user?.id||null,utente_nome:currentProfile?.nome||currentUser?.user?.email||'?',campo:c.campo,valore_prima:c.prima,valore_dopo:c.dopo,created_at:Date.now()}));
+  const logs=campiCambiati.map(c=>({atleta_id:atletaId,atleta_nome:atletaNome,utente_id:currentUser?.user?.id||null,utente_nome:currentProfile?.nome||currentUser?.user?.email||'?',club_id:currentProfile?.club_id||1,campo:c.campo,valore_prima:c.prima,valore_dopo:c.dopo,created_at:Date.now()}));
   try{await sbFetch('/rest/v1/logs','POST',logs);}catch(e){console.warn('Log:',e);}
 }
 function diffAtleta(prima,dopo){
@@ -1869,7 +1869,8 @@ async function _upsertRoster(sid){
     riserve:r.riserve||{},
     updated_at:Date.now(),
     updated_by:currentUser?.user?.id||null,
-    updated_by_nome:currentProfile?.nome||''
+    updated_by_nome:currentProfile?.nome||'',
+    club_id:currentProfile?.club_id||1
   }],null,'resolution=merge-duplicates');
 }
 
