@@ -1824,7 +1824,12 @@ let rosters={},currentSquad='u19p';
 // ===== ROSTER SU SUPABASE =====
 async function loadRosters(){
   try{
-    const rows=await sbFetch('/rest/v1/rosters?select=squad_id,titolari,riserve');
+    let rows=await sbFetch('/rest/v1/rosters?select=squad_id,titolari,riserve');
+    // Se 0 righe, potrebbe essere JWT scaduto — prova refresh e ricarica
+    if(!rows||!rows.length){
+      const refreshed=await refreshSession();
+      if(refreshed) rows=await sbFetch('/rest/v1/rosters?select=squad_id,titolari,riserve');
+    }
     rosters={};
     if(rows&&rows.length){
       rows.forEach(r=>{
