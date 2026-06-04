@@ -151,11 +151,20 @@ document.getElementById('signup-form').addEventListener('submit', async function
       body:JSON.stringify({email, password})
     });
     const authData = await authRes.json();
-    if(authData.error||!authData.user){
-      throw new Error(authData.msg||authData.error?.message||'Errore registrazione');
+
+    // Gestione errori specifici
+    if(!authRes.ok){
+      const msg = authData.msg||authData.message||authData.error_description||'';
+      if(authData.error_code==='over_email_send_rate_limit') throw new Error('Troppi tentativi — riprova tra qualche minuto.');
+      if(authData.error_code==='user_already_exists') throw new Error('Email già registrata. Accedi direttamente.');
+      if(authData.error_code==='email_address_invalid') throw new Error('Indirizzo email non valido.');
+      if(authData.error_code==='weak_password') throw new Error('Password troppo debole — usa almeno 8 caratteri.');
+      throw new Error(msg||'Errore durante la registrazione ('+authRes.status+')');
     }
+    if(!authData.user) throw new Error('Registrazione non completata. Riprova.');
+
     const userId = authData.user.id;
-    const accessToken = authData.access_token||authData.session?.access_token;
+    const accessToken = authData.access_token||authData.session?.access_token||KEY;
 
     // 2. Crea club + utenti via RPC
     const rpcRes = await fetch(`${SUPA}/rest/v1/rpc/create_club_signup`,{
@@ -163,7 +172,7 @@ document.getElementById('signup-form').addEventListener('submit', async function
       headers:{
         'Content-Type':'application/json',
         'apikey':KEY,
-        'Authorization':`Bearer ${accessToken||KEY}`
+        'Authorization':`Bearer ${accessToken}`
       },
       body:JSON.stringify({
         p_club_nome: clubNome,
@@ -173,9 +182,9 @@ document.getElementById('signup-form').addEventListener('submit', async function
         p_email: email
       })
     });
-    const clubId = await rpcRes.json();
+    const rpcBody = await rpcRes.text();
     if(rpcRes.status >= 400){
-      throw new Error('Errore creazione club: '+JSON.stringify(clubId));
+      throw new Error('Errore configurazione club — contatta il supporto.');
     }
 
     // 3. Mostra successo
