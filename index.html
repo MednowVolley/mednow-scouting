@@ -986,6 +986,7 @@ async function refreshSession(){
       refresh_token:d.refresh_token||sess.refresh_token,
       user:d.user
     }));
+    if(societaFilter&&!(a.societa||'').toLowerCase().includes(societaFilter.toLowerCase()))return false;
     return true;
   }catch(e){console.warn('refreshSession failed:',e);return false;}
 }
