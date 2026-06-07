@@ -1266,7 +1266,8 @@ function getFiltered(){
     if(destChecks.length){
       const dests=(a.dest||'').split('|').map(d=>d.trim()).filter(Boolean);
       if(!destChecks.some(dc=>dests.includes(dc)))return false;
-    }
+      if(societaFilter&&!(a.societa||'').toLowerCase().includes(societaFilter.toLowerCase()))return false;
+  }
     return true;
   });
 }
