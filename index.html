@@ -1095,11 +1095,12 @@ function renderAdminActions(){
 
 
 // ===== MATRICE PERMESSI =====
-function isAdmin(){return currentProfile?.ruolo==='admin';}
+function isSaasAdmin(){return currentProfile?.is_saas_admin===true;}
+function isAdmin(){return currentProfile?.ruolo==='admin'||isSaasAdmin();}
 function myClubFilter(){
-  // Ritorna il club dell'utente se ha restrizione di visibilità
+  if(isSaasAdmin()||isAdmin())return null;
   const club=currentProfile?.societa||'';
-  if(!club||isAdmin())return null; // null = vede tutto
+  if(!club)return null;
   return club;
 }
 function canViewAthlete(a){
