@@ -993,14 +993,16 @@ async function refreshSession(){
 }
 
 async function sbFetch(path,method='GET',body=null,token=null,prefer=null){
-  const preferH=prefer?prefer+';return=representation':'return=representation';
+  // PATCH/DELETE non richiedono return=representation (evita problemi RLS 204)
+  const needsRepr=method==='GET'||method==='POST';
+  const preferH=prefer?prefer:(needsRepr?'return=representation':'return=minimal');
   const makeOpts=(t)=>({method,headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+t,'Prefer':preferH},...(body?{body:JSON.stringify(body)}:{})});
   
   let t=token||(currentUser?.access_token)||KEY;
   let r=await fetch(SUPA+path,makeOpts(t));
   
   // Se JWT scaduto (401) → refresh automatico e riprova
-  if(r.status===401||r.status===403){
+  if(r.status===401){
     const errText=await r.text();
     if(errText.includes('JWT')||errText.includes('expired')||errText.includes('invalid')){
       const refreshed=await refreshSession();
@@ -1008,7 +1010,6 @@ async function sbFetch(path,method='GET',body=null,token=null,prefer=null){
         t=currentUser?.access_token||KEY;
         r=await fetch(SUPA+path,makeOpts(t));
       } else {
-        // Sessione non rinnovabile: forza logout
         showToast('Sessione scaduta — effettua il login','error');
         setTimeout(doLogout,1500);
         throw new Error('Sessione scaduta');
@@ -1019,6 +1020,7 @@ async function sbFetch(path,method='GET',body=null,token=null,prefer=null){
   }
   
   if(!r.ok){const e=await r.text();throw new Error(e);}
+  if(r.status===204||method==='DELETE'||method==='PATCH')return true;
   try{return await r.json();}catch{return true;}
 }
 
@@ -1234,15 +1236,10 @@ function appToDB(a){return{id:a.id,cognome:a.cognome,nome:a.nome,anno:a.anno,ruo
 async function saveAthlete(a){
   a.updatedAt=Date.now();
   const payload=appToDB(a);
-  try{
-    await sbFetch('/rest/v1/atlete?id=eq.'+a.id,'PATCH',payload);
-    if(a._fotoChanged===true){
-      try{await sbFetch('/rest/v1/atlete?id=eq.'+a.id,'PATCH',{foto:a.foto||null});}catch(e){console.warn('Foto save:',e);}
-    }
-  }
-  catch{
-    const fp=Object.assign({},payload,{foto:a.foto||null});
-    await sbFetch('/rest/v1/atlete','POST',[fp]);
+  payload.club_id=currentProfile?.club_id||1;
+  await sbFetch('/rest/v1/atlete?id=eq.'+a.id,'PATCH',payload);
+  if(a._fotoChanged===true){
+    try{await sbFetch('/rest/v1/atlete?id=eq.'+a.id,'PATCH',{foto:a.foto||null});}catch(e){console.warn('Foto save:',e);}
   }
   const i=athletes.findIndex(x=>x.id===a.id);
   if(i>=0)athletes[i]=a;else athletes.push(a);
