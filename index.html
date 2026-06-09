@@ -1848,11 +1848,11 @@ let rosters={},currentSquad='u19p';
 // ===== ROSTER SU SUPABASE =====
 async function loadRosters(){
   try{
-    let rows=await sbFetch('/rest/v1/rosters?select=squad_id,titolari,riserve');
+    let rows=await sbFetch('/rest/v1/rosters?select=squad_id,titolari,riserve,riserve_libere&order=squad_id');
     // Se 0 righe, potrebbe essere JWT scaduto — prova refresh e ricarica
     if(!rows||!rows.length){
       const refreshed=await refreshSession();
-      if(refreshed) rows=await sbFetch('/rest/v1/rosters?select=squad_id,titolari,riserve');
+      if(refreshed) rows=await sbFetch('/rest/v1/rosters?select=squad_id,titolari,riserve,riserve_libere&order=squad_id');
     }
     rosters={};
     if(rows&&rows.length){
@@ -1860,7 +1860,7 @@ async function loadRosters(){
         rosters[r.squad_id]={
           titolari:r.titolari||{},
           riserve:r.riserve||{},
-          riserve_libere:[]
+          riserve_libere:Array.isArray(r.riserve_libere)?r.riserve_libere:[]
         };
       });
     }
@@ -1891,16 +1891,25 @@ async function loadRosters(){
 
 async function _upsertRoster(sid){
   if(!sid)return;
-  const r=rosters[sid]||{titolari:{},riserve:{}};
-  await sbFetch('/rest/v1/rosters','POST',[{
+  const r=rosters[sid]||{titolari:{},riserve:{},riserve_libere:[]};
+  const payload={
     squad_id:sid,
     titolari:r.titolari||{},
     riserve:r.riserve||{},
+    riserve_libere:r.riserve_libere||[],
     updated_at:new Date().toISOString(),
     updated_by:currentUser?.user?.id||null,
     updated_by_nome:currentProfile?.nome||'',
     club_id:currentProfile?.club_id||1
-  }],null,'resolution=merge-duplicates');
+  };
+  try{
+    const existing=await sbFetch('/rest/v1/rosters?squad_id=eq.'+sid+'&club_id=eq.'+(currentProfile?.club_id||1),'GET');
+    if(existing&&existing.length>0){
+      await sbFetch('/rest/v1/rosters?squad_id=eq.'+sid+'&club_id=eq.'+(currentProfile?.club_id||1),'PATCH',payload);
+    } else {
+      await sbFetch('/rest/v1/rosters','POST',[payload]);
+    }
+  }catch(e){console.warn('_upsertRoster error:',e);throw e;}
 }
 
 async function saveRosters(){
