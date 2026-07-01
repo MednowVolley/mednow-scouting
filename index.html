@@ -760,7 +760,7 @@ td[title=""] { pointer-events: auto; }
     <!-- COLONNA SINISTRA: solo campo -->
     <div class="roster-panel" style="overflow:hidden;min-width:0">
       <div class="roster-panel-header">
-        <h3>&#x26BD; Sestetto titolare</h3>
+        <h3>&#x1F3D0; Sestetto titolare</h3>
         <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="titolari-count">0/7</span>
       </div>
       <div id="titolari-slots" style="padding:8px"></div>
@@ -885,25 +885,7 @@ td[title=""] { pointer-events: auto; }
     </div>
     <div class="drawer-field">
       <label>Squadra destinazione (multipla)</label>
-      <div id="edit-dest-checks" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.19 Ecc. ProPatria" onchange="updateDestPreview()"> U.19 Ecc. ProPatria</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.17 Ecc. ProPatria" onchange="updateDestPreview()"> U.17 Ecc. ProPatria</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.15 Ecc. ProPatria" onchange="updateDestPreview()"> U.15 Ecc. ProPatria</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.14 Ecc. ProPatria" onchange="updateDestPreview()"> U.14 Ecc. ProPatria</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.13 Ecc. ProPatria" onchange="updateDestPreview()"> U.13 Ecc. ProPatria</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.12A ProPatria" onchange="updateDestPreview()"> U.12A ProPatria</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U.12B ProPatria" onchange="updateDestPreview()"> U.12B ProPatria</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U19A Aspes" onchange="updateDestPreview()"> U19A Aspes</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U17A Aspes" onchange="updateDestPreview()"> U17A Aspes</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U17B Aspes" onchange="updateDestPreview()"> U17B Aspes</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U15A Aspes" onchange="updateDestPreview()"> U15A Aspes</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U15B Aspes" onchange="updateDestPreview()"> U15B Aspes</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U14A Aspes" onchange="updateDestPreview()"> U14A Aspes</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U14B Aspes" onchange="updateDestPreview()"> U14B Aspes</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U13A Aspes" onchange="updateDestPreview()"> U13A Aspes</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="U13B Aspes" onchange="updateDestPreview()"> U13B Aspes</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="PGS" onchange="updateDestPreview()"> PGS</label>
-      </div>
+      <div id="edit-dest-checks" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px"></div>
     </div>
     <div class="drawer-field" id="pct-field" style="display:none">
       <label>Probabilita successo trattativa</label>
@@ -1525,6 +1507,7 @@ function openDrawer(id){
   });
   document.getElementById('edit-societa').value=a.societa||'';
   document.getElementById('edit-agente').value=a.agente||'';
+  renderDestChecks();
   const destChecks=document.querySelectorAll('#edit-dest-checks input');
   const destAtleta=(a.dest||'').split('|').map(d=>d.trim()).filter(Boolean);
   destChecks.forEach(cb=>{
@@ -1908,6 +1891,9 @@ const TITOLARI_SLOTS=[{role:'P',label:'Palleggiatrice',key:'p1'},{role:'O',label
 const RISERVE_SLOTS=[{role:'P',label:'Palleggiatrice 2',key:'ris_p2'},{role:'B',label:'Banda 3',key:'ris_s3'},{role:'B',label:'Banda 4',key:'ris_s4'},{role:'C',label:'Centrale 3',key:'ris_c3'},{role:'C',label:'Centrale 4',key:'ris_c4'},{role:'O',label:'Opposto 2',key:'ris_o2'},{role:'L',label:'Libero 2',key:'ris_l2'},{role:'?',label:'Slot libero 1',key:'ris_x1'},{role:'?',label:'Slot libero 2',key:'ris_x2'},{role:'?',label:'Slot libero 3',key:'ris_x3'}];
 const LS_ROSTER='mednow_rosters_v1';
 let rosters={},currentSquad='u19p';
+const EXTRA_DEST=['Corso Aspes','1 Divisione Aspes','Minivolley Aspes','PGS'];
+function renderDestChecks(){var box=document.getElementById('edit-dest-checks');if(!box)return;var labels=SQUADS.map(function(s){return s.label;}).concat(EXTRA_DEST);box.innerHTML=labels.map(function(l){var v=l.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');return '<label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:4px 10px;border:1.5px solid var(--border-med);border-radius:16px;cursor:pointer;background:var(--bg)"><input type="checkbox" value="'+v+'"> '+v+'</label>';}).join('');}
+
 // ===== ROSTER SU SUPABASE =====
 async function loadRosters(){
   try{
@@ -2339,6 +2325,7 @@ function addToRoster(aid){
   if(!r.riserve)r.riserve={};
   if(!r.titolari)r.titolari={};
   const a=athletes.find(x=>x.id===aid);
+  if(a&&['no','non_confermata'].includes(a.status)){showToast((a.cognome||'Atleta')+' è "'+(SL[a.status]||a.status)+'": non schierabile nel sestetto','error');return;}
   const psk=pendingSlotKey;
   const psr=pendingSlotRole;
   pendingSlotKey=null;pendingSlotRole=null;
