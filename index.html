@@ -229,6 +229,7 @@ tbody tr:hover td{background:#EBF4FF}
 .dest-badge{font-size:10px;font-weight:600;background:#E6F1FB;color:#185FA5;border-radius:4px;padding:2px 7px;white-space:nowrap;border:1px solid #c3d9f0}
 .dest-badge.aspes{background:var(--green-bg);color:var(--green-dark);border-color:#a8dfc8}
 .dest-badge.pgs{background:var(--amber-bg);color:#854F0B;border-color:#f0ccaa}
+.pool-blocked{opacity:0.45;cursor:not-allowed !important;filter:grayscale(0.6)}
 .pct-wrap{display:flex;align-items:center;gap:6px;margin-top:4px}
 .pct-bar-bg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
 .pct-bar-fill{height:100%;border-radius:3px}
@@ -765,15 +766,7 @@ td[title=""] { pointer-events: auto; }
       </div>
       <div id="titolari-slots" style="padding:8px"></div>
     </div>
-    <!-- COLONNA 2: Riserve -->
-    <div class="roster-panel" style="min-width:0">
-      <div class="roster-panel-header" style="background:#374151">
-        <h3>&#x1F4CB; Riserve</h3>
-        <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="riserve-count">0</span>
-      </div>
-      <div id="riserve-slots" style="padding:8px;display:flex;flex-direction:column;gap:6px"></div>
-    </div>
-    <!-- COLONNA 3: Atlete disponibili -->
+    <!-- COLONNA 2: Atlete disponibili -->
     <div class="roster-panel" style="min-width:0">
       <div class="roster-panel-header" style="background:#1e3a5f">
         <h3>&#x1F464; Atlete disponibili</h3>
@@ -792,6 +785,14 @@ td[title=""] { pointer-events: auto; }
       </div>
       <div class="pool-list" id="pool-list" style="max-height:550px;overflow-y:auto;padding:0 8px 8px"></div>
     </div>
+    <!-- COLONNA 3: Riserve -->
+    <div class="roster-panel" style="min-width:0">
+      <div class="roster-panel-header" style="background:#374151">
+        <h3>&#x1F4CB; Riserve</h3>
+        <span style="font-size:10px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:2px 8px;border-radius:10px" id="riserve-count">0</span>
+      </div>
+      <div id="riserve-slots" style="padding:8px;display:flex;flex-direction:column;gap:6px"></div>
+    </div>
   </div>
 
   <!-- ELENCO SQUADRA COMPLETO -->
@@ -806,6 +807,25 @@ td[title=""] { pointer-events: auto; }
     </div>
     <div id="elenco-squadra" style="padding:12px;display:flex;flex-direction:column;gap:6px;max-width:560px"></div>
   </div>
+
+
+<!-- SEZIONE TRASPORTI -->
+<div id="trasporti-section">
+  <hr style="border:none;border-top:2px solid #dde3ec;margin:2rem 0">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1rem">
+    <div>
+      <h2 style="font-family:'Barlow',sans-serif;font-weight:800;font-size:20px;color:var(--navy)">&#x1F68C; Trasporti <span style="color:var(--blue)">Palestra Natta</span></h2>
+      <p style="font-size:13px;color:var(--text-sec);margin-top:2px">Via Don Calabria 16, Milano &middot; raggruppamento atlete per zona/CAP e percorsi Google Maps</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="trasporti-squad" onchange="renderTrasporti()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border-med);border-radius:8px;font-family:inherit;background:var(--bg-card);color:var(--text)"></select>
+      <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-sec);cursor:pointer"><input type="checkbox" id="trasporti-solo-serv" onchange="renderTrasporti()"> Solo con trasporto</label>
+    </div>
+  </div>
+  <div id="trasporti-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px"></div>
+  <div id="trasporti-groups" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start"></div>
+  <div id="trasporti-missing" style="margin-top:12px"></div>
+</div>
 
 <!-- DRAWER -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
@@ -965,6 +985,7 @@ const SC={nuovo_acquisto:'s-nuovo-acquisto',confermata:'s-confermata',in_prova:'
 const CYCLE=['lista','visione','in_prova','trattativa','nuovo_acquisto','confermata','non_confermata','trasferita_aspes','no'];
 const CONFIRMED=['nuovo_acquisto','confermata'];
 const UNCERTAIN=['trattativa'];
+const NON_SCHIERABILI=['no','non_confermata','lista','visione'];
 // ── FILTRO AGENTI DINAMICO ──
 let _agentSig='';
 function syncAgentOptions(){
@@ -1250,12 +1271,12 @@ async function loadAthletes(){
     setSyncPill('ok','&#x25CF; Online');
     document.getElementById('hero-sub').textContent=athletes.length+' atlete · '+(currentProfile?.societa||'Tutte le squadre');
     const tc=document.getElementById('top-count');if(tc)tc.textContent=athletes.length+' atlete';
-    renderTable();initRosterBuilder();
+    renderTable();initRosterBuilder();renderTrasporti();
   }catch(e){setSyncPill('error','&#x2715; Errore');showToast('Errore: '+e.message,'error');}
 }
 
 function setSyncPill(s,t){const p=document.getElementById('sync-pill');p.className='sync-pill '+s;p.innerHTML=t;}
-function dbToApp(r){return{id:r.id,cognome:r.cognome,nome:r.nome,anno:r.anno||'',ruolo:r.ruolo||'',societa:r.societa||'',status:r.status||'lista',agente:r.agente||'',note:r.note||'',dest:r.dest||'',rating:r.rating||0,pct:r.pct||50,telefono:r.telefono||'',altezza:r.altezza||null,foto:r.foto||null,createdAt:r.created_at||0,updatedAt:r.updated_at||0};}
+function dbToApp(r){return{id:r.id,cognome:r.cognome,nome:r.nome,anno:r.anno||'',ruolo:r.ruolo||'',societa:r.societa||'',status:r.status||'lista',agente:r.agente||'',note:r.note||'',dest:r.dest||'',rating:r.rating||0,pct:r.pct||50,telefono:r.telefono||'',altezza:r.altezza||null,foto:r.foto||null,indirizzo:r.indirizzo||'',citta:r.citta||'',cap:r.cap||'',lat:r.lat||null,lng:r.lng||null,trasporto:r.trasporto===true,trasportoNote:r.trasporto_note||'',createdAt:r.created_at||0,updatedAt:r.updated_at||0};}
 function appToDB(a){return{id:a.id,cognome:a.cognome,nome:a.nome,anno:a.anno,ruolo:a.ruolo||null,societa:a.societa||null,status:a.status||'lista',agente:a.agente||null,note:a.note||null,dest:a.dest||null,telefono:a.telefono||null,altezza:a.altezza||null,rating:a.rating||0,pct:a.pct||50,created_at:a.createdAt||Date.now(),updated_at:Date.now()};}
 
 async function saveAthlete(a){
@@ -2300,6 +2321,7 @@ function renderPool(){
   if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-ter);font-size:13px">Nessuna atleta disponibile</div>';return;}
   list.innerHTML=filtered.map(a=>{
     const assigned=assignedIds.has(a.id);
+    const blocked=NON_SCHIERABILI.includes(a.status);
     const isTratt=a.status==='trattativa',isNewA=a.status==='nuovo_acquisto';
     const stBg=CONFIRMED.includes(a.status)?'#D1FAE5':isTratt?'#FFEDD5':'#E0F2FE';
     const stCol=CONFIRMED.includes(a.status)?'#065F46':isTratt?'#9A3412':'#0369A1';
@@ -2310,7 +2332,7 @@ function renderPool(){
     const avatarInner=a.foto?'<img src="'+a.foto+'" style="width:100%;height:100%;object-fit:cover;object-position:top;">'
       :'<span style="font-family:Barlow,sans-serif;font-weight:800;font-size:14px;color:#fff">'+getInitials(a.cognome,a.nome)+'</span>';
     const previewHtml=a.foto?'<div class="riserva-preview"><img src="'+a.foto+'"><div class="riserva-preview-name">'+esc(a.cognome)+'</div></div>':'';
-    return '<div class="riserva-slot'+(assigned?' assigned':'')+(isTratt?' tratt-pool':'')+'" onclick="'+(assigned?'':'addToRoster('+a.id+')')+'">'
+    return '<div class="riserva-slot'+(assigned?' assigned':'')+(isTratt?' tratt-pool':'')+(blocked?' pool-blocked':'')+'" '+(blocked?'title="Stato non schierabile"':'')+' onclick="'+((assigned||blocked)?'':'addToRoster('+a.id+')')+'">'
       +'<div class="riserva-avatar-wrap"><div class="riserva-avatar" style="background:'+bg+';border-color:'+bg+';'+(assigned?'opacity:0.45;':'')+'">'
       +avatarInner+'</div>'+previewHtml+'</div>'
       +'<div class="riserva-info"><div class="riserva-name"><b>'+esc(a.cognome)+'</b> <span style="font-weight:400">'+esc(a.nome)+'</span>'+tratMark+newMarkPool+'</div>'
@@ -2325,7 +2347,7 @@ function addToRoster(aid){
   if(!r.riserve)r.riserve={};
   if(!r.titolari)r.titolari={};
   const a=athletes.find(x=>x.id===aid);
-  if(a&&['no','non_confermata'].includes(a.status)){showToast((a.cognome||'Atleta')+' è "'+(SL[a.status]||a.status)+'": non schierabile nel sestetto','error');return;}
+  if(a&&NON_SCHIERABILI.includes(a.status)){showToast((a.cognome||'Atleta')+' è "'+(SL[a.status]||a.status)+'": non schierabile nel sestetto','error');return;}
   const psk=pendingSlotKey;
   const psr=pendingSlotRole;
   pendingSlotKey=null;pendingSlotRole=null;
@@ -2363,9 +2385,9 @@ function addToRiservaSlot(role,key){if(!canEditRoster(currentSquad)){showToast("
 function autoFillRoster(){
   if(!canEditRoster(currentSquad)){showToast("Solo l'Admin può modificare i roster ProPatria","error");return;}
   const squad=SQUADS.find(s=>s.id===currentSquad);
-  const available=getSquadAthletes(squad.label);
+  const available=getSquadAthletes(squad.label).filter(a=>!NON_SCHIERABILI.includes(a.status));
   const r=getRoster(currentSquad);
-  const priority=a=>['confermata','nuovo_acquisto','trattativa','non_confermata','trasferita_aspes'].indexOf(a.status);
+  const priority=a=>{const i=['confermata','nuovo_acquisto','in_prova','trattativa','trasferita_aspes'].indexOf(a.status);return i<0?99:i;};
   const sorted=[...available].sort((a,b)=>priority(a)-priority(b));
   const used=new Set();
   TITOLARI_SLOTS.forEach(slot=>{
@@ -2399,6 +2421,87 @@ function renderSummary(sa,r){
     ${missing>0?`<div class="summary-row"><span style="color:var(--text-sec)">Posti mancanti</span><span style="font-weight:600;color:var(--red)">${missing}</span></div>`:''}`;
 }
 function initRosterBuilder(){loadRosters();renderSquadTabs();renderRoster();}
+
+// ══════════ TRASPORTI — Palestra Natta ══════════
+const GYM_ADDR='Via Don Calabria 16, Milano';
+const GYM_LABEL='Palestra Natta';
+const GYM_LAT=45.5075, GYM_LNG=9.1875;
+function trasportiInitSquadSelect(){
+  const sel=document.getElementById('trasporti-squad');if(!sel)return;
+  if(sel.options.length)return;
+  sel.innerHTML='<option value="">Tutte le squadre</option>'+SQUADS.map(sq=>'<option value="'+sq.label.replace(/"/g,'&quot;')+'">'+sq.label+'</option>').join('');
+}
+function trasportiDist(a){
+  if(a.lat&&a.lng){const dx=(a.lat-GYM_LAT)*111,dy=(a.lng-GYM_LNG)*78;return Math.sqrt(dx*dx+dy*dy);}
+  return null;
+}
+function trasportiFullAddr(a){
+  return [a.indirizzo,(a.cap||'')+' '+(a.citta||'Milano')].filter(x=>x&&x.trim()).join(', ');
+}
+function trasportiMapsLink(group){
+  // origine = atleta più lontana dalla palestra, tappe = le altre, destinazione = palestra
+  const sorted=[...group].sort((a,b)=>(trasportiDist(b)||0)-(trasportiDist(a)||0));
+  const addrs=sorted.map(a=>a.lat&&a.lng?(a.lat+','+a.lng):trasportiFullAddr(a));
+  const origin=addrs[0];
+  const way=addrs.slice(1);
+  let url='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(origin)+'&destination='+encodeURIComponent(GYM_ADDR)+'&travelmode=driving';
+  if(way.length)url+='&waypoints='+encodeURIComponent(way.join('|'));
+  return url;
+}
+function renderTrasporti(){
+  const wrap=document.getElementById('trasporti-groups');if(!wrap)return;
+  trasportiInitSquadSelect();
+  const squadFilter=document.getElementById('trasporti-squad')?.value||'';
+  const soloServ=document.getElementById('trasporti-solo-serv')?.checked||false;
+  const nlF=squadFilter?normalizeLabel(squadFilter):'';
+  let base=athletes.filter(a=>ACTIVE.includes(a.status));
+  if(nlF)base=base.filter(a=>(a.dest||'').split('|').map(d=>normalizeLabel(d)).includes(nlF));
+  const conAddr=base.filter(a=>(a.indirizzo||'').trim());
+  const senzaAddr=base.filter(a=>!(a.indirizzo||'').trim());
+  let pool=conAddr;
+  if(soloServ)pool=pool.filter(a=>a.trasporto);
+  // ── stats ──
+  const st=document.getElementById('trasporti-stats');
+  const nServ=conAddr.filter(a=>a.trasporto).length;
+  st.innerHTML=[
+    ['Atlete attive',base.length,'var(--navy)'],
+    ['Con indirizzo',conAddr.length,'#1D9E75'],
+    ['Trasporto attivo',nServ,'#185FA5'],
+    ['Senza indirizzo',senzaAddr.length,senzaAddr.length?'#E24B4A':'#9CA3AF']
+  ].map(([l,v,c])=>'<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;box-shadow:0 1px 4px rgba(10,22,40,0.06)"><div style="font-size:10px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.05em;font-weight:700">'+l+'</div><div style="font-size:22px;font-weight:800;font-family:Barlow,sans-serif;color:'+c+'">'+v+'</div></div>').join('');
+  // ── raggruppa per CAP ──
+  const groups={};
+  pool.forEach(a=>{
+    const key=(a.cap||'').trim()||'—';
+    (groups[key]=groups[key]||[]).push(a);
+  });
+  const keys=Object.keys(groups).sort((a,b)=>{
+    const da=Math.min(...groups[a].map(x=>trasportiDist(x)??999));
+    const db=Math.min(...groups[b].map(x=>trasportiDist(x)??999));
+    return da-db;
+  });
+  if(!keys.length){wrap.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--text-ter);font-size:13px;background:var(--bg-card);border:1px dashed var(--border-med);border-radius:var(--radius)">Nessuna atleta con indirizzo. Importa gli indirizzi per attivare i percorsi.</div>';document.getElementById('trasporti-missing').innerHTML='';return;}
+  wrap.innerHTML=keys.map(cap=>{
+    const g=groups[cap];
+    const citta=g[0].citta||'Milano';
+    const dmin=Math.min(...g.map(x=>trasportiDist(x)??999));
+    const dLbl=dmin<999?(' &middot; ~'+dmin.toFixed(1).replace('.',',')+' km dalla palestra'):'';
+    // chunk max 9 tappe + origine per link Maps
+    const chunks=[];for(let i=0;i<g.length;i+=10)chunks.push(g.slice(i,i+10));
+    const btns=chunks.map((ch,ix)=>'<a href="'+trasportiMapsLink(ch)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:5px 12px;border-radius:10px;background:var(--blue);color:#fff;text-decoration:none">&#x1F5FA; Percorso'+(chunks.length>1?' '+(ix+1):'')+' ('+ch.length+')</a>').join(' ');
+    const rows=g.map(a=>{
+      const servBadge=a.trasporto?'<span style="font-size:9px;font-weight:800;background:#D1FAE5;color:#065F46;padding:1px 7px;border-radius:8px">&#x1F68C; TRASPORTO</span>':'';
+      const noteT=a.trasportoNote?'<div style="font-size:10px;color:var(--text-ter);margin-top:1px">&#x1F4DD; '+esc(a.trasportoNote)+'</div>':'';
+      const single='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(a.lat&&a.lng?(a.lat+','+a.lng):trasportiFullAddr(a))+'&destination='+encodeURIComponent(GYM_ADDR)+'&travelmode=driving';
+      return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><div style="min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">'+esc(a.cognome)+' <span style="font-weight:400">'+esc(a.nome)+'</span> <span style="font-size:10px;color:var(--text-ter)">'+esc(a.anno||'')+'</span> '+servBadge+'</div><div style="font-size:11px;color:var(--text-sec)">'+esc(trasportiFullAddr(a))+'</div>'+noteT+'</div><a href="'+single+'" target="_blank" rel="noopener" title="Percorso singolo" style="flex-shrink:0;font-size:14px;text-decoration:none">&#x1F4CD;</a></div>';
+    }).join('');
+    return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 1px 4px rgba(10,22,40,0.06);overflow:hidden"><div style="background:var(--navy);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><div><span style="font-family:Barlow,sans-serif;font-weight:800;font-size:14px">CAP '+esc(cap)+' &middot; '+esc(citta)+'</span><span style="font-size:10px;opacity:0.75">'+dLbl+'</span></div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:10px">'+g.length+' atlete</span>'+btns+'</div></div><div style="padding:6px 14px">'+rows+'</div></div>';
+  }).join('');
+  // ── senza indirizzo ──
+  const miss=document.getElementById('trasporti-missing');
+  miss.innerHTML=senzaAddr.length?'<details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px"><summary style="font-size:12px;font-weight:700;color:#B45309;cursor:pointer">&#x26A0; '+senzaAddr.length+' atlete attive senza indirizzo</summary><div style="font-size:12px;color:var(--text-sec);margin-top:8px">'+senzaAddr.map(a=>esc(a.cognome)+' '+esc(a.nome)).join(' &middot; ')+'</div></details>':'';
+}
+
 
 
 
