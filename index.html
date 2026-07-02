@@ -815,7 +815,7 @@ td[title=""] { pointer-events: auto; }
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1rem">
     <div>
       <h2 style="font-family:'Barlow',sans-serif;font-weight:800;font-size:20px;color:var(--navy)">&#x1F68C; Trasporti <span style="color:var(--blue)">Palestra Natta</span></h2>
-      <p style="font-size:13px;color:var(--text-sec);margin-top:2px">Via Don Calabria 16, Milano &middot; raggruppamento atlete per zona/CAP e percorsi Google Maps</p>
+      <p style="font-size:13px;color:var(--text-sec);margin-top:2px">Via Don Calabria 16, Milano &middot; atlete squadre ProPatria per zona/CAP e percorsi Google Maps (escluse foresteria)</p>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <select id="trasporti-squad" onchange="renderTrasporti()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border-med);border-radius:8px;font-family:inherit;background:var(--bg-card);color:var(--text)"></select>
@@ -2429,7 +2429,7 @@ const GYM_LAT=45.5075, GYM_LNG=9.1875;
 function trasportiInitSquadSelect(){
   const sel=document.getElementById('trasporti-squad');if(!sel)return;
   if(sel.options.length)return;
-  sel.innerHTML='<option value="">Tutte le squadre</option>'+SQUADS.map(sq=>'<option value="'+sq.label.replace(/"/g,'&quot;')+'">'+sq.label+'</option>').join('');
+  sel.innerHTML='<option value="">Tutte le squadre ProPatria</option>'+SQUADS.filter(sq=>sq.club==='ProPatria').map(sq=>'<option value="'+sq.label.replace(/"/g,'&quot;')+'">'+sq.label+'</option>').join('');
 }
 function trasportiDist(a){
   if(a.lat&&a.lng){const dx=(a.lat-GYM_LAT)*111,dy=(a.lng-GYM_LNG)*78;return Math.sqrt(dx*dx+dy*dy);}
@@ -2454,8 +2454,15 @@ function renderTrasporti(){
   const squadFilter=document.getElementById('trasporti-squad')?.value||'';
   const soloServ=document.getElementById('trasporti-solo-serv')?.checked||false;
   const nlF=squadFilter?normalizeLabel(squadFilter):'';
-  let base=athletes.filter(a=>ACTIVE.includes(a.status));
+  const ppLabels=SQUADS.filter(sq=>sq.club==='ProPatria').map(sq=>normalizeLabel(sq.label));
+  let base=athletes.filter(a=>{
+    if(!ACTIVE.includes(a.status))return false;
+    const dests=(a.dest||'').split('|').map(d=>normalizeLabel(d));
+    return dests.some(d=>ppLabels.includes(d));
+  });
   if(nlF)base=base.filter(a=>(a.dest||'').split('|').map(d=>normalizeLabel(d)).includes(nlF));
+  const foresteria=base.filter(a=>/foresteria/i.test(a.trasportoNote||''));
+  base=base.filter(a=>!/foresteria/i.test(a.trasportoNote||''));
   const conAddr=base.filter(a=>(a.indirizzo||'').trim());
   const senzaAddr=base.filter(a=>!(a.indirizzo||'').trim());
   let pool=conAddr;
@@ -2463,11 +2470,13 @@ function renderTrasporti(){
   // ── stats ──
   const st=document.getElementById('trasporti-stats');
   const nServ=conAddr.filter(a=>a.trasporto).length;
+  document.getElementById('trasporti-stats').style.gridTemplateColumns='repeat(5,1fr)';
   st.innerHTML=[
-    ['Atlete attive',base.length,'var(--navy)'],
+    ['Atlete ProPatria',base.length,'var(--navy)'],
     ['Con indirizzo',conAddr.length,'#1D9E75'],
     ['Trasporto attivo',nServ,'#185FA5'],
-    ['Senza indirizzo',senzaAddr.length,senzaAddr.length?'#E24B4A':'#9CA3AF']
+    ['Senza indirizzo',senzaAddr.length,senzaAddr.length?'#E24B4A':'#9CA3AF'],
+    ['In foresteria',foresteria.length,'#7C3AED']
   ].map(([l,v,c])=>'<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;box-shadow:0 1px 4px rgba(10,22,40,0.06)"><div style="font-size:10px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.05em;font-weight:700">'+l+'</div><div style="font-size:22px;font-weight:800;font-family:Barlow,sans-serif;color:'+c+'">'+v+'</div></div>').join('');
   // ── raggruppa per CAP ──
   const groups={};
@@ -2499,7 +2508,8 @@ function renderTrasporti(){
   }).join('');
   // ── senza indirizzo ──
   const miss=document.getElementById('trasporti-missing');
-  miss.innerHTML=senzaAddr.length?'<details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px"><summary style="font-size:12px;font-weight:700;color:#B45309;cursor:pointer">&#x26A0; '+senzaAddr.length+' atlete attive senza indirizzo</summary><div style="font-size:12px;color:var(--text-sec);margin-top:8px">'+senzaAddr.map(a=>esc(a.cognome)+' '+esc(a.nome)).join(' &middot; ')+'</div></details>':'';
+  const forHtml=foresteria.length?'<div style="background:#F5F3FF;border:1px solid #DDD6FE;border-radius:var(--radius);padding:10px 14px;margin-bottom:8px;font-size:12px"><b style="color:#6B21A8">&#x1F3E0; In foresteria ('+foresteria.length+'):</b> <span style="color:var(--text-sec)">'+foresteria.map(a=>esc(a.cognome)+' '+esc(a.nome)).join(' &middot; ')+'</span></div>':'';
+  miss.innerHTML=forHtml+(senzaAddr.length?'<details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px"><summary style="font-size:12px;font-weight:700;color:#B45309;cursor:pointer">&#x26A0; '+senzaAddr.length+' atlete attive senza indirizzo</summary><div style="font-size:12px;color:var(--text-sec);margin-top:8px">'+senzaAddr.map(a=>esc(a.cognome)+' '+esc(a.nome)).join(' &middot; ')+'</div></details>':'');
 }
 
 
