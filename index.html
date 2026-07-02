@@ -820,6 +820,7 @@ td[title=""] { pointer-events: auto; }
     <div style="display:flex;gap:8px;align-items:center">
       <select id="trasporti-squad" onchange="renderTrasporti()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border-med);border-radius:8px;font-family:inherit;background:var(--bg-card);color:var(--text)"></select>
       <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-sec);cursor:pointer"><input type="checkbox" id="trasporti-solo-serv" onchange="renderTrasporti()"> Solo con trasporto</label>
+      <div id="trasporti-turno-btns" style="display:flex;gap:4px"></div>
     </div>
   </div>
   <div id="trasporti-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px"></div>
@@ -1276,7 +1277,7 @@ async function loadAthletes(){
 }
 
 function setSyncPill(s,t){const p=document.getElementById('sync-pill');p.className='sync-pill '+s;p.innerHTML=t;}
-function dbToApp(r){return{id:r.id,cognome:r.cognome,nome:r.nome,anno:r.anno||'',ruolo:r.ruolo||'',societa:r.societa||'',status:r.status||'lista',agente:r.agente||'',note:r.note||'',dest:r.dest||'',rating:r.rating||0,pct:r.pct||50,telefono:r.telefono||'',altezza:r.altezza||null,foto:r.foto||null,indirizzo:r.indirizzo||'',citta:r.citta||'',cap:r.cap||'',lat:r.lat||null,lng:r.lng||null,trasporto:r.trasporto===true,trasportoNote:r.trasporto_note||'',createdAt:r.created_at||0,updatedAt:r.updated_at||0};}
+function dbToApp(r){return{id:r.id,cognome:r.cognome,nome:r.nome,anno:r.anno||'',ruolo:r.ruolo||'',societa:r.societa||'',status:r.status||'lista',agente:r.agente||'',note:r.note||'',dest:r.dest||'',rating:r.rating||0,pct:r.pct||50,telefono:r.telefono||'',altezza:r.altezza||null,foto:r.foto||null,indirizzo:r.indirizzo||'',citta:r.citta||'',cap:r.cap||'',lat:r.lat||null,lng:r.lng||null,trasporto:r.trasporto===true,trasportoNote:r.trasporto_note||'',turno:r.turno||null,createdAt:r.created_at||0,updatedAt:r.updated_at||0};}
 function appToDB(a){return{id:a.id,cognome:a.cognome,nome:a.nome,anno:a.anno,ruolo:a.ruolo||null,societa:a.societa||null,status:a.status||'lista',agente:a.agente||null,note:a.note||null,dest:a.dest||null,telefono:a.telefono||null,altezza:a.altezza||null,rating:a.rating||0,pct:a.pct||50,created_at:a.createdAt||Date.now(),updated_at:Date.now()};}
 
 async function saveAthlete(a){
@@ -2448,6 +2449,16 @@ function trasportiMapsLink(group){
   if(way.length)url+='&waypoints='+encodeURIComponent(way.join('|'));
   return url;
 }
+let trasportiTurno='all';
+function setTrasportiTurno(t){trasportiTurno=t;renderTrasporti();}
+async function cycleTurno(aid){
+  const a=athletes.find(x=>x.id===aid);if(!a)return;
+  const next=a.turno===1?2:a.turno===2?null:1;
+  a.turno=next;
+  renderTrasporti();
+  try{await sbFetch('/rest/v1/atlete?id=eq.'+aid,'PATCH',{turno:next});}
+  catch(e){showToast('Errore salvataggio turno: '+e.message,'error');}
+}
 function renderTrasporti(){
   const wrap=document.getElementById('trasporti-groups');if(!wrap)return;
   trasportiInitSquadSelect();
@@ -2467,6 +2478,12 @@ function renderTrasporti(){
   const senzaAddr=base.filter(a=>!(a.indirizzo||'').trim());
   let pool=conAddr;
   if(soloServ)pool=pool.filter(a=>a.trasporto);
+  // ── filtro turni ──
+  const n1=pool.filter(a=>a.turno===1).length,n2=pool.filter(a=>a.turno===2).length,n0=pool.filter(a=>!a.turno).length;
+  const tb=document.getElementById('trasporti-turno-btns');
+  if(tb)tb.innerHTML=[['all','Tutti',pool.length],[1,'Turno 1',n1],[2,'Turno 2',n2],['none','Senza turno',n0]].map(([v,l,n])=>'<button onclick="setTrasportiTurno(\''+v+'\')" style="font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;border:1px solid '+(String(trasportiTurno)===String(v)?'var(--navy);background:var(--navy);color:#fff':'var(--border-med);background:var(--bg-card);color:var(--text-sec)')+';cursor:pointer;font-family:inherit">'+l+' <span style="opacity:0.7">'+n+'</span></button>').join('');
+  if(trasportiTurno==='none')pool=pool.filter(a=>!a.turno);
+  else if(trasportiTurno!=='all')pool=pool.filter(a=>a.turno===parseInt(trasportiTurno));
   // ── stats ──
   const st=document.getElementById('trasporti-stats');
   const nServ=conAddr.filter(a=>a.trasporto).length;
@@ -2499,7 +2516,9 @@ function renderTrasporti(){
     const chunks=[];for(let i=0;i<g.length;i+=10)chunks.push(g.slice(i,i+10));
     const btns=chunks.map((ch,ix)=>'<a href="'+trasportiMapsLink(ch)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:5px 12px;border-radius:10px;background:var(--blue);color:#fff;text-decoration:none">&#x1F5FA; Percorso'+(chunks.length>1?' '+(ix+1):'')+' ('+ch.length+')</a>').join(' ');
     const rows=g.map(a=>{
-      const servBadge=a.trasporto?'<span style="font-size:9px;font-weight:800;background:#D1FAE5;color:#065F46;padding:1px 7px;border-radius:8px">&#x1F68C; TRASPORTO</span>':'';
+      const tCol=a.turno===1?'background:#DBEAFE;color:#1D4ED8':a.turno===2?'background:#FEF3C7;color:#B45309':'background:#F3F4F6;color:#9CA3AF';
+      const turnoBadge='<span onclick="event.stopPropagation();cycleTurno('+a.id+')" title="Clicca per cambiare turno" style="cursor:pointer;font-size:9px;font-weight:800;padding:1px 7px;border-radius:8px;'+tCol+'">'+(a.turno?'T'+a.turno:'T?')+'</span>';
+      const servBadge=(a.trasporto?'<span style="font-size:9px;font-weight:800;background:#D1FAE5;color:#065F46;padding:1px 7px;border-radius:8px">&#x1F68C; TRASPORTO</span> ':'')+turnoBadge;
       const noteT=a.trasportoNote?'<div style="font-size:10px;color:var(--text-ter);margin-top:1px">&#x1F4DD; '+esc(a.trasportoNote)+'</div>':'';
       const single='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(a.lat&&a.lng?(a.lat+','+a.lng):trasportiFullAddr(a))+'&destination='+encodeURIComponent(GYM_ADDR)+'&travelmode=driving';
       return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><div style="min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">'+esc(a.cognome)+' <span style="font-weight:400">'+esc(a.nome)+'</span> <span style="font-size:10px;color:var(--text-ter)">'+esc(a.anno||'')+'</span> '+servBadge+'</div><div style="font-size:11px;color:var(--text-sec)">'+esc(trasportiFullAddr(a))+'</div>'+noteT+'</div><a href="'+single+'" target="_blank" rel="noopener" title="Percorso singolo" style="flex-shrink:0;font-size:14px;text-decoration:none">&#x1F4CD;</a></div>';
